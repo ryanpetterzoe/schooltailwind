@@ -8,40 +8,42 @@ require_once __DIR__ . '/../layouts/header.php';
      ═══════════════════════════════════════════════════════════ -->
 <section class="hero-slider relative h-[85vh] min-h-[560px] bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-950 overflow-hidden">
   <!-- Decorative shapes -->
-  <div class="absolute inset-0 pointer-events-none">
+  <div class="absolute inset-0 pointer-events-none z-0">
     <div class="absolute w-72 h-72 bg-blue-500/10 rounded-full -top-20 right-[10%] animate-pulse"></div>
     <div class="absolute w-44 h-44 bg-indigo-500/10 rounded-full bottom-[10%] left-[8%] animate-pulse delay-1000"></div>
   </div>
 
   <!-- Slides -->
   <?php foreach ($sliders as $i => $slide): ?>
-  <div class="hero-slide <?= $i === 0 ? 'active' : '' ?> absolute inset-0 flex items-center justify-center">
+  <div class="hero-slide <?= $i === 0 ? 'active' : '' ?>">
     <?php if (!empty($slide['image'])): ?>
     <img src="<?= UPLOAD_URL . htmlspecialchars($slide['image']) ?>" alt="<?= htmlspecialchars($slide['title'] ?? '') ?>"
          class="absolute inset-0 w-full h-full object-cover opacity-20">
     <?php endif; ?>
-    <div class="relative z-10 text-center px-4 max-w-4xl mx-auto">
-      <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 text-xs font-semibold text-white/90 uppercase tracking-wide mb-5">
-        <i class="fas fa-star text-yellow-400"></i>
-        <?= htmlspecialchars($settings['school_name'] ?? 'SMK Pertamaku') ?> · Akreditasi <?= htmlspecialchars($settings['school_accreditation'] ?? 'A') ?>
-      </div>
-      <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-tight mb-5">
-        <?= htmlspecialchars($slide['title'] ?? '') ?>
-      </h1>
-      <p class="text-base sm:text-lg text-white/75 max-w-xl mx-auto mb-8 leading-relaxed">
-        <?= htmlspecialchars($slide['subtitle'] ?? '') ?>
-      </p>
-      <div class="flex flex-wrap gap-3 justify-center">
-        <?php if (!empty($slide['button_text'])): ?>
-        <a href="<?= APP_URL . htmlspecialchars($slide['button_url'] ?? '/spmb') ?>"
-           class="px-7 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-bold text-sm shadow-xl shadow-blue-600/30 hover:-translate-y-0.5 hover:shadow-blue-600/50 transition-all inline-flex items-center gap-2">
-          <i class="fas fa-pencil-alt"></i><?= htmlspecialchars($slide['button_text']) ?>
-        </a>
-        <?php endif; ?>
-        <a href="<?= APP_URL ?>/profil"
-           class="px-7 py-3.5 bg-white/10 backdrop-blur-sm border-2 border-white/30 text-white rounded-xl font-semibold text-sm hover:bg-white/20 hover:border-white/50 hover:-translate-y-0.5 transition-all inline-flex items-center gap-2">
-          <i class="fas fa-play-circle"></i>Tentang Kami
-        </a>
+    <div class="absolute inset-0 flex items-center justify-center z-10">
+      <div class="text-center px-4 max-w-4xl mx-auto">
+        <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 text-xs font-semibold text-white/90 uppercase tracking-wide mb-5">
+          <i class="fas fa-star text-yellow-400"></i>
+          <?= htmlspecialchars($settings['school_name'] ?? 'SMK Pertamaku') ?> · Akreditasi <?= htmlspecialchars($settings['school_accreditation'] ?? 'A') ?>
+        </div>
+        <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-tight mb-5">
+          <?= htmlspecialchars($slide['title'] ?? '') ?>
+        </h1>
+        <p class="text-base sm:text-lg text-white/75 max-w-xl mx-auto mb-8 leading-relaxed">
+          <?= htmlspecialchars($slide['subtitle'] ?? '') ?>
+        </p>
+        <div class="flex flex-wrap gap-3 justify-center">
+          <?php if (!empty($slide['button_text'])): ?>
+          <a href="<?= APP_URL . htmlspecialchars($slide['button_url'] ?? '/spmb') ?>"
+             class="px-7 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-bold text-sm shadow-xl shadow-blue-600/30 hover:-translate-y-0.5 hover:shadow-blue-600/50 transition-all inline-flex items-center gap-2">
+            <i class="fas fa-pencil-alt"></i><?= htmlspecialchars($slide['button_text']) ?>
+          </a>
+          <?php endif; ?>
+          <a href="<?= APP_URL ?>/profil"
+             class="px-7 py-3.5 bg-white/10 backdrop-blur-sm border-2 border-white/30 text-white rounded-xl font-semibold text-sm hover:bg-white/20 hover:border-white/50 hover:-translate-y-0.5 transition-all inline-flex items-center gap-2">
+            <i class="fas fa-play-circle"></i>Tentang Kami
+          </a>
+        </div>
       </div>
     </div>
   </div>

@@ -93,7 +93,7 @@ $pageTitle = $adminPageTitle ?? 'Admin Panel';
     <div class="flex items-center gap-2">
       <a href="<?= APP_URL ?>/" target="_blank" class="w-9 h-9 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-blue-600 transition-colors" title="Lihat Website"><i class="fas fa-external-link-alt text-sm"></i></a>
       <button id="themeToggle" class="w-9 h-9 flex items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:text-blue-600 transition-colors" title="Toggle Theme">
-        <i class="fas fa-moon dark:hidden"></i><i class="fas fa-sun hidden dark:inline"></i>
+        <i class="fas fa-moon theme-icon-light"></i><i class="fas fa-sun theme-icon-dark hidden"></i>
       </button>
       <div class="w-9 h-9 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-sm"><?= strtoupper(substr($adminName, 0, 1)) ?></div>
       <div class="hidden sm:block">
@@ -103,6 +103,27 @@ $pageTitle = $adminPageTitle ?? 'Admin Panel';
       <a href="<?= APP_URL ?>/admin/logout" class="w-9 h-9 flex items-center justify-center rounded-lg border border-red-200 dark:border-red-800 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors" title="Logout"><i class="fas fa-sign-out-alt text-sm"></i></a>
     </div>
   </header>
+
+  <!-- Inline sidebar toggle for mobile (ensures it works immediately) -->
+  <script>
+  (function(){
+    var toggle = document.getElementById('sidebarToggle');
+    var sidebar = document.getElementById('adminSidebar');
+    if(toggle && sidebar){
+      toggle.addEventListener('click', function(){
+        sidebar.classList.toggle('open');
+      });
+      // Close sidebar when clicking outside
+      document.addEventListener('click', function(e){
+        if(window.innerWidth < 1024 && sidebar.classList.contains('open')){
+          if(!sidebar.contains(e.target) && e.target !== toggle && !toggle.contains(e.target)){
+            sidebar.classList.remove('open');
+          }
+        }
+      });
+    }
+  })();
+  </script>
 
   <!-- Inner Content -->
   <div class="flex-1 p-4 sm:p-6 lg:p-8">

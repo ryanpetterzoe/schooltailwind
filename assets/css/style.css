@@ -28,9 +28,15 @@
 .hero-slide {
   position: absolute; inset: 0;
   opacity: 0;
+  pointer-events: none;
   transition: opacity 1s ease-in-out;
+  z-index: 1;
 }
-.hero-slide.active { opacity: 1; position: relative; }
+.hero-slide.active {
+  opacity: 1;
+  pointer-events: auto;
+  z-index: 2;
+}
 
 /* ── COUNTER ANIMATION ──────────────────────────────────────── */
 .stat-number { font-variant-numeric: tabular-nums; }

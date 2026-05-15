@@ -5,7 +5,7 @@
  */
 
 // Redirect to installer if not yet installed
-if (!file_exists(__DIR__ . '/install.lock') && !file_exists(__DIR__ . '/config/env.php')) {
+if (!file_exists(__DIR__ . '/install.lock')) {
     $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
     $host   = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost';
     $dir    = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/');
