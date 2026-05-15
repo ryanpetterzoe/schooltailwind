@@ -1,35 +1,44 @@
 <?php $adminPageTitle = 'Pesan Masuk'; require_once __DIR__ . '/../layouts/admin_header.php'; ?>
 
-<div class="admin-table-wrapper">
-    <div class="admin-table-header">
-        <h5><i class="fas fa-envelope me-2"></i>Pesan Masuk</h5>
-        <span style="color:var(--text-muted);font-size:0.85rem;"><?= $unreadCount ?? 0 ?> pesan belum dibaca</span>
+<div class="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl overflow-hidden">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 sm:p-6 border-b border-slate-100 dark:border-slate-700">
+        <h5 class="text-lg font-semibold text-slate-800 dark:text-white flex items-center gap-2"><i class="fas fa-envelope text-blue-600"></i>Pesan Masuk</h5>
+        <span class="text-sm text-slate-500 dark:text-slate-400"><?= $unreadCount ?? 0 ?> pesan belum dibaca</span>
     </div>
-    <div class="table-responsive">
-        <table class="table">
-            <thead><tr><th>Nama</th><th>Email</th><th>Subjek</th><th>Tanggal</th><th>Status</th><th>Aksi</th></tr></thead>
-            <tbody>
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead>
+                <tr class="bg-slate-50 dark:bg-slate-700/50">
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Nama</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Email</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Subjek</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Tanggal</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Status</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Aksi</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
                 <?php if (empty($contacts)): ?>
-                <tr><td colspan="6" class="text-center py-4" style="color:var(--text-muted);">Belum ada pesan masuk</td></tr>
+                <tr><td colspan="6" class="px-4 py-8 text-center text-slate-400 dark:text-slate-500">Belum ada pesan masuk</td></tr>
                 <?php else: ?>
                 <?php foreach ($contacts as $msg): ?>
-                <tr style="<?= !$msg['is_read'] ? 'font-weight:600;' : '' ?>">
-                    <td>
-                        <div style="color:var(--text);"><?= htmlspecialchars($msg['name']) ?></div>
-                        <?php if (!empty($msg['phone'])): ?><small style="color:var(--text-muted);"><?= htmlspecialchars($msg['phone']) ?></small><?php endif; ?>
+                <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors <?= !$msg['is_read'] ? 'font-semibold' : '' ?>">
+                    <td class="px-4 py-3">
+                        <div class="text-slate-800 dark:text-white"><?= htmlspecialchars($msg['name']) ?></div>
+                        <?php if (!empty($msg['phone'])): ?><small class="text-slate-400 dark:text-slate-500"><?= htmlspecialchars($msg['phone']) ?></small><?php endif; ?>
                     </td>
-                    <td style="color:var(--text-muted);"><?= htmlspecialchars($msg['email']) ?></td>
-                    <td style="color:var(--text);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><?= htmlspecialchars($msg['subject'] ?? '') ?></td>
-                    <td style="color:var(--text-muted);"><?= date('d/m/Y H:i', strtotime($msg['created_at'])) ?></td>
-                    <td>
-                        <span class="badge <?= $msg['is_read'] ? 'bg-success' : 'bg-danger' ?>">
+                    <td class="px-4 py-3 text-slate-500 dark:text-slate-400"><?= htmlspecialchars($msg['email']) ?></td>
+                    <td class="px-4 py-3 text-slate-700 dark:text-slate-300 max-w-[200px] truncate"><?= htmlspecialchars($msg['subject'] ?? '') ?></td>
+                    <td class="px-4 py-3 text-slate-500 dark:text-slate-400"><?= date('d/m/Y H:i', strtotime($msg['created_at'])) ?></td>
+                    <td class="px-4 py-3">
+                        <span class="px-2 py-0.5 text-xs font-bold rounded-full <?= $msg['is_read'] ? 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300' : 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300' ?>">
                             <?= $msg['is_read'] ? 'Dibaca' : 'Baru' ?>
                         </span>
                     </td>
-                    <td>
-                        <div class="d-flex gap-1">
-                            <button class="btn btn-xs btn-outline-primary" style="padding:3px 8px;font-size:0.75rem;" onclick="viewMessage(<?= htmlspecialchars(json_encode($msg)) ?>)" title="Lihat"><i class="fas fa-eye"></i></button>
-                            <a href="<?= APP_URL ?>/admin/kontak/hapus/<?= $msg['id'] ?>" class="btn btn-xs btn-outline-danger" style="padding:3px 8px;font-size:0.75rem;" data-confirm="Hapus pesan ini?"><i class="fas fa-trash"></i></a>
+                    <td class="px-4 py-3">
+                        <div class="flex items-center gap-1">
+                            <button class="p-1.5 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-500 hover:text-blue-600 hover:border-blue-300 transition-colors" onclick="viewMessage(<?= htmlspecialchars(json_encode($msg)) ?>)" title="Lihat"><i class="fas fa-eye text-xs"></i></button>
+                            <a href="<?= APP_URL ?>/admin/kontak/hapus/<?= $msg['id'] ?>" class="p-1.5 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-500 hover:text-red-600 hover:border-red-300 transition-colors" data-confirm="Hapus pesan ini?"><i class="fas fa-trash text-xs"></i></a>
                         </div>
                     </td>
                 </tr>
@@ -41,29 +50,27 @@
 </div>
 
 <!-- View Message Modal -->
-<div class="modal fade" id="msgModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content" style="background:var(--card-bg);border:1px solid var(--border);">
-            <div class="modal-header" style="border-color:var(--border);">
-                <h5 class="modal-title" style="color:var(--text);">Detail Pesan</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+<div id="msgModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 p-4">
+    <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div class="flex items-center justify-between p-4 sm:p-6 border-b border-slate-100 dark:border-slate-700">
+            <h5 class="text-lg font-semibold text-slate-800 dark:text-white">Detail Pesan</h5>
+            <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="p-4 sm:p-6 space-y-3">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <div class="text-sm text-slate-500 dark:text-slate-400">Nama</div><div class="sm:col-span-2 text-sm text-slate-800 dark:text-white" id="msgName"></div>
+                <div class="text-sm text-slate-500 dark:text-slate-400">Email</div><div class="sm:col-span-2 text-sm text-slate-800 dark:text-white" id="msgEmail"></div>
+                <div class="text-sm text-slate-500 dark:text-slate-400">HP</div><div class="sm:col-span-2 text-sm text-slate-800 dark:text-white" id="msgPhone"></div>
+                <div class="text-sm text-slate-500 dark:text-slate-400">Subjek</div><div class="sm:col-span-2 text-sm text-slate-800 dark:text-white" id="msgSubject"></div>
+                <div class="text-sm text-slate-500 dark:text-slate-400">Tanggal</div><div class="sm:col-span-2 text-sm text-slate-800 dark:text-white" id="msgDate"></div>
             </div>
-            <div class="modal-body">
-                <dl class="row">
-                    <dt class="col-sm-3" style="color:var(--text-muted);">Nama</dt><dd class="col-sm-9" id="msgName" style="color:var(--text);"></dd>
-                    <dt class="col-sm-3" style="color:var(--text-muted);">Email</dt><dd class="col-sm-9" id="msgEmail" style="color:var(--text);"></dd>
-                    <dt class="col-sm-3" style="color:var(--text-muted);">HP</dt><dd class="col-sm-9" id="msgPhone" style="color:var(--text);"></dd>
-                    <dt class="col-sm-3" style="color:var(--text-muted);">Subjek</dt><dd class="col-sm-9" id="msgSubject" style="color:var(--text);"></dd>
-                    <dt class="col-sm-3" style="color:var(--text-muted);">Tanggal</dt><dd class="col-sm-9" id="msgDate" style="color:var(--text);"></dd>
-                </dl>
-                <hr style="border-color:var(--border);">
-                <h6 style="color:var(--text-muted);">Pesan:</h6>
-                <div id="msgContent" style="color:var(--text);line-height:1.8;background:var(--bg-secondary);padding:16px;border-radius:8px;"></div>
-            </div>
-            <div class="modal-footer" style="border-color:var(--border);">
-                <a id="msgReply" href="#" class="btn btn-primary"><i class="fas fa-reply me-1"></i>Balas via Email</a>
-                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Tutup</button>
-            </div>
+            <hr class="border-slate-200 dark:border-slate-700">
+            <h6 class="text-sm font-medium text-slate-500 dark:text-slate-400">Pesan:</h6>
+            <div id="msgContent" class="text-sm text-slate-800 dark:text-white leading-relaxed bg-slate-50 dark:bg-slate-900 p-4 rounded-lg"></div>
+        </div>
+        <div class="flex items-center justify-end gap-2 p-4 sm:p-6 border-t border-slate-100 dark:border-slate-700">
+            <a id="msgReply" href="#" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors"><i class="fas fa-reply mr-1"></i>Balas via Email</a>
+            <button onclick="closeModal()" class="px-4 py-2 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 rounded-lg text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">Tutup</button>
         </div>
     </div>
 </div>
@@ -77,11 +84,17 @@ function viewMessage(msg) {
     document.getElementById('msgDate').textContent = msg.created_at || '-';
     document.getElementById('msgContent').textContent = msg.message || '-';
     document.getElementById('msgReply').href = 'mailto:' + (msg.email || '') + '?subject=Re: ' + encodeURIComponent(msg.subject || '');
-    // Mark as read via AJAX or redirect
     if (!msg.is_read) {
         fetch('<?= APP_URL ?>/admin/kontak/baca/' + msg.id);
     }
-    new bootstrap.Modal(document.getElementById('msgModal')).show();
+    var modal = document.getElementById('msgModal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+}
+function closeModal() {
+    var modal = document.getElementById('msgModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
 }
 </script>
 

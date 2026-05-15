@@ -4,55 +4,56 @@ $adminPageTitle = $isEdit ? 'Edit Slider' : 'Tambah Slider';
 require_once __DIR__ . '/../layouts/admin_header.php';
 ?>
 
-<div class="row justify-content-center">
-    <div class="col-lg-8">
-        <div class="admin-card">
-            <form method="POST" action="<?= APP_URL ?>/admin/slider/<?= $isEdit ? 'edit/'.$slider['id'] : 'tambah' ?>" enctype="multipart/form-data">
-                <input type="hidden" name="_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
-                <div class="row g-3">
-                    <div class="col-12">
-                        <label class="form-label">Judul Slider</label>
-                        <input type="text" name="title" class="form-control" placeholder="Judul yang tampil di hero" value="<?= htmlspecialchars($slider['title'] ?? '') ?>">
+<div class="max-w-3xl mx-auto">
+    <div class="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl p-6">
+        <form method="POST" action="<?= APP_URL ?>/admin/slider/<?= $isEdit ? 'edit/'.$slider['id'] : 'tambah' ?>" enctype="multipart/form-data">
+            <input type="hidden" name="_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Judul Slider</label>
+                    <input type="text" name="title" class="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Judul yang tampil di hero" value="<?= htmlspecialchars($slider['title'] ?? '') ?>">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Subtitle / Teks Deskripsi</label>
+                    <textarea name="subtitle" class="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" rows="3" placeholder="Teks pendukung yang tampil di bawah judul"><?= htmlspecialchars($slider['subtitle'] ?? '') ?></textarea>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Teks Tombol</label>
+                        <input type="text" name="button_text" class="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Daftar Sekarang" value="<?= htmlspecialchars($slider['button_text'] ?? '') ?>">
                     </div>
-                    <div class="col-12">
-                        <label class="form-label">Subtitle / Teks Deskripsi</label>
-                        <textarea name="subtitle" class="form-control" rows="3" placeholder="Teks pendukung yang tampil di bawah judul"><?= htmlspecialchars($slider['subtitle'] ?? '') ?></textarea>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Teks Tombol</label>
-                        <input type="text" name="button_text" class="form-control" placeholder="Daftar Sekarang" value="<?= htmlspecialchars($slider['button_text'] ?? '') ?>">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">URL Tombol</label>
-                        <input type="text" name="button_url" class="form-control" placeholder="/spmb" value="<?= htmlspecialchars($slider['button_url'] ?? '') ?>">
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label">Urutan Tampil</label>
-                        <input type="number" name="sort_order" class="form-control" value="<?= (int)($slider['sort_order'] ?? 1) ?>">
-                    </div>
-                    <div class="col-12">
-                        <label class="form-label">Gambar Background <?= !$isEdit ? '<span class="text-danger">*</span>' : '' ?></label>
-                        <?php if ($isEdit && !empty($slider['image'])): ?>
-                        <div class="mb-2"><img src="<?= UPLOAD_URL . htmlspecialchars($slider['image']) ?>" alt="" style="max-height:150px;border-radius:8px;border:1px solid var(--border);"></div>
-                        <small style="color:var(--text-muted);">Biarkan kosong jika tidak ingin mengganti gambar</small>
-                        <?php endif; ?>
-                        <input type="file" name="image" class="form-control image-upload-input mt-2" accept="image/*" data-preview="#sliderPreview" <?= !$isEdit ? 'required' : '' ?>>
-                        <img id="sliderPreview" src="" style="display:none;max-height:150px;margin-top:8px;border-radius:8px;">
-                        <small style="color:var(--text-muted);">Ukuran rekomendasi: 1920x900px. Format: JPG, PNG</small>
-                    </div>
-                    <div class="col-12">
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" name="is_active" id="isActive" value="1" <?= ($slider['is_active'] ?? 1) ? 'checked' : '' ?>>
-                            <label class="form-check-label" for="isActive">Tampilkan Slider</label>
-                        </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">URL Tombol</label>
+                        <input type="text" name="button_url" class="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="/spmb" value="<?= htmlspecialchars($slider['button_url'] ?? '') ?>">
                     </div>
                 </div>
-                <div class="d-flex gap-3 mt-4">
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Simpan</button>
-                    <a href="<?= APP_URL ?>/admin/slider" class="btn btn-outline-secondary">Batal</a>
+                <div class="max-w-[200px]">
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Urutan Tampil</label>
+                    <input type="number" name="sort_order" class="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" value="<?= (int)($slider['sort_order'] ?? 1) ?>">
                 </div>
-            </form>
-        </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Gambar Background <?= !$isEdit ? '<span class="text-red-500">*</span>' : '' ?></label>
+                    <?php if ($isEdit && !empty($slider['image'])): ?>
+                    <div class="mb-2"><img src="<?= UPLOAD_URL . htmlspecialchars($slider['image']) ?>" alt="" class="max-h-36 rounded-lg border border-slate-200 dark:border-slate-700"></div>
+                    <small class="text-xs text-slate-400 dark:text-slate-500 block mb-2">Biarkan kosong jika tidak ingin mengganti gambar</small>
+                    <?php endif; ?>
+                    <input type="file" name="image" class="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 image-upload-input" accept="image/*" data-preview="#sliderPreview" <?= !$isEdit ? 'required' : '' ?>>
+                    <img id="sliderPreview" src="" class="hidden max-h-36 mt-2 rounded-lg">
+                    <small class="text-xs text-slate-400 dark:text-slate-500 block mt-1">Ukuran rekomendasi: 1920x900px. Format: JPG, PNG</small>
+                </div>
+                <div>
+                    <label class="inline-flex items-center cursor-pointer">
+                        <input type="checkbox" name="is_active" value="1" class="sr-only peer" <?= ($slider['is_active'] ?? 1) ? 'checked' : '' ?>>
+                        <div class="w-11 h-6 bg-slate-200 peer-focus:ring-2 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-slate-600 peer-checked:bg-blue-600 relative"></div>
+                        <span class="ml-3 text-sm text-slate-700 dark:text-slate-300">Tampilkan Slider</span>
+                    </label>
+                </div>
+            </div>
+            <div class="flex items-center gap-3 mt-6">
+                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors"><i class="fas fa-save mr-2"></i>Simpan</button>
+                <a href="<?= APP_URL ?>/admin/slider" class="px-4 py-2 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 rounded-lg text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">Batal</a>
+            </div>
+        </form>
     </div>
 </div>
 
