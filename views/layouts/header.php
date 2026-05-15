@@ -152,7 +152,7 @@ if (!function_exists('isActive')) {
       </a>
       <div class="flex items-center justify-between px-4 pt-3 pb-1">
         <span class="text-sm text-slate-500 dark:text-slate-400 font-medium">Mode Gelap</span>
-        <button id="themeToggleMobile" class="w-12 h-12 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-lg active:scale-95 transition-all">
+        <button id="themeToggleMobile" class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 active:scale-95 transition-all">
           <i class="fas fa-moon theme-icon-light"></i>
           <i class="fas fa-sun theme-icon-dark hidden"></i>
         </button>

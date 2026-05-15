@@ -124,10 +124,10 @@ $socialMedia = $smRes ? $smRes->fetch_all(MYSQLI_ASSOC) : [];
 </a>
 <?php endif; ?>
 
-<!-- Lightbox Modal -->
-<div class="lightbox-overlay" id="lightboxOverlay" onclick="closeLightbox()">
+<!-- Lightbox Modal (hidden by default) -->
+<div class="lightbox-overlay" id="lightboxOverlay" onclick="closeLightbox()" style="display:none;">
   <button onclick="closeLightbox()" class="absolute top-4 right-4 text-white text-2xl hover:text-gray-300 z-10">&times;</button>
-  <img id="lightboxImg" src="" alt="Gallery">
+  <img id="lightboxImg" src="" alt="" style="display:none;">
   <p id="lightboxCaption" class="absolute bottom-4 text-white text-center w-full"></p>
 </div>
 

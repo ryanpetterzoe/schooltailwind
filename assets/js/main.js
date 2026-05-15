@@ -212,15 +212,20 @@ function openLightbox(src, caption) {
     const cap = document.getElementById('lightboxCaption');
     if (!overlay) return;
     img.src = src;
+    img.style.display = 'block';
     if (cap) cap.textContent = caption;
+    overlay.style.display = 'flex';
     overlay.classList.add('active');
     document.body.style.overflow = 'hidden';
 }
 
 function closeLightbox() {
     const overlay = document.getElementById('lightboxOverlay');
+    const img = document.getElementById('lightboxImg');
     if (!overlay) return;
     overlay.classList.remove('active');
+    overlay.style.display = 'none';
+    if (img) { img.style.display = 'none'; img.src = ''; }
     document.body.style.overflow = '';
 }
 

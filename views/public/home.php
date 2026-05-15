@@ -6,7 +6,7 @@ require_once __DIR__ . '/../layouts/header.php';
 <!-- ═══════════════════════════════════════════════════════════
      HERO SLIDER
      ═══════════════════════════════════════════════════════════ -->
-<section class="hero-slider relative h-[85vh] min-h-[560px] bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-950 overflow-hidden">
+<section class="hero-slider relative bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-950 overflow-hidden" style="height:85vh;min-height:560px;position:relative;overflow:hidden;">
   <!-- Decorative shapes -->
   <div class="absolute inset-0 pointer-events-none z-0">
     <div class="absolute w-72 h-72 bg-blue-500/10 rounded-full -top-20 right-[10%] animate-pulse"></div>
@@ -15,7 +15,7 @@ require_once __DIR__ . '/../layouts/header.php';
 
   <!-- Slides -->
   <?php foreach ($sliders as $i => $slide): ?>
-  <div class="hero-slide <?= $i === 0 ? 'active' : '' ?>">
+  <div class="hero-slide <?= $i === 0 ? 'active' : '' ?>" style="position:absolute;top:0;left:0;right:0;bottom:0;<?= $i !== 0 ? 'opacity:0;pointer-events:none;' : '' ?>">
     <?php if (!empty($slide['image'])): ?>
     <img src="<?= UPLOAD_URL . htmlspecialchars($slide['image']) ?>" alt="<?= htmlspecialchars($slide['title'] ?? '') ?>"
          class="absolute inset-0 w-full h-full object-cover opacity-20">
