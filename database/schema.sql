@@ -1,10 +1,8 @@
 -- ============================================================
--- Database: websmk
--- Website SMK Pertamaku - Full Featured School Website
+-- Database Schema: SMK Pertamaku Website
+-- NOTE: Do NOT include CREATE DATABASE or USE statements here.
+-- The installer handles database creation and selection.
 -- ============================================================
-
-CREATE DATABASE IF NOT EXISTS `websmk` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE `websmk`;
 
 -- ========================
 -- TABEL: admins
@@ -34,6 +32,22 @@ CREATE TABLE IF NOT EXISTS `settings` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ========================
+-- TABEL: programs (jurusan) — MUST be created BEFORE news and spmb_registrations
+-- ========================
+CREATE TABLE IF NOT EXISTS `programs` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `name` VARCHAR(200) NOT NULL,
+  `code` VARCHAR(20) DEFAULT NULL,
+  `description` LONGTEXT,
+  `image` VARCHAR(255) DEFAULT NULL,
+  `icon` VARCHAR(100) DEFAULT 'fas fa-laptop-code',
+  `quota` INT DEFAULT 36,
+  `is_active` TINYINT(1) DEFAULT 1,
+  `sort_order` INT DEFAULT 0,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ========================
 -- TABEL: pages
 -- ========================
 CREATE TABLE IF NOT EXISTS `pages` (
@@ -58,7 +72,7 @@ CREATE TABLE IF NOT EXISTS `news` (
   `content` LONGTEXT,
   `image` VARCHAR(255) DEFAULT NULL,
   `category` VARCHAR(100) DEFAULT 'Berita',
-  `program_id` INT DEFAULT NULL COMMENT 'NULL = berita umum, isi = berita jurusan spesifik',
+  `program_id` INT DEFAULT NULL,
   `author` VARCHAR(100) DEFAULT 'Admin',
   `views` INT DEFAULT 0,
   `is_published` TINYINT(1) DEFAULT 1,
@@ -110,22 +124,6 @@ CREATE TABLE IF NOT EXISTS `staff` (
   `photo` VARCHAR(255) DEFAULT NULL,
   `email` VARCHAR(100) DEFAULT NULL,
   `phone` VARCHAR(20) DEFAULT NULL,
-  `is_active` TINYINT(1) DEFAULT 1,
-  `sort_order` INT DEFAULT 0,
-  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- ========================
--- TABEL: programs (jurusan)
--- ========================
-CREATE TABLE IF NOT EXISTS `programs` (
-  `id` INT AUTO_INCREMENT PRIMARY KEY,
-  `name` VARCHAR(200) NOT NULL,
-  `code` VARCHAR(20) DEFAULT NULL,
-  `description` LONGTEXT,
-  `image` VARCHAR(255) DEFAULT NULL,
-  `icon` VARCHAR(100) DEFAULT 'fas fa-laptop-code',
-  `quota` INT DEFAULT 36,
   `is_active` TINYINT(1) DEFAULT 1,
   `sort_order` INT DEFAULT 0,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -185,6 +183,32 @@ CREATE TABLE IF NOT EXISTS `contacts` (
   `message` TEXT NOT NULL,
   `is_read` TINYINT(1) DEFAULT 0,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ========================
+-- TABEL: sliders (hero banner)
+-- ========================
+CREATE TABLE IF NOT EXISTS `sliders` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `title` VARCHAR(200) DEFAULT NULL,
+  `subtitle` TEXT DEFAULT NULL,
+  `image` VARCHAR(255) NOT NULL,
+  `button_text` VARCHAR(100) DEFAULT NULL,
+  `button_url` VARCHAR(255) DEFAULT NULL,
+  `sort_order` INT DEFAULT 0,
+  `is_active` TINYINT(1) DEFAULT 1,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ========================
+-- TABEL: social media links
+-- ========================
+CREATE TABLE IF NOT EXISTS `social_media` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `platform` VARCHAR(50) NOT NULL,
+  `url` VARCHAR(255) NOT NULL,
+  `icon` VARCHAR(100) DEFAULT NULL,
+  `is_active` TINYINT(1) DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ========================
@@ -252,39 +276,10 @@ CREATE TABLE IF NOT EXISTS `spmb_settings` (
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- ========================
--- TABEL: sliders (hero banner)
--- ========================
-CREATE TABLE IF NOT EXISTS `sliders` (
-  `id` INT AUTO_INCREMENT PRIMARY KEY,
-  `title` VARCHAR(200) DEFAULT NULL,
-  `subtitle` TEXT DEFAULT NULL,
-  `image` VARCHAR(255) NOT NULL,
-  `button_text` VARCHAR(100) DEFAULT NULL,
-  `button_url` VARCHAR(255) DEFAULT NULL,
-  `sort_order` INT DEFAULT 0,
-  `is_active` TINYINT(1) DEFAULT 1,
-  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- ========================
--- TABEL: social media links
--- ========================
-CREATE TABLE IF NOT EXISTS `social_media` (
-  `id` INT AUTO_INCREMENT PRIMARY KEY,
-  `platform` VARCHAR(50) NOT NULL,
-  `url` VARCHAR(255) NOT NULL,
-  `icon` VARCHAR(100) DEFAULT NULL,
-  `is_active` TINYINT(1) DEFAULT 1
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- ========================
--- DATA DEFAULT
--- ========================
-
--- Admin default (password: admin123)
-INSERT INTO `admins` (`name`, `username`, `email`, `password`, `role`) VALUES
-('Super Admin', 'admin', 'admin@smkpertamaku.sch.id', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'superadmin');
+-- ============================================================
+-- DEFAULT DATA
+-- ============================================================
 
 -- Settings default
 INSERT INTO `settings` (`key`, `value`, `group`, `label`) VALUES
@@ -319,7 +314,7 @@ INSERT INTO `settings` (`key`, `value`, `group`, `label`) VALUES
 ('stats_alumni', '2000', 'stats', 'Jumlah Alumni'),
 ('theme_default', 'light', 'appearance', 'Tema Default'),
 ('accent_primary', '#2563eb', 'appearance', 'Warna Primer'),
-('accent_dark',    '#1d4ed8', 'appearance', 'Warna Primer (Gelap)');
+('accent_dark', '#1d4ed8', 'appearance', 'Warna Primer (Gelap)');
 
 -- Programs default
 INSERT INTO `programs` (`name`, `code`, `description`, `icon`, `quota`, `sort_order`) VALUES
@@ -341,36 +336,32 @@ INSERT INTO `social_media` (`platform`, `url`, `icon`, `is_active`) VALUES
 ('YouTube', 'https://youtube.com/@smkpertamaku', 'fab fa-youtube', 1),
 ('Twitter/X', 'https://twitter.com/smkpertamaku', 'fab fa-x-twitter', 1);
 
--- Sliders default
+-- Sliders default (only 1 to avoid duplication issues)
 INSERT INTO `sliders` (`title`, `subtitle`, `image`, `button_text`, `button_url`, `sort_order`) VALUES
-('Selamat Datang di SMK Pertamaku', 'Mencetak Generasi Terampil, Berkarakter, dan Siap Kerja di Era Digital', 'slider1.jpg', 'Daftar Sekarang', '/spmb', 1),
-('Jurusan Unggulan Kami', 'Pilih jurusan sesuai minat dan bakatmu. 4 Program Keahlian tersedia.', 'slider2.jpg', 'Lihat Jurusan', '/jurusan', 2),
-('Raih Prestasi Bersama Kami', 'Ribuan alumni sukses telah membuktikan kualitas pendidikan di SMK Pertamaku', 'slider3.jpg', 'Tentang Kami', '/tentang', 3);
+('Selamat Datang di SMK Pertamaku', 'Mencetak Generasi Terampil, Berkarakter, dan Siap Kerja di Era Digital', '', 'Daftar Sekarang', '/spmb', 1);
 
 -- Sample News
 INSERT INTO `news` (`title`, `slug`, `excerpt`, `content`, `category`, `author`, `is_published`) VALUES
-('Penerimaan Peserta Didik Baru Tahun 2025/2026 Telah Dibuka', 'ppdb-2025-2026-dibuka', 'SMK Pertamaku resmi membuka pendaftaran siswa baru untuk tahun ajaran 2025/2026. Pendaftaran dapat dilakukan secara online melalui website ini.', '<p>SMK Pertamaku dengan bangga mengumumkan pembukaan resmi Penerimaan Peserta Didik Baru (PPDB) untuk tahun ajaran 2025/2026.</p><p>Pendaftaran dapat dilakukan secara online melalui website ini pada menu SPMB. Kuota yang tersedia adalah 144 siswa untuk 4 jurusan.</p><p>Segera daftarkan diri Anda sebelum batas waktu pendaftaran berakhir!</p>', 'Pengumuman', 'Admin', 1),
-('SMK Pertamaku Raih Juara 1 LKS Tingkat Provinsi', 'juara-lks-provinsi-2025', 'Siswa SMK Pertamaku berhasil meraih juara 1 dalam Lomba Kompetensi Siswa (LKS) tingkat provinsi bidang Web Technology.', '<p>Kebanggaan luar biasa dirasakan seluruh keluarga besar SMK Pertamaku. Satu siswa dari jurusan RPL berhasil meraih Juara 1 dalam ajang LKS tingkat Provinsi.</p><p>Prestasi gemilang ini merupakan hasil kerja keras dan dedikasi tinggi selama berbulan-bulan latihan intensif.</p>', 'Prestasi', 'Admin', 1),
-('Workshop Industri 4.0 Bersama PT. Maju Teknologi', 'workshop-industri-40', 'SMK Pertamaku menggelar workshop bertema Industri 4.0 bekerja sama dengan PT. Maju Teknologi Indonesia.', '<p>SMK Pertamaku kembali menunjukkan komitmennya dalam mempersiapkan siswa menghadapi era industri 4.0 dengan menggelar workshop khusus.</p><p>Workshop ini diikuti oleh 100 siswa pilihan dari berbagai jurusan dan memberikan wawasan berharga tentang tren teknologi masa depan.</p>', 'Kegiatan', 'Admin', 1);
+('Penerimaan Peserta Didik Baru Tahun 2025/2026 Telah Dibuka', 'ppdb-2025-2026-dibuka', 'SMK Pertamaku resmi membuka pendaftaran siswa baru untuk tahun ajaran 2025/2026.', '<p>SMK Pertamaku dengan bangga mengumumkan pembukaan resmi PPDB untuk tahun ajaran 2025/2026.</p><p>Pendaftaran dapat dilakukan secara online melalui menu SPMB.</p>', 'Pengumuman', 'Admin', 1),
+('SMK Pertamaku Raih Juara 1 LKS Tingkat Provinsi', 'juara-lks-provinsi-2025', 'Siswa SMK Pertamaku berhasil meraih juara 1 dalam LKS tingkat provinsi bidang Web Technology.', '<p>Satu siswa dari jurusan RPL berhasil meraih Juara 1 dalam ajang LKS tingkat Provinsi.</p>', 'Prestasi', 'Admin', 1),
+('Workshop Industri 4.0 Bersama PT. Maju Teknologi', 'workshop-industri-40', 'SMK Pertamaku menggelar workshop bertema Industri 4.0.', '<p>Workshop ini diikuti oleh 100 siswa pilihan dari berbagai jurusan.</p>', 'Kegiatan', 'Admin', 1);
 
 -- Sample Achievements
 INSERT INTO `achievements` (`title`, `description`, `level`, `year`) VALUES
-('Juara 1 LKS Provinsi - Web Technology', 'Meraih juara 1 dalam Lomba Kompetensi Siswa bidang Web Technology tingkat provinsi', 'provinsi', 2025),
-('Juara 2 Olimpiade Matematika Kabupaten', 'Siswa SMK Pertamaku meraih posisi runner-up olimpiade matematika tingkat kabupaten', 'kabupaten', 2024),
-('Akreditasi A dari BAN-SM', 'SMK Pertamaku berhasil mempertahankan akreditasi A dari Badan Akreditasi Nasional', 'nasional', 2024),
-('Sekolah Adiwiyata Tingkat Nasional', 'Penghargaan Sekolah Adiwiyata dari Kementerian Lingkungan Hidup', 'nasional', 2023);
+('Juara 1 LKS Provinsi - Web Technology', 'Meraih juara 1 dalam LKS bidang Web Technology tingkat provinsi', 'provinsi', 2025),
+('Juara 2 Olimpiade Matematika Kabupaten', 'Siswa meraih posisi runner-up olimpiade matematika tingkat kabupaten', 'kabupaten', 2024),
+('Akreditasi A dari BAN-SM', 'Berhasil mempertahankan akreditasi A dari Badan Akreditasi Nasional', 'nasional', 2024);
 
 -- Sample Testimonials
 INSERT INTO `testimonials` (`name`, `position`, `content`, `rating`) VALUES
-('Budi Santoso', 'Alumni RPL - Angkatan 2022, Software Engineer di Gojek', 'SMK Pertamaku memberikan fondasi yang kuat dalam pemrograman. Skills yang saya dapat di sekolah langsung bisa diaplikasikan di dunia kerja.', 5),
-('Siti Rahayu', 'Alumni AKL - Angkatan 2021, Staff Akunting di Bank BRI', 'Guru-guru di SMK Pertamaku sangat profesional dan perhatian. Saya sangat bersyukur pernah belajar di sini.', 5),
-('Ahmad Fauzi', 'Orang Tua Siswa', 'Puas dengan perkembangan anak saya sejak masuk SMK Pertamaku. Sekolah ini benar-benar serius mendidik siswa.', 5);
+('Budi Santoso', 'Alumni RPL 2022, Software Engineer', 'SMK Pertamaku memberikan fondasi yang kuat dalam pemrograman.', 5),
+('Siti Rahayu', 'Alumni AKL 2021, Staff Akunting', 'Guru-guru sangat profesional dan perhatian.', 5),
+('Ahmad Fauzi', 'Orang Tua Siswa', 'Puas dengan perkembangan anak saya sejak masuk SMK Pertamaku.', 5);
 
 -- Sample Agenda
 INSERT INTO `agenda` (`title`, `description`, `location`, `start_date`, `end_date`) VALUES
-('Batas Akhir Pendaftaran PPDB', 'Segera daftarkan diri sebelum batas waktu berakhir', 'Online/Sekolah', '2025-06-30', '2025-06-30'),
-('Pengumuman Hasil Seleksi PPDB', 'Pengumuman hasil seleksi PPDB tahun ajaran 2025/2026', 'Website Sekolah', '2025-07-15', '2025-07-15'),
-('Hari Pertama Masuk Sekolah', 'Masa Pengenalan Lingkungan Sekolah (MPLS)', 'SMK Pertamaku', '2025-07-21', '2025-07-25');
+('Batas Akhir Pendaftaran PPDB', 'Segera daftarkan diri sebelum batas waktu berakhir', 'Online', '2025-06-30', '2025-06-30'),
+('Pengumuman Hasil Seleksi PPDB', 'Pengumuman hasil seleksi PPDB 2025/2026', 'Website', '2025-07-15', '2025-07-15');
 
 -- Sample Teachers
 INSERT INTO `teachers` (`name`, `nip`, `position`, `subject`, `education`, `sort_order`) VALUES
