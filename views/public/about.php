@@ -1,6 +1,20 @@
 <?php
 $pageTitle = 'Tentang Sekolah - ' . ($settings['school_name'] ?? 'SMK Pertamaku');
 require_once __DIR__ . '/../layouts/header.php';
+
+// Determine active tab based on URL
+$currentUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$base = defined('APP_BASE') ? APP_BASE : '';
+$cleanUri = str_replace($base, '', $currentUri);
+$cleanUri = '/' . ltrim($cleanUri, '/');
+
+$tabMap = [
+    '/profil' => 'profil',
+    '/visi-misi' => 'visiMisi',
+    '/sejarah' => 'sejarah',
+    '/kepala-sekolah' => 'kepalaSekolah',
+];
+$activeTab = isset($tabMap[$cleanUri]) ? $tabMap[$cleanUri] : 'profil';
 ?>
 
 <!-- Page Header -->
@@ -20,27 +34,27 @@ require_once __DIR__ . '/../layouts/header.php';
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
     <!-- Tabs -->
-    <div data-tab-group class="flex flex-wrap gap-1 border-b border-slate-200 dark:border-slate-700 mb-10">
-      <button data-tab-target="profil" class="px-4 py-3 text-sm font-semibold border-b-2 border-blue-600 text-blue-600 transition-colors flex items-center gap-2">
+    <div data-tab-group class="flex flex-wrap gap-1 border-b border-slate-200 dark:border-slate-700 mb-10 overflow-x-auto">
+      <button data-tab-target="profil" class="px-4 py-3 text-sm font-semibold border-b-2 <?= $activeTab === 'profil' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-blue-600' ?> transition-colors flex items-center gap-2 whitespace-nowrap">
         <i class="fas fa-school"></i>Profil
       </button>
-      <button data-tab-target="visiMisi" class="px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-blue-600 transition-colors flex items-center gap-2">
+      <button data-tab-target="visiMisi" class="px-4 py-3 text-sm font-semibold border-b-2 <?= $activeTab === 'visiMisi' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-blue-600' ?> transition-colors flex items-center gap-2 whitespace-nowrap">
         <i class="fas fa-bullseye"></i>Visi & Misi
       </button>
-      <button data-tab-target="sejarah" class="px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-blue-600 transition-colors flex items-center gap-2">
+      <button data-tab-target="sejarah" class="px-4 py-3 text-sm font-semibold border-b-2 <?= $activeTab === 'sejarah' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-blue-600' ?> transition-colors flex items-center gap-2 whitespace-nowrap">
         <i class="fas fa-history"></i>Sejarah
       </button>
-      <button data-tab-target="kepalaSekolah" class="px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-blue-600 transition-colors flex items-center gap-2">
+      <button data-tab-target="kepalaSekolah" class="px-4 py-3 text-sm font-semibold border-b-2 <?= $activeTab === 'kepalaSekolah' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-blue-600' ?> transition-colors flex items-center gap-2 whitespace-nowrap">
         <i class="fas fa-user-tie"></i>Kepala Sekolah
       </button>
-      <button data-tab-target="fasilitas" class="px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-blue-600 transition-colors flex items-center gap-2">
+      <button data-tab-target="fasilitas" class="px-4 py-3 text-sm font-semibold border-b-2 <?= $activeTab === 'fasilitas' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-blue-600' ?> transition-colors flex items-center gap-2 whitespace-nowrap">
         <i class="fas fa-building"></i>Fasilitas
       </button>
     </div>
 
     <div data-tab-content>
       <!-- Profil Tab -->
-      <div data-tab-panel="profil">
+      <div data-tab-panel="profil" class="<?= $activeTab !== 'profil' ? 'hidden' : '' ?>">
         <div class="grid lg:grid-cols-2 gap-10">
           <div>
             <h3 class="text-2xl font-bold text-slate-800 dark:text-white mb-6">Profil Sekolah</h3>
@@ -80,7 +94,7 @@ require_once __DIR__ . '/../layouts/header.php';
       </div>
 
       <!-- Visi Misi Tab -->
-      <div data-tab-panel="visiMisi" class="hidden">
+      <div data-tab-panel="visiMisi" class="<?= $activeTab !== 'visiMisi' ? 'hidden' : '' ?>">
         <div class="grid md:grid-cols-2 gap-6">
           <div class="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl p-8">
             <h4 class="text-xl font-bold text-blue-600 mb-4 flex items-center gap-2"><i class="fas fa-eye"></i>Visi</h4>
@@ -98,7 +112,7 @@ require_once __DIR__ . '/../layouts/header.php';
       </div>
 
       <!-- Sejarah Tab -->
-      <div data-tab-panel="sejarah" class="hidden">
+      <div data-tab-panel="sejarah" class="<?= $activeTab !== 'sejarah' ? 'hidden' : '' ?>">
         <div class="max-w-3xl mx-auto">
           <h3 class="text-2xl font-bold text-slate-800 dark:text-white mb-6">Sejarah Sekolah</h3>
           <div class="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl p-8">
@@ -108,7 +122,7 @@ require_once __DIR__ . '/../layouts/header.php';
       </div>
 
       <!-- Kepala Sekolah Tab -->
-      <div data-tab-panel="kepalaSekolah" class="hidden">
+      <div data-tab-panel="kepalaSekolah" class="<?= $activeTab !== 'kepalaSekolah' ? 'hidden' : '' ?>">
         <div class="max-w-3xl mx-auto bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl p-8">
           <div class="flex flex-col md:flex-row items-center gap-8">
             <div class="text-center flex-shrink-0">
@@ -133,7 +147,7 @@ require_once __DIR__ . '/../layouts/header.php';
       </div>
 
       <!-- Fasilitas Tab -->
-      <div data-tab-panel="fasilitas" class="hidden">
+      <div data-tab-panel="fasilitas" class="<?= $activeTab !== 'fasilitas' ? 'hidden' : '' ?>">
         <h3 class="text-2xl font-bold text-slate-800 dark:text-white mb-2">Fasilitas Sekolah</h3>
         <p class="text-slate-400 mb-8">Kami menyediakan fasilitas lengkap untuk mendukung proses belajar mengajar</p>
         <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">

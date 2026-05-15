@@ -14,6 +14,8 @@ function initTheme() {
     } else {
         document.documentElement.classList.remove('dark');
     }
+    // Sync icons on load
+    syncThemeIcons();
 }
 
 function toggleTheme() {
@@ -25,6 +27,18 @@ function toggleTheme() {
         document.documentElement.classList.add('dark');
         localStorage.setItem(THEME_KEY, 'dark');
     }
+    syncThemeIcons();
+}
+
+function syncThemeIcons() {
+    const isDark = document.documentElement.classList.contains('dark');
+    // Show sun icon in dark mode, moon icon in light mode
+    document.querySelectorAll('.theme-icon-light').forEach(el => {
+        el.style.display = isDark ? 'none' : '';
+    });
+    document.querySelectorAll('.theme-icon-dark').forEach(el => {
+        el.style.display = isDark ? '' : 'none';
+    });
 }
 
 /* ============================================================
