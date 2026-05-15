@@ -17,7 +17,7 @@ function isActive(string $path, string $uri, string $base): string {
 }
 ?>
 <!DOCTYPE html>
-<html lang="id" data-theme="light">
+<html lang="id" class="scroll-smooth">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -30,8 +30,22 @@ function isActive(string $path, string $uri, string $base): string {
   <?php if ($favicon): ?>
   <link rel="icon" type="image/x-icon" href="<?= htmlspecialchars($favicon) ?>">
   <?php endif; ?>
-  <!-- Bootstrap 5 -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: { 50:'#eff6ff', 100:'#dbeafe', 200:'#bfdbfe', 300:'#93c5fd', 400:'#60a5fa', 500:'#3b82f6', 600:'#2563eb', 700:'#1d4ed8', 800:'#1e40af', 900:'#1e3a8a' },
+            accent: { 400:'#a78bfa', 500:'#8b5cf6', 600:'#7c3aed' },
+          },
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+        }
+      }
+    }
+  </script>
   <!-- Font Awesome 6 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <!-- Google Fonts -->
@@ -44,144 +58,104 @@ function isActive(string $path, string $uri, string $base): string {
   <script>
     (function(){
       var t = localStorage.getItem('smk_theme') || '<?= htmlspecialchars($settings['theme_default'] ?? 'light') ?>';
-      document.documentElement.setAttribute('data-theme', t);
+      if(t==='dark') document.documentElement.classList.add('dark');
     })();
   </script>
-  <?php
-  // Inject custom accent color dari settings
-  $accentPrimary = !empty($settings['accent_primary']) ? $settings['accent_primary'] : '';
-  $accentDark    = !empty($settings['accent_dark'])    ? $settings['accent_dark']    : '';
-  if ($accentPrimary && $accentPrimary !== '#2563eb'):
-      $hx = ltrim($accentPrimary, '#');
-      if (strlen($hx) === 6) {
-          $r = hexdec(substr($hx,0,2));
-          $g = hexdec(substr($hx,2,2));
-          $b = hexdec(substr($hx,4,2));
-          $rgb = "$r,$g,$b";
-      } else { $rgb = '37,99,235'; }
-      $darkColor = $accentDark ?: $accentPrimary;
-  ?>
-  <style>
-  :root{
-    --primary:<?= $accentPrimary ?>;
-    --primary-dark:<?= $darkColor ?>;
-    --primary-glow:rgba(<?= $rgb ?>,0.20);
-    --shadow-blue:0 8px 32px rgba(<?= $rgb ?>,0.25);
-    --gradient:linear-gradient(135deg,<?= $accentPrimary ?> 0%,<?= $darkColor ?> 100%);
-  }
-  [data-theme="dark"]{
-    --primary:<?= $accentPrimary ?>;
-    --primary-dark:<?= $darkColor ?>;
-    --primary-glow:rgba(<?= $rgb ?>,0.25);
-    --shadow-blue:0 8px 32px rgba(<?= $rgb ?>,0.30);
-    --gradient:linear-gradient(135deg,<?= $accentPrimary ?> 0%,<?= $darkColor ?> 100%);
-  }
-  </style>
-  <?php endif; ?>
   <?php if (!empty($settings['ga_code'])): ?>
   <script async src="https://www.googletagmanager.com/gtag/js?id=<?= htmlspecialchars($settings['ga_code']) ?>"></script>
   <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','<?= htmlspecialchars($settings['ga_code']) ?>');</script>
   <?php endif; ?>
-  <style>body{font-family:'Inter',system-ui,sans-serif;}</style>
 </head>
-<body>
+<body class="bg-gray-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-sans antialiased">
 
 <!-- Preloader -->
 <div id="preloader">
-  <div class="preloader-logo">🎓</div>
-  <div class="preloader-dots">
-    <span></span><span></span><span></span>
-  </div>
+  <div class="preloader-spinner"></div>
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════
      NAVBAR
      ═══════════════════════════════════════════════════════════ -->
-<nav class="navbar navbar-expand-lg sticky-top" id="mainNav">
-  <div class="container">
+<nav class="sticky top-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-transparent transition-all duration-300" id="mainNav">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
 
-    <!-- Brand -->
-    <a class="navbar-brand" href="<?= APP_URL ?>/">
-      <?php if ($logo): ?>
-        <img src="<?= htmlspecialchars($logo) ?>" alt="<?= htmlspecialchars($schoolName) ?>">
-        <span style="font-size:1rem;font-weight:800;color:var(--text);"><?= htmlspecialchars($schoolName) ?></span>
-      <?php else: ?>
-        <div class="brand-icon">🎓</div>
-        <span><?= htmlspecialchars($schoolName) ?></span>
-      <?php endif; ?>
-    </a>
+      <!-- Brand -->
+      <a href="<?= APP_URL ?>/" class="flex items-center gap-3 flex-shrink-0">
+        <?php if ($logo): ?>
+          <img src="<?= htmlspecialchars($logo) ?>" alt="<?= htmlspecialchars($schoolName) ?>" class="h-9 w-auto rounded-lg">
+        <?php else: ?>
+          <div class="w-9 h-9 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center text-white text-sm shadow-lg shadow-blue-500/25">🎓</div>
+        <?php endif; ?>
+        <span class="text-base font-extrabold text-slate-800 dark:text-white hidden sm:block"><?= htmlspecialchars($schoolName) ?></span>
+      </a>
 
-    <!-- Hamburger -->
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-expanded="false">
-      <div class="navbar-toggler-icon"><span></span></div>
-    </button>
-
-    <!-- Menu -->
-    <div class="collapse navbar-collapse" id="navbarMain">
-      <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-1">
-
-        <li class="nav-item">
-          <a class="nav-link <?= isActive('/', $uri, $appBase) ?>" href="<?= APP_URL ?>/">Beranda</a>
-        </li>
+      <!-- Desktop Menu -->
+      <div class="hidden lg:flex items-center gap-1">
+        <a href="<?= APP_URL ?>/" class="px-3 py-2 text-sm font-medium rounded-lg transition-all <?= isActive('/', $uri, $appBase) === 'active' ? 'text-blue-600 bg-blue-50 dark:bg-blue-900/30' : 'text-slate-600 dark:text-slate-300 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20' ?>">Beranda</a>
 
         <!-- Profil Dropdown -->
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle <?= isActive('/profil', $uri, $appBase) ?>" href="#" data-bs-toggle="dropdown" role="button">
-            Profil
-          </a>
-          <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="<?= APP_URL ?>/profil">
-              <i class="fas fa-school"></i>Tentang Sekolah
-            </a></li>
-            <li><a class="dropdown-item" href="<?= APP_URL ?>/visi-misi">
-              <i class="fas fa-bullseye"></i>Visi &amp; Misi
-            </a></li>
-            <li><a class="dropdown-item" href="<?= APP_URL ?>/sejarah">
-              <i class="fas fa-history"></i>Sejarah Sekolah
-            </a></li>
-            <li><a class="dropdown-item" href="<?= APP_URL ?>/kepala-sekolah">
-              <i class="fas fa-user-tie"></i>Kepala Sekolah
-            </a></li>
-          </ul>
-        </li>
+        <div class="relative group">
+          <button class="px-3 py-2 text-sm font-medium rounded-lg transition-all text-slate-600 dark:text-slate-300 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center gap-1">
+            Profil <i class="fas fa-chevron-down text-[10px] transition-transform group-hover:rotate-180"></i>
+          </button>
+          <div class="absolute top-full left-0 mt-1 w-56 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-gray-100 dark:border-slate-700 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 translate-y-1 group-hover:translate-y-0">
+            <a href="<?= APP_URL ?>/profil" class="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-600 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600"><i class="fas fa-school w-4 text-blue-500"></i>Tentang Sekolah</a>
+            <a href="<?= APP_URL ?>/visi-misi" class="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-600 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600"><i class="fas fa-bullseye w-4 text-blue-500"></i>Visi & Misi</a>
+            <a href="<?= APP_URL ?>/sejarah" class="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-600 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600"><i class="fas fa-history w-4 text-blue-500"></i>Sejarah</a>
+            <a href="<?= APP_URL ?>/kepala-sekolah" class="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-600 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600"><i class="fas fa-user-tie w-4 text-blue-500"></i>Kepala Sekolah</a>
+          </div>
+        </div>
 
-        <li class="nav-item">
-          <a class="nav-link <?= isActive('/jurusan', $uri, $appBase) ?>" href="<?= APP_URL ?>/jurusan">Jurusan</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link <?= isActive('/guru-staff', $uri, $appBase) ?>" href="<?= APP_URL ?>/guru-staff">Guru &amp; Staff</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link <?= isActive('/berita', $uri, $appBase) ?>" href="<?= APP_URL ?>/berita">Berita</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link <?= isActive('/galeri', $uri, $appBase) ?>" href="<?= APP_URL ?>/galeri">Galeri</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link <?= isActive('/prestasi', $uri, $appBase) ?>" href="<?= APP_URL ?>/prestasi">Prestasi</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link <?= isActive('/kontak', $uri, $appBase) ?>" href="<?= APP_URL ?>/kontak">Kontak</a>
-        </li>
+        <a href="<?= APP_URL ?>/jurusan" class="px-3 py-2 text-sm font-medium rounded-lg transition-all <?= isActive('/jurusan', $uri, $appBase) === 'active' ? 'text-blue-600 bg-blue-50 dark:bg-blue-900/30' : 'text-slate-600 dark:text-slate-300 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20' ?>">Jurusan</a>
+        <a href="<?= APP_URL ?>/guru-staff" class="px-3 py-2 text-sm font-medium rounded-lg transition-all <?= isActive('/guru-staff', $uri, $appBase) === 'active' ? 'text-blue-600 bg-blue-50 dark:bg-blue-900/30' : 'text-slate-600 dark:text-slate-300 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20' ?>">Guru & Staff</a>
+        <a href="<?= APP_URL ?>/berita" class="px-3 py-2 text-sm font-medium rounded-lg transition-all <?= isActive('/berita', $uri, $appBase) === 'active' ? 'text-blue-600 bg-blue-50 dark:bg-blue-900/30' : 'text-slate-600 dark:text-slate-300 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20' ?>">Berita</a>
+        <a href="<?= APP_URL ?>/galeri" class="px-3 py-2 text-sm font-medium rounded-lg transition-all <?= isActive('/galeri', $uri, $appBase) === 'active' ? 'text-blue-600 bg-blue-50 dark:bg-blue-900/30' : 'text-slate-600 dark:text-slate-300 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20' ?>">Galeri</a>
+        <a href="<?= APP_URL ?>/prestasi" class="px-3 py-2 text-sm font-medium rounded-lg transition-all <?= isActive('/prestasi', $uri, $appBase) === 'active' ? 'text-blue-600 bg-blue-50 dark:bg-blue-900/30' : 'text-slate-600 dark:text-slate-300 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20' ?>">Prestasi</a>
+        <a href="<?= APP_URL ?>/kontak" class="px-3 py-2 text-sm font-medium rounded-lg transition-all <?= isActive('/kontak', $uri, $appBase) === 'active' ? 'text-blue-600 bg-blue-50 dark:bg-blue-900/30' : 'text-slate-600 dark:text-slate-300 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20' ?>">Kontak</a>
 
         <!-- SPMB Button -->
-        <li class="nav-item nav-spmb ms-lg-2">
-          <a class="nav-link" href="<?= APP_URL ?>/spmb">
-            <i class="fas fa-pencil-alt me-1"></i>SPMB
-          </a>
-        </li>
+        <a href="<?= APP_URL ?>/spmb" class="ml-2 px-4 py-2 text-sm font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:-translate-y-0.5 transition-all">
+          <i class="fas fa-pencil-alt mr-1"></i>SPMB
+        </a>
 
         <!-- Theme Toggle -->
-        <li class="nav-item ms-lg-2 d-flex align-items-center">
-          <button id="themeToggle" title="Ganti Tema" aria-label="Toggle dark/light mode">
-            <span class="theme-icon theme-icon-moon">🌙</span>
-            <span class="theme-icon theme-icon-sun">☀️</span>
-          </button>
-        </li>
+        <button id="themeToggle" class="ml-2 w-9 h-9 flex items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:text-blue-600 transition-all" title="Ganti Tema">
+          <i class="fas fa-moon dark:hidden"></i>
+          <i class="fas fa-sun hidden dark:inline"></i>
+        </button>
+      </div>
 
-      </ul>
-    </div><!-- collapse -->
-  </div><!-- container -->
+      <!-- Mobile Menu Button -->
+      <button id="mobileMenuBtn" class="lg:hidden w-10 h-10 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300">
+        <i class="fas fa-bars text-lg" id="menuIcon"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div id="mobileMenu" class="hidden lg:hidden border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 pb-4">
+    <div class="max-w-7xl mx-auto px-4 pt-3 space-y-1">
+      <a href="<?= APP_URL ?>/" class="block px-4 py-2.5 rounded-lg text-sm font-medium <?= isActive('/', $uri, $appBase) === 'active' ? 'text-blue-600 bg-blue-50 dark:bg-blue-900/30' : 'text-slate-600 dark:text-slate-300' ?>">Beranda</a>
+      <a href="<?= APP_URL ?>/profil" class="block px-4 py-2.5 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300">Tentang Sekolah</a>
+      <a href="<?= APP_URL ?>/jurusan" class="block px-4 py-2.5 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300">Jurusan</a>
+      <a href="<?= APP_URL ?>/guru-staff" class="block px-4 py-2.5 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300">Guru & Staff</a>
+      <a href="<?= APP_URL ?>/berita" class="block px-4 py-2.5 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300">Berita</a>
+      <a href="<?= APP_URL ?>/galeri" class="block px-4 py-2.5 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300">Galeri</a>
+      <a href="<?= APP_URL ?>/prestasi" class="block px-4 py-2.5 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300">Prestasi</a>
+      <a href="<?= APP_URL ?>/kontak" class="block px-4 py-2.5 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300">Kontak</a>
+      <a href="<?= APP_URL ?>/spmb" class="block px-4 py-2.5 rounded-lg text-sm font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 text-center mt-2">
+        <i class="fas fa-pencil-alt mr-1"></i>SPMB
+      </a>
+      <div class="flex items-center justify-between px-4 pt-2">
+        <span class="text-xs text-slate-400">Mode Gelap</span>
+        <button id="themeToggleMobile" class="w-9 h-9 flex items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400">
+          <i class="fas fa-moon dark:hidden"></i>
+          <i class="fas fa-sun hidden dark:inline"></i>
+        </button>
+      </div>
+    </div>
+  </div>
 </nav>
 
 <main>

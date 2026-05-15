@@ -1,191 +1,90 @@
 <?php
-// Standalone login page — no layout needed
 $schoolName = getSetting('school_name') ?: 'SMK Pertamaku';
 $csrfToken  = isset($_SESSION['csrf_token']) ? $_SESSION['csrf_token'] : '';
-$postUser   = isset($_POST['username'])      ? htmlspecialchars($_POST['username']) : '';
+$postUser   = isset($_POST['username']) ? htmlspecialchars($_POST['username']) : '';
 ?>
 <!DOCTYPE html>
-<html lang="id" data-theme="dark">
+<html lang="id" class="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login - <?= htmlspecialchars($schoolName) ?></title>
-    <script>(function(){
-        var t = localStorage.getItem('smk_theme') || 'dark';
-        document.documentElement.setAttribute('data-theme', t);
-    })();</script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-        min-height: 100vh;
-        background: linear-gradient(135deg, #0b1120 0%, #1e3a8a 50%, #1e1b4b 100%);
-        display: flex; align-items: center; justify-content: center;
-        font-family: 'Segoe UI', system-ui, sans-serif;
-        padding: 24px;
-        position: relative;
-    }
-    body::before {
-        content: '';
-        position: fixed; inset: 0;
-        background:
-            radial-gradient(ellipse 60% 50% at 20% 40%, rgba(59,130,246,.15) 0%, transparent 60%),
-            radial-gradient(ellipse 40% 40% at 80% 70%, rgba(99,102,241,.12) 0%, transparent 50%);
-        pointer-events: none;
-    }
-    .login-wrap {
-        width: 100%; max-width: 420px;
-        background: rgba(255,255,255,.06);
-        backdrop-filter: blur(24px);
-        -webkit-backdrop-filter: blur(24px);
-        border: 1px solid rgba(255,255,255,.12);
-        border-radius: 20px;
-        padding: 40px 36px;
-        position: relative; z-index: 1;
-        box-shadow: 0 24px 60px rgba(0,0,0,.4);
-    }
-    .login-logo { text-align: center; margin-bottom: 28px; }
-    .login-logo .ico {
-        width: 68px; height: 68px;
-        background: linear-gradient(135deg, #2563eb, #6366f1);
-        border-radius: 18px;
-        display: inline-flex; align-items: center; justify-content: center;
-        font-size: 28px; margin-bottom: 14px;
-        box-shadow: 0 8px 28px rgba(37,99,235,.4);
-    }
-    .login-logo h4 { color: #f1f5f9; font-size: 1.15rem; font-weight: 700; margin-bottom: 4px; }
-    .login-logo p  { color: #64748b; font-size: .85rem; }
-
-    /* Form elements — selalu dark di login page */
-    .form-label { color: #cbd5e1 !important; font-size: .83rem; font-weight: 600; margin-bottom: 6px; display: block; }
-    .input-group-text {
-        background: rgba(255,255,255,.07) !important;
-        border: 1px solid rgba(255,255,255,.15) !important;
-        color: #94a3b8 !important;
-    }
-    .form-control {
-        background: rgba(255,255,255,.07) !important;
-        border: 1px solid rgba(255,255,255,.15) !important;
-        color: #f1f5f9 !important;
-        font-size: .9rem;
-    }
-    .form-control:focus {
-        background: rgba(255,255,255,.1) !important;
-        border-color: #3b82f6 !important;
-        box-shadow: 0 0 0 3px rgba(59,130,246,.2) !important;
-        color: #f1f5f9 !important;
-        outline: none;
-    }
-    .form-control::placeholder { color: #475569 !important; }
-    .btn-eye {
-        background: rgba(255,255,255,.07) !important;
-        border: 1px solid rgba(255,255,255,.15) !important;
-        color: #94a3b8 !important;
-    }
-    .btn-eye:hover { background: rgba(255,255,255,.12) !important; color: #cbd5e1 !important; }
-
-    .btn-login {
-        width: 100%; padding: 12px;
-        background: linear-gradient(135deg, #2563eb, #6366f1);
-        color: #fff; border: none; border-radius: 10px;
-        font-size: .95rem; font-weight: 700; cursor: pointer;
-        transition: all .2s;
-        box-shadow: 0 4px 16px rgba(37,99,235,.35);
-    }
-    .btn-login:hover { transform: translateY(-1px); box-shadow: 0 6px 22px rgba(37,99,235,.45); }
-
-    .form-check-label { color: #94a3b8 !important; font-size: .85rem; }
-    .form-check-input { background-color: rgba(255,255,255,.1); border-color: rgba(255,255,255,.25); }
-
-    .back-link { color: #64748b; font-size: .83rem; text-decoration: none; transition: color .2s; }
-    .back-link:hover { color: #94a3b8; }
-
-    .alert-danger  { background: rgba(239,68,68,.15); border: 1px solid rgba(239,68,68,.3); color: #fca5a5 !important; border-radius: 10px; font-size: .88rem; }
-    .alert-success { background: rgba(34,197,94,.1);  border: 1px solid rgba(34,197,94,.25); color: #86efac !important; border-radius: 10px; font-size: .88rem; }
-
-    @media (max-width: 480px) { .login-wrap { padding: 28px 20px; } }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login - <?= htmlspecialchars($schoolName) ?></title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config={darkMode:'class'}</script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
-<body>
-<div class="login-wrap">
-    <div class="login-logo">
-        <div class="ico">🎓</div>
-        <h4><?= htmlspecialchars($schoolName) ?></h4>
-        <p>Panel Administrasi</p>
+<body class="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-950 flex items-center justify-center font-[Inter,system-ui,sans-serif] p-6 relative">
+  <!-- BG Glow -->
+  <div class="fixed inset-0 pointer-events-none">
+    <div class="absolute w-96 h-96 bg-blue-500/10 rounded-full -top-32 left-1/4 blur-3xl"></div>
+    <div class="absolute w-64 h-64 bg-indigo-500/10 rounded-full bottom-0 right-1/4 blur-3xl"></div>
+  </div>
+
+  <div class="w-full max-w-md bg-white/5 backdrop-blur-2xl border border-white/10 rounded-2xl p-8 sm:p-10 relative z-10 shadow-2xl">
+    <!-- Logo -->
+    <div class="text-center mb-7">
+      <div class="w-16 h-16 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl shadow-lg shadow-blue-600/30">🎓</div>
+      <h4 class="text-white font-bold text-lg"><?= htmlspecialchars($schoolName) ?></h4>
+      <p class="text-slate-400 text-sm">Panel Administrasi</p>
     </div>
 
     <?php if (!empty($error)): ?>
-    <div class="alert alert-danger mb-3">
-        <i class="fas fa-exclamation-circle me-2"></i><?= htmlspecialchars($error) ?>
+    <div class="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-300 text-sm flex items-center gap-2">
+      <i class="fas fa-exclamation-circle"></i><?= htmlspecialchars($error) ?>
     </div>
     <?php endif; ?>
 
     <?php if (!empty($_SESSION['flash_success'])): ?>
-    <div class="alert alert-success mb-3">
-        <i class="fas fa-check-circle me-2"></i><?= htmlspecialchars($_SESSION['flash_success']) ?>
+    <div class="mb-4 p-3 bg-green-500/10 border border-green-500/20 rounded-xl text-green-300 text-sm flex items-center gap-2">
+      <i class="fas fa-check-circle"></i><?= htmlspecialchars($_SESSION['flash_success']) ?>
     </div>
-    <?php unset($_SESSION['flash_success']); ?>
-    <?php endif; ?>
+    <?php unset($_SESSION['flash_success']); endif; ?>
 
     <form method="POST" action="<?= APP_URL ?>/admin/login">
-        <input type="hidden" name="_token" value="<?= htmlspecialchars($csrfToken) ?>">
+      <input type="hidden" name="_token" value="<?= htmlspecialchars($csrfToken) ?>">
 
-        <div class="mb-3">
-            <label class="form-label">Username</label>
-            <div class="input-group">
-                <span class="input-group-text"><i class="fas fa-user"></i></span>
-                <input type="text" name="username" class="form-control"
-                       placeholder="Masukkan username"
-                       value="<?= $postUser ?>"
-                       autocomplete="username" autofocus required>
-            </div>
+      <div class="mb-4">
+        <label class="block text-slate-300 text-sm font-semibold mb-1.5">Username</label>
+        <div class="flex">
+          <span class="px-3 flex items-center bg-white/5 border border-white/10 border-r-0 rounded-l-xl text-slate-500"><i class="fas fa-user"></i></span>
+          <input type="text" name="username" value="<?= $postUser ?>" placeholder="Masukkan username" required autofocus autocomplete="username"
+                 class="flex-1 px-4 py-3 bg-white/5 border border-white/10 rounded-r-xl text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
         </div>
+      </div>
 
-        <div class="mb-3">
-            <label class="form-label">Password</label>
-            <div class="input-group">
-                <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                <input type="password" name="password" class="form-control"
-                       id="pwdInput" placeholder="Masukkan password"
-                       autocomplete="current-password" required>
-                <button type="button" class="btn btn-eye" onclick="togglePwd()">
-                    <i class="fas fa-eye" id="eyeIcon"></i>
-                </button>
-            </div>
+      <div class="mb-4">
+        <label class="block text-slate-300 text-sm font-semibold mb-1.5">Password</label>
+        <div class="flex">
+          <span class="px-3 flex items-center bg-white/5 border border-white/10 border-r-0 rounded-l-xl text-slate-500"><i class="fas fa-lock"></i></span>
+          <input type="password" name="password" id="pwdInput" placeholder="Masukkan password" required autocomplete="current-password"
+                 class="flex-1 px-4 py-3 bg-white/5 border border-white/10 text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          <button type="button" onclick="togglePwd()" class="px-3 bg-white/5 border border-white/10 border-l-0 rounded-r-xl text-slate-500 hover:text-slate-300 transition-colors">
+            <i class="fas fa-eye" id="eyeIcon"></i>
+          </button>
         </div>
+      </div>
 
-        <div class="mb-4">
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" name="remember" id="rememberMe">
-                <label class="form-check-label" for="rememberMe">Ingat Saya</label>
-            </div>
-        </div>
+      <div class="flex items-center mb-6">
+        <input type="checkbox" name="remember" id="rememberMe" class="w-4 h-4 rounded border-white/20 bg-white/5 text-blue-600 focus:ring-blue-500">
+        <label for="rememberMe" class="ml-2 text-sm text-slate-400">Ingat Saya</label>
+      </div>
 
-        <button type="submit" class="btn-login">
-            <i class="fas fa-sign-in-alt me-2"></i>Masuk ke Admin
-        </button>
+      <button type="submit" class="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-bold text-sm shadow-lg shadow-blue-600/30 hover:-translate-y-0.5 hover:shadow-blue-600/40 transition-all">
+        <i class="fas fa-sign-in-alt mr-2"></i>Masuk ke Admin
+      </button>
     </form>
 
-    <div class="text-center mt-4">
-        <a href="<?= APP_URL ?>/" class="back-link">
-            <i class="fas fa-arrow-left me-1"></i>Kembali ke Website
-        </a>
+    <div class="text-center mt-5">
+      <a href="<?= APP_URL ?>/" class="text-slate-500 text-sm hover:text-slate-300 transition-colors">
+        <i class="fas fa-arrow-left mr-1"></i>Kembali ke Website
+      </a>
     </div>
-</div>
+  </div>
 
-<script>
-function togglePwd() {
-    var inp  = document.getElementById('pwdInput');
-    var icon = document.getElementById('eyeIcon');
-    if (inp.type === 'password') {
-        inp.type = 'text';
-        icon.className = 'fas fa-eye-slash';
-    } else {
-        inp.type = 'password';
-        icon.className = 'fas fa-eye';
-    }
-}
-</script>
+  <script>
+  function togglePwd(){var i=document.getElementById('pwdInput'),e=document.getElementById('eyeIcon');if(i.type==='password'){i.type='text';e.className='fas fa-eye-slash';}else{i.type='password';e.className='fas fa-eye';}}
+  </script>
 </body>
 </html>

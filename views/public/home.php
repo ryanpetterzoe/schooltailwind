@@ -6,102 +6,88 @@ require_once __DIR__ . '/../layouts/header.php';
 <!-- ═══════════════════════════════════════════════════════════
      HERO SLIDER
      ═══════════════════════════════════════════════════════════ -->
-<div id="heroCarousel" class="carousel slide hero-slider" data-bs-ride="carousel" data-bs-interval="5500">
-
-  <!-- Indicators -->
-  <div class="carousel-indicators">
-    <?php foreach ($sliders as $i => $slide): ?>
-      <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="<?= $i ?>"
-        <?= $i === 0 ? 'class="active" aria-current="true"' : '' ?>></button>
-    <?php endforeach; ?>
+<section class="hero-slider relative h-[85vh] min-h-[560px] bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-950 overflow-hidden">
+  <!-- Decorative shapes -->
+  <div class="absolute inset-0 pointer-events-none">
+    <div class="absolute w-72 h-72 bg-blue-500/10 rounded-full -top-20 right-[10%] animate-pulse"></div>
+    <div class="absolute w-44 h-44 bg-indigo-500/10 rounded-full bottom-[10%] left-[8%] animate-pulse delay-1000"></div>
   </div>
 
   <!-- Slides -->
-  <div class="carousel-inner">
-    <?php foreach ($sliders as $i => $slide): ?>
-    <div class="carousel-item <?= $i === 0 ? 'active' : '' ?>">
-      <!-- BG shapes -->
-      <div class="hero-shapes">
-        <div class="hero-shape"></div>
-        <div class="hero-shape"></div>
-        <div class="hero-shape"></div>
+  <?php foreach ($sliders as $i => $slide): ?>
+  <div class="hero-slide <?= $i === 0 ? 'active' : '' ?> absolute inset-0 flex items-center justify-center">
+    <?php if (!empty($slide['image'])): ?>
+    <img src="<?= UPLOAD_URL . htmlspecialchars($slide['image']) ?>" alt="<?= htmlspecialchars($slide['title'] ?? '') ?>"
+         class="absolute inset-0 w-full h-full object-cover opacity-20">
+    <?php endif; ?>
+    <div class="relative z-10 text-center px-4 max-w-4xl mx-auto">
+      <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 text-xs font-semibold text-white/90 uppercase tracking-wide mb-5">
+        <i class="fas fa-star text-yellow-400"></i>
+        <?= htmlspecialchars($settings['school_name'] ?? 'SMK Pertamaku') ?> · Akreditasi <?= htmlspecialchars($settings['school_accreditation'] ?? 'A') ?>
       </div>
-      <!-- BG image -->
-      <?php if (!empty($slide['image'])): ?>
-        <img src="<?= UPLOAD_URL . htmlspecialchars($slide['image']) ?>"
-             alt="<?= htmlspecialchars($slide['title'] ?? '') ?>">
-      <?php endif; ?>
-      <!-- Caption -->
-      <div class="carousel-caption text-center">
-        <div class="animate-fadeInUp">
-          <div class="hero-eyebrow">
-            <i class="fas fa-star"></i>
-            <?= htmlspecialchars($settings['school_name'] ?? 'SMK Pertamaku') ?>
-            &nbsp;·&nbsp;Akreditasi <?= htmlspecialchars($settings['school_accreditation'] ?? 'A') ?>
-          </div>
-        </div>
-        <h1 class="animate-fadeInUp animate-delay-1">
-          <?= htmlspecialchars($slide['title'] ?? '') ?>
-        </h1>
-        <p class="animate-fadeInUp animate-delay-2">
-          <?= htmlspecialchars($slide['subtitle'] ?? '') ?>
-        </p>
-        <div class="hero-actions animate-fadeInUp animate-delay-3">
-          <?php if (!empty($slide['button_text'])): ?>
-          <a href="<?= APP_URL . htmlspecialchars($slide['button_url'] ?? '/spmb') ?>"
-             class="btn-hero-primary">
-            <i class="fas fa-pencil-alt"></i>
-            <?= htmlspecialchars($slide['button_text']) ?>
-          </a>
-          <?php endif; ?>
-          <a href="<?= APP_URL ?>/profil" class="btn-hero-outline">
-            <i class="fas fa-play-circle"></i>Tentang Kami
-          </a>
-        </div>
+      <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-tight mb-5">
+        <?= htmlspecialchars($slide['title'] ?? '') ?>
+      </h1>
+      <p class="text-base sm:text-lg text-white/75 max-w-xl mx-auto mb-8 leading-relaxed">
+        <?= htmlspecialchars($slide['subtitle'] ?? '') ?>
+      </p>
+      <div class="flex flex-wrap gap-3 justify-center">
+        <?php if (!empty($slide['button_text'])): ?>
+        <a href="<?= APP_URL . htmlspecialchars($slide['button_url'] ?? '/spmb') ?>"
+           class="px-7 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-bold text-sm shadow-xl shadow-blue-600/30 hover:-translate-y-0.5 hover:shadow-blue-600/50 transition-all inline-flex items-center gap-2">
+          <i class="fas fa-pencil-alt"></i><?= htmlspecialchars($slide['button_text']) ?>
+        </a>
+        <?php endif; ?>
+        <a href="<?= APP_URL ?>/profil"
+           class="px-7 py-3.5 bg-white/10 backdrop-blur-sm border-2 border-white/30 text-white rounded-xl font-semibold text-sm hover:bg-white/20 hover:border-white/50 hover:-translate-y-0.5 transition-all inline-flex items-center gap-2">
+          <i class="fas fa-play-circle"></i>Tentang Kami
+        </a>
       </div>
     </div>
-    <?php endforeach; ?>
   </div>
+  <?php endforeach; ?>
 
   <!-- Controls -->
-  <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
-    <span class="carousel-control-prev-icon"></span>
+  <button id="heroPrev" class="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/20 transition-all">
+    <i class="fas fa-chevron-left"></i>
   </button>
-  <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
-    <span class="carousel-control-next-icon"></span>
+  <button id="heroNext" class="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/20 transition-all">
+    <i class="fas fa-chevron-right"></i>
   </button>
 
-  <!-- Scroll hint -->
-  <div class="hero-scroll-hint">
-    <span>Scroll</span>
-    <i class="fas fa-chevron-down"></i>
+  <!-- Indicators -->
+  <div class="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex gap-2">
+    <?php foreach ($sliders as $i => $slide): ?>
+    <button class="hero-indicator h-2 rounded-full transition-all duration-300 <?= $i === 0 ? 'w-6 bg-white' : 'w-2 bg-white/50' ?>"></button>
+    <?php endforeach; ?>
   </div>
-</div>
+</section>
 
 
 <!-- ═══════════════════════════════════════════════════════════
      STATS BAR
      ═══════════════════════════════════════════════════════════ -->
-<section class="stats-section">
-  <div class="container">
-    <div class="row g-0">
+<section class="relative bg-gradient-to-r from-blue-600 to-indigo-600 py-16 overflow-hidden">
+  <div class="absolute inset-0 opacity-10" style="background-image:url('data:image/svg+xml,%3Csvg width=&quot;60&quot; height=&quot;60&quot; viewBox=&quot;0 0 60 60&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;%3E%3Ccircle cx=&quot;30&quot; cy=&quot;30&quot; r=&quot;4&quot; fill=&quot;white&quot;/%3E%3C/svg%3E');"></div>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
       <?php
       $statsData = [
-        ['icon'=>'fas fa-user-graduate', 'key'=>'stats_students', 'default'=>750,  'label'=>'Siswa Aktif'],
-        ['icon'=>'fas fa-chalkboard-teacher','key'=>'stats_teachers','default'=>45, 'label'=>'Guru & Staff'],
-        ['icon'=>'fas fa-book-open',     'key'=>'stats_programs', 'default'=>4,    'label'=>'Program Keahlian'],
-        ['icon'=>'fas fa-users',         'key'=>'stats_alumni',   'default'=>2000, 'label'=>'Alumni'],
+        ['icon'=>'fas fa-user-graduate','key'=>'stats_students','default'=>750,'label'=>'Siswa Aktif'],
+        ['icon'=>'fas fa-chalkboard-teacher','key'=>'stats_teachers','default'=>45,'label'=>'Guru & Staff'],
+        ['icon'=>'fas fa-book-open','key'=>'stats_programs','default'=>4,'label'=>'Program Keahlian'],
+        ['icon'=>'fas fa-users','key'=>'stats_alumni','default'=>2000,'label'=>'Alumni'],
       ];
       foreach ($statsData as $s):
         $val = (int)($settings[$s['key']] ?? $s['default']);
       ?>
-      <div class="col-6 col-md-3">
-        <div class="stat-item">
-          <div class="stat-icon-wrap"><i class="<?= $s['icon'] ?>"></i></div>
-          <span class="stat-number" data-target="<?= $val ?>">0</span>
-          <span class="stat-plus">+</span>
-          <div class="stat-label"><?= $s['label'] ?></div>
+      <div class="text-center">
+        <div class="w-14 h-14 bg-white/15 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-3">
+          <i class="<?= $s['icon'] ?> text-xl text-white"></i>
         </div>
+        <span class="stat-number text-3xl sm:text-4xl font-black text-white block" data-target="<?= $val ?>">0</span>
+        <span class="text-yellow-300 font-bold text-lg">+</span>
+        <div class="text-white/70 text-xs sm:text-sm font-semibold uppercase tracking-wider mt-1"><?= $s['label'] ?></div>
       </div>
       <?php endforeach; ?>
     </div>
@@ -112,76 +98,72 @@ require_once __DIR__ . '/../layouts/header.php';
 <!-- ═══════════════════════════════════════════════════════════
      ABOUT SNIPPET
      ═══════════════════════════════════════════════════════════ -->
-<section class="section">
-  <div class="container">
-    <div class="row align-items-center g-5">
-
-      <!-- Visual side -->
-      <div class="col-lg-5 d-none d-lg-block">
-        <div class="about-visual">
-          <?php if (!empty($settings['school_building_photo'])): ?>
-          <img src="<?= UPLOAD_URL . htmlspecialchars($settings['school_building_photo']) ?>"
-               alt="Gedung <?= htmlspecialchars($settings['school_name'] ?? '') ?>"
-               class="about-img-main">
-          <?php else: ?>
-          <div class="about-placeholder" style="height:400px;">
-            <i class="fas fa-school" style="font-size:4rem; color:var(--primary); opacity:0.4;"></i>
-            <span style="font-size:0.9rem; color:var(--text-muted);">Foto Gedung Sekolah</span>
-          </div>
-          <?php endif; ?>
-          <!-- Floating badges -->
-          <div class="about-badge-float about-badge-1">
-            <div class="badge-icon">🏆</div>
-            <div class="badge-text">
-              <strong>Akreditasi <?= htmlspecialchars($settings['school_accreditation'] ?? 'A') ?></strong>
-              <span>BAN-S/M Terakreditasi</span>
-            </div>
+<section class="py-20 lg:py-28">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid lg:grid-cols-12 gap-12 items-center">
+      <!-- Visual -->
+      <div class="hidden lg:block lg:col-span-5 relative">
+        <?php if (!empty($settings['school_building_photo'])): ?>
+        <img src="<?= UPLOAD_URL . htmlspecialchars($settings['school_building_photo']) ?>"
+             alt="Gedung <?= htmlspecialchars($settings['school_name'] ?? '') ?>"
+             class="w-full h-[400px] object-cover rounded-2xl shadow-2xl">
+        <?php else: ?>
+        <div class="w-full h-[400px] bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-700 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-600 flex flex-col items-center justify-center gap-3">
+          <i class="fas fa-school text-5xl text-blue-300 dark:text-blue-600"></i>
+          <span class="text-sm text-slate-400">Foto Gedung Sekolah</span>
+        </div>
+        <?php endif; ?>
+        <!-- Badge -->
+        <div class="absolute -bottom-4 -left-4 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl p-4 shadow-lg flex items-center gap-3">
+          <div class="w-11 h-11 bg-blue-50 dark:bg-blue-900/30 rounded-xl flex items-center justify-center text-xl">🏆</div>
+          <div>
+            <strong class="block text-sm text-slate-800 dark:text-white">Akreditasi <?= htmlspecialchars($settings['school_accreditation'] ?? 'A') ?></strong>
+            <span class="text-xs text-slate-400">BAN-S/M Terakreditasi</span>
           </div>
         </div>
       </div>
 
-      <!-- Text side -->
-      <div class="col-lg-7">
-        <div class="section-badge">
+      <!-- Text -->
+      <div class="lg:col-span-7">
+        <div class="inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide mb-4">
           <i class="fas fa-graduation-cap"></i> Tentang Kami
         </div>
-        <div class="section-heading mb-4">
-          <h2><?= htmlspecialchars($settings['school_name'] ?? 'SMK Pertamaku') ?></h2>
-          <p class="text-primary fw-semibold" style="font-size:1.05rem;">
-            <?= htmlspecialchars($settings['school_tagline'] ?? '') ?>
-          </p>
-        </div>
-        <p style="color:var(--text-secondary); line-height:1.85; margin-bottom:24px;">
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-800 dark:text-white mb-3 leading-tight">
+          <?= htmlspecialchars($settings['school_name'] ?? 'SMK Pertamaku') ?>
+        </h2>
+        <p class="text-blue-600 dark:text-blue-400 font-semibold mb-4"><?= htmlspecialchars($settings['school_tagline'] ?? '') ?></p>
+        <p class="text-slate-500 dark:text-slate-400 leading-relaxed mb-6">
           <?= htmlspecialchars(mb_substr($settings['about_history'] ?? '', 0, 280)) ?>...
         </p>
 
-        <div class="row g-3 mb-28">
+        <div class="grid sm:grid-cols-2 gap-4 mb-8">
           <?php
           $checks = [
-            ['icon'=>'fas fa-check', 'title'=>'Terakreditasi '  . ($settings['school_accreditation'] ?? 'A'), 'sub'=>'Badan Akreditasi Nasional'],
-            ['icon'=>'fas fa-check', 'title'=>'NPSN: ' . ($settings['school_npsn'] ?? '-'), 'sub'=>'Nomor Pokok Sekolah Nasional'],
-            ['icon'=>'fas fa-check', 'title'=>(int)($settings['stats_programs'] ?? 4) . ' Program Keahlian',  'sub'=>'Siap kerja & industri'],
-            ['icon'=>'fas fa-check', 'title'=> (int)($settings['stats_alumni'] ?? 2000) . '+ Alumni Sukses',  'sub'=>'Berkarier di berbagai bidang'],
+            ['title'=>'Terakreditasi '.($settings['school_accreditation'] ?? 'A'), 'sub'=>'Badan Akreditasi Nasional'],
+            ['title'=>'NPSN: '.($settings['school_npsn'] ?? '-'), 'sub'=>'Nomor Pokok Sekolah Nasional'],
+            ['title'=>(int)($settings['stats_programs'] ?? 4).' Program Keahlian', 'sub'=>'Siap kerja & industri'],
+            ['title'=>(int)($settings['stats_alumni'] ?? 2000).'+ Alumni Sukses', 'sub'=>'Berkarier di berbagai bidang'],
           ];
-          foreach ($checks as $c):
-          ?>
-          <div class="col-sm-6">
-            <div class="check-item">
-              <div class="check-icon"><i class="<?= $c['icon'] ?>"></i></div>
-              <div class="check-text">
-                <strong><?= htmlspecialchars($c['title']) ?></strong>
-                <span><?= htmlspecialchars($c['sub']) ?></span>
-              </div>
+          foreach ($checks as $c): ?>
+          <div class="flex gap-3">
+            <div class="w-7 h-7 rounded-lg bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <i class="fas fa-check text-blue-600 text-xs"></i>
+            </div>
+            <div>
+              <strong class="block text-sm text-slate-700 dark:text-slate-200"><?= htmlspecialchars($c['title']) ?></strong>
+              <span class="text-xs text-slate-400"><?= htmlspecialchars($c['sub']) ?></span>
             </div>
           </div>
           <?php endforeach; ?>
         </div>
 
-        <div class="d-flex gap-3 flex-wrap mt-4">
-          <a href="<?= APP_URL ?>/profil" class="btn btn-primary">
-            <i class="fas fa-arrow-right"></i> Selengkapnya
+        <div class="flex flex-wrap gap-3">
+          <a href="<?= APP_URL ?>/profil" class="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold text-sm shadow-lg shadow-blue-500/25 hover:-translate-y-0.5 transition-all inline-flex items-center gap-2">
+            <i class="fas fa-arrow-right"></i>Selengkapnya
           </a>
-          <a href="<?= APP_URL ?>/visi-misi" class="btn btn-outline-primary">Visi &amp; Misi</a>
+          <a href="<?= APP_URL ?>/visi-misi" class="px-5 py-2.5 border-2 border-blue-600 text-blue-600 dark:text-blue-400 rounded-xl font-semibold text-sm hover:bg-blue-600 hover:text-white transition-all">
+            Visi & Misi
+          </a>
         </div>
       </div>
     </div>
@@ -189,40 +171,38 @@ require_once __DIR__ . '/../layouts/header.php';
 </section>
 
 
+
 <!-- ═══════════════════════════════════════════════════════════
      PROGRAM KEAHLIAN
      ═══════════════════════════════════════════════════════════ -->
-<section class="section section-alt">
-  <div class="container">
-    <div class="text-center">
-      <div class="section-badge justify-content-center">
+<section class="py-20 lg:py-28 bg-slate-50 dark:bg-slate-800/50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-14">
+      <div class="inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide mb-4">
         <i class="fas fa-book-open"></i> Program Keahlian
       </div>
-      <div class="section-heading text-center">
-        <h2>Pilih <span>Jurusan</span> Impianmu</h2>
-        <p>4 program keahlian unggulan yang menyiapkan kamu untuk karir di era industri modern</p>
-      </div>
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-800 dark:text-white mb-3">Pilih <span class="text-blue-600">Jurusan</span> Impianmu</h2>
+      <p class="text-slate-500 dark:text-slate-400 max-w-xl mx-auto">4 program keahlian unggulan yang menyiapkan kamu untuk karir di era industri modern</p>
     </div>
-    <div class="row g-4">
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
       <?php foreach ($programs as $prog): ?>
-      <div class="col-lg-3 col-sm-6">
-        <a href="<?= APP_URL ?>/jurusan/<?= (int)$prog['id'] ?>" class="program-card text-decoration-none">
-          <div class="program-card-icon">
-            <i class="<?= htmlspecialchars($prog['icon'] ?? 'fas fa-book') ?>"></i>
-          </div>
-          <h5><?= htmlspecialchars($prog['name']) ?></h5>
-          <p><?= htmlspecialchars(mb_substr($prog['description'] ?? '', 0, 90)) ?>...</p>
-          <div class="program-meta">
-            <span class="quota-badge"><i class="fas fa-users me-1"></i>Kuota <?= (int)$prog['quota'] ?></span>
-            <span class="arrow-link"><i class="fas fa-arrow-right"></i></span>
-          </div>
-        </a>
-      </div>
+      <a href="<?= APP_URL ?>/jurusan/<?= (int)$prog['id'] ?>" class="group block bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl p-6 hover:-translate-y-1.5 hover:shadow-xl hover:border-blue-200 dark:hover:border-blue-700 transition-all duration-300 relative overflow-hidden">
+        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 to-indigo-600 scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300"></div>
+        <div class="w-14 h-14 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center text-white text-xl mb-4 shadow-lg shadow-blue-500/25 group-hover:scale-110 group-hover:-rotate-3 transition-transform">
+          <i class="<?= htmlspecialchars($prog['icon'] ?? 'fas fa-book') ?>"></i>
+        </div>
+        <h5 class="font-bold text-slate-800 dark:text-white mb-2"><?= htmlspecialchars($prog['name']) ?></h5>
+        <p class="text-sm text-slate-400 leading-relaxed mb-4"><?= htmlspecialchars(mb_substr($prog['description'] ?? '', 0, 90)) ?>...</p>
+        <div class="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-700">
+          <span class="text-xs font-semibold text-blue-600 bg-blue-50 dark:bg-blue-900/30 px-2.5 py-1 rounded-full"><i class="fas fa-users mr-1"></i>Kuota <?= (int)$prog['quota'] ?></span>
+          <span class="w-7 h-7 bg-blue-50 dark:bg-blue-900/30 rounded-lg flex items-center justify-center text-blue-600 text-xs group-hover:bg-blue-600 group-hover:text-white transition-all"><i class="fas fa-arrow-right"></i></span>
+        </div>
+      </a>
       <?php endforeach; ?>
     </div>
-    <div class="text-center mt-5">
-      <a href="<?= APP_URL ?>/jurusan" class="btn btn-outline-primary btn-lg">
-        <i class="fas fa-th-large me-2"></i>Lihat Semua Jurusan
+    <div class="text-center mt-10">
+      <a href="<?= APP_URL ?>/jurusan" class="inline-flex items-center gap-2 px-6 py-3 border-2 border-blue-600 text-blue-600 dark:text-blue-400 rounded-xl font-semibold text-sm hover:bg-blue-600 hover:text-white transition-all">
+        <i class="fas fa-th-large"></i>Lihat Semua Jurusan
       </a>
     </div>
   </div>
@@ -232,116 +212,99 @@ require_once __DIR__ . '/../layouts/header.php';
 <!-- ═══════════════════════════════════════════════════════════
      BERITA TERKINI
      ═══════════════════════════════════════════════════════════ -->
-<section class="section">
-  <div class="container">
-    <div class="row align-items-end mb-5">
-      <div class="col-lg-7">
-        <div class="section-badge">
-          <i class="fas fa-newspaper"></i> Berita &amp; Informasi
+<section class="py-20 lg:py-28">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between mb-12">
+      <div>
+        <div class="inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide mb-4">
+          <i class="fas fa-newspaper"></i> Berita & Informasi
         </div>
-        <div class="section-heading mb-0">
-          <h2>Kabar <span>Terkini</span></h2>
-          <p>Ikuti perkembangan informasi dan kegiatan terbaru dari sekolah kami</p>
-        </div>
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-800 dark:text-white mb-2">Kabar <span class="text-blue-600">Terkini</span></h2>
+        <p class="text-slate-500 dark:text-slate-400">Ikuti perkembangan informasi dan kegiatan terbaru</p>
       </div>
-      <div class="col-lg-5 text-lg-end mt-3 mt-lg-0">
-        <a href="<?= APP_URL ?>/berita" class="btn btn-outline-primary">
-          Semua Berita <i class="fas fa-arrow-right ms-1"></i>
-        </a>
-      </div>
+      <a href="<?= APP_URL ?>/berita" class="mt-4 lg:mt-0 inline-flex items-center gap-2 px-5 py-2.5 border-2 border-blue-600 text-blue-600 dark:text-blue-400 rounded-xl font-semibold text-sm hover:bg-blue-600 hover:text-white transition-all">
+        Semua Berita <i class="fas fa-arrow-right"></i>
+      </a>
     </div>
 
-    <div class="row g-4">
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
       <?php foreach ($news as $article): ?>
-      <div class="col-lg-4 col-md-6">
-        <div class="news-card h-100">
-          <div class="news-card-img-wrap">
-            <?php if (!empty($article['image'])): ?>
-              <img src="<?= UPLOAD_URL . htmlspecialchars($article['image']) ?>"
-                   alt="<?= htmlspecialchars($article['title']) ?>"
-                   class="news-card-img">
-            <?php else: ?>
-              <div class="news-img-placeholder">
-                <i class="fas fa-newspaper"></i>
-              </div>
-            <?php endif; ?>
+      <article class="group bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl overflow-hidden hover:-translate-y-1 hover:shadow-xl transition-all duration-300 flex flex-col">
+        <div class="relative h-48 overflow-hidden">
+          <?php if (!empty($article['image'])): ?>
+          <img src="<?= UPLOAD_URL . htmlspecialchars($article['image']) ?>" alt="<?= htmlspecialchars($article['title']) ?>"
+               class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+          <?php else: ?>
+          <div class="w-full h-full bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-600 flex items-center justify-center">
+            <i class="fas fa-newspaper text-4xl text-slate-300 dark:text-slate-500"></i>
           </div>
-          <div class="news-card-body">
-            <div class="news-card-meta">
-              <span class="news-cat-badge"><?= htmlspecialchars($article['category']) ?></span>
-              <span class="news-date">
-                <i class="fas fa-clock"></i>
-                <?= timeAgo($article['published_at']) ?>
-              </span>
-            </div>
-            <h5>
-              <a href="<?= APP_URL ?>/berita/<?= htmlspecialchars($article['slug']) ?>"
-                 style="color:inherit;">
-                <?= htmlspecialchars($article['title']) ?>
-              </a>
-            </h5>
-            <p><?= htmlspecialchars(mb_substr($article['excerpt'] ?? '', 0, 110)) ?>...</p>
-            <div class="news-card-footer">
-              <a href="<?= APP_URL ?>/berita/<?= htmlspecialchars($article['slug']) ?>"
-                 class="news-read-link">
-                Baca Selengkapnya <i class="fas fa-arrow-right"></i>
-              </a>
-              <small style="color:var(--text-muted);">
-                <i class="fas fa-eye me-1"></i><?= (int)($article['views'] ?? 0) ?>
-              </small>
-            </div>
+          <?php endif; ?>
+        </div>
+        <div class="p-5 flex flex-col flex-1">
+          <div class="flex items-center gap-2 mb-3 flex-wrap">
+            <span class="text-[11px] font-bold text-blue-600 bg-blue-50 dark:bg-blue-900/30 px-2.5 py-0.5 rounded-full uppercase"><?= htmlspecialchars($article['category']) ?></span>
+            <span class="text-xs text-slate-400 flex items-center gap-1"><i class="fas fa-clock"></i><?= timeAgo($article['published_at']) ?></span>
+          </div>
+          <h5 class="font-bold text-slate-800 dark:text-white mb-2 leading-snug group-hover:text-blue-600 transition-colors">
+            <a href="<?= APP_URL ?>/berita/<?= htmlspecialchars($article['slug']) ?>"><?= htmlspecialchars($article['title']) ?></a>
+          </h5>
+          <p class="text-sm text-slate-400 leading-relaxed flex-1"><?= htmlspecialchars(mb_substr($article['excerpt'] ?? '', 0, 110)) ?>...</p>
+          <div class="flex items-center justify-between mt-4 pt-4 border-t border-slate-100 dark:border-slate-700">
+            <a href="<?= APP_URL ?>/berita/<?= htmlspecialchars($article['slug']) ?>" class="text-sm font-semibold text-blue-600 flex items-center gap-1.5 hover:gap-2.5 transition-all">
+              Baca <i class="fas fa-arrow-right text-xs"></i>
+            </a>
+            <span class="text-xs text-slate-400"><i class="fas fa-eye mr-1"></i><?= (int)($article['views'] ?? 0) ?></span>
           </div>
         </div>
-      </div>
+      </article>
       <?php endforeach; ?>
     </div>
   </div>
 </section>
 
 
+
 <!-- ═══════════════════════════════════════════════════════════
      PRESTASI
      ═══════════════════════════════════════════════════════════ -->
 <?php if (!empty($achievements)): ?>
-<section class="section section-alt">
-  <div class="container">
-    <div class="text-center">
-      <div class="section-badge justify-content-center">
+<section class="py-20 lg:py-28 bg-slate-50 dark:bg-slate-800/50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-14">
+      <div class="inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide mb-4">
         <i class="fas fa-trophy"></i> Prestasi
       </div>
-      <div class="section-heading text-center">
-        <h2>Kebanggaan <span>Bersama</span></h2>
-        <p>Pencapaian gemilang yang membuktikan kualitas pendidikan di SMK Pertamaku</p>
-      </div>
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-800 dark:text-white mb-3">Kebanggaan <span class="text-blue-600">Bersama</span></h2>
+      <p class="text-slate-500 dark:text-slate-400 max-w-xl mx-auto">Pencapaian gemilang yang membuktikan kualitas pendidikan</p>
     </div>
-    <div class="row g-3">
+    <div class="grid md:grid-cols-2 gap-4">
       <?php foreach ($achievements as $ach): ?>
-      <div class="col-lg-6">
-        <div class="achievement-card">
-          <div class="achievement-icon ach-<?= $ach['level'] ?>">🏆</div>
-          <div class="flex-grow-1">
-            <h6 style="color:var(--text); font-weight:700; margin-bottom:6px; font-size:0.95rem;">
-              <?= htmlspecialchars($ach['title']) ?>
-            </h6>
-            <p style="color:var(--text-muted); font-size:0.84rem; margin:0 0 10px; line-height:1.6;">
-              <?= htmlspecialchars(mb_substr($ach['description'] ?? '', 0, 120)) ?>
-            </p>
-            <div class="d-flex gap-2 align-items-center">
-              <span class="ach-level-badge <?= $ach['level'] ?>"><?= ucfirst($ach['level']) ?></span>
-              <?php if (!empty($ach['year'])): ?>
-              <span style="color:var(--text-muted); font-size:0.78rem;">
-                <i class="fas fa-calendar me-1"></i><?= $ach['year'] ?>
-              </span>
-              <?php endif; ?>
-            </div>
+      <div class="flex gap-4 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl p-5 hover:-translate-y-0.5 hover:shadow-lg hover:border-blue-200 dark:hover:border-blue-700 transition-all">
+        <div class="w-12 h-12 rounded-xl flex items-center justify-center text-xl flex-shrink-0
+          <?php if($ach['level']==='nasional'||$ach['level']==='internasional'): ?>bg-gradient-to-br from-yellow-400 to-amber-500
+          <?php elseif($ach['level']==='provinsi'): ?>bg-gradient-to-br from-blue-400 to-blue-600
+          <?php elseif($ach['level']==='kabupaten'): ?>bg-gradient-to-br from-green-400 to-emerald-500
+          <?php else: ?>bg-blue-50 dark:bg-blue-900/30 text-blue-600<?php endif; ?>">🏆</div>
+        <div class="flex-1 min-w-0">
+          <h6 class="font-bold text-sm text-slate-800 dark:text-white mb-1"><?= htmlspecialchars($ach['title']) ?></h6>
+          <p class="text-xs text-slate-400 leading-relaxed mb-2"><?= htmlspecialchars(mb_substr($ach['description'] ?? '', 0, 120)) ?></p>
+          <div class="flex items-center gap-2">
+            <span class="text-[11px] font-bold px-2 py-0.5 rounded-full uppercase
+              <?php if($ach['level']==='nasional'||$ach['level']==='internasional'): ?>bg-amber-50 text-amber-600 dark:bg-amber-900/30
+              <?php elseif($ach['level']==='provinsi'): ?>bg-blue-50 text-blue-600 dark:bg-blue-900/30
+              <?php elseif($ach['level']==='kabupaten'): ?>bg-green-50 text-green-600 dark:bg-green-900/30
+              <?php else: ?>bg-slate-50 text-slate-600 dark:bg-slate-700<?php endif; ?>"><?= ucfirst($ach['level']) ?></span>
+            <?php if (!empty($ach['year'])): ?>
+            <span class="text-xs text-slate-400"><i class="fas fa-calendar mr-1"></i><?= $ach['year'] ?></span>
+            <?php endif; ?>
           </div>
         </div>
       </div>
       <?php endforeach; ?>
     </div>
-    <div class="text-center mt-5">
-      <a href="<?= APP_URL ?>/prestasi" class="btn btn-outline-primary btn-lg">
-        <i class="fas fa-trophy me-2"></i>Semua Prestasi
+    <div class="text-center mt-10">
+      <a href="<?= APP_URL ?>/prestasi" class="inline-flex items-center gap-2 px-6 py-3 border-2 border-blue-600 text-blue-600 dark:text-blue-400 rounded-xl font-semibold text-sm hover:bg-blue-600 hover:text-white transition-all">
+        <i class="fas fa-trophy"></i>Semua Prestasi
       </a>
     </div>
   </div>
@@ -353,55 +316,32 @@ require_once __DIR__ . '/../layouts/header.php';
      TESTIMONIALS
      ═══════════════════════════════════════════════════════════ -->
 <?php if (!empty($testimonials)): ?>
-<section class="section">
-  <div class="container">
-    <div class="text-center">
-      <div class="section-badge justify-content-center">
+<section class="py-20 lg:py-28">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-14">
+      <div class="inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide mb-4">
         <i class="fas fa-quote-left"></i> Testimoni
       </div>
-      <div class="section-heading text-center">
-        <h2>Kata <span>Mereka</span></h2>
-        <p>Apa yang alumni dan orang tua siswa katakan tentang SMK Pertamaku</p>
-      </div>
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-800 dark:text-white mb-3">Kata <span class="text-blue-600">Mereka</span></h2>
+      <p class="text-slate-500 dark:text-slate-400 max-w-xl mx-auto">Apa yang alumni dan orang tua siswa katakan tentang kami</p>
     </div>
-    <div id="testimonialCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="6000">
-      <div class="carousel-inner">
-        <?php foreach (array_chunk($testimonials, 3) as $i => $chunk): ?>
-        <div class="carousel-item <?= $i === 0 ? 'active' : '' ?>">
-          <div class="row g-4">
-            <?php foreach ($chunk as $t): ?>
-            <div class="col-lg-4 col-md-6">
-              <div class="testimonial-card">
-                <div class="testimonial-stars">
-                  <?= str_repeat('★', (int)($t['rating'] ?? 5)) ?>
-                </div>
-                <p class="testimonial-text">"<?= htmlspecialchars($t['content']) ?>"</p>
-                <div class="testimonial-author">
-                  <div class="testimonial-avatar">
-                    <?= strtoupper(substr($t['name'], 0, 1)) ?>
-                  </div>
-                  <div>
-                    <div class="testimonial-name"><?= htmlspecialchars($t['name']) ?></div>
-                    <div class="testimonial-pos"><?= htmlspecialchars($t['position'] ?? '') ?></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <?php endforeach; ?>
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <?php foreach (array_slice($testimonials, 0, 6) as $t): ?>
+      <div class="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl p-6 hover:-translate-y-1 hover:shadow-lg transition-all relative">
+        <div class="absolute top-3 left-5 text-6xl text-blue-100 dark:text-blue-900/40 font-serif leading-none">"</div>
+        <div class="text-yellow-400 text-sm mb-3 relative"><?= str_repeat('★', (int)($t['rating'] ?? 5)) ?></div>
+        <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed mb-5 italic relative">"<?= htmlspecialchars($t['content']) ?>"</p>
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+            <?= strtoupper(substr($t['name'], 0, 1)) ?>
+          </div>
+          <div>
+            <div class="font-semibold text-sm text-slate-800 dark:text-white"><?= htmlspecialchars($t['name']) ?></div>
+            <div class="text-xs text-slate-400"><?= htmlspecialchars($t['position'] ?? '') ?></div>
           </div>
         </div>
-        <?php endforeach; ?>
       </div>
-      <!-- Dots -->
-      <div class="text-center mt-4">
-        <?php foreach (array_chunk($testimonials, 3) as $i => $chunk): ?>
-        <button data-bs-target="#testimonialCarousel" data-bs-slide-to="<?= $i ?>"
-          style="width:10px;height:10px;border-radius:50%;border:none;margin:0 4px;
-          background:<?= $i===0 ? 'var(--primary)' : 'var(--border)' ?>;
-          cursor:pointer;transition:background .3s;">
-        </button>
-        <?php endforeach; ?>
-      </div>
+      <?php endforeach; ?>
     </div>
   </div>
 </section>
@@ -412,41 +352,37 @@ require_once __DIR__ . '/../layouts/header.php';
      AGENDA KEGIATAN
      ═══════════════════════════════════════════════════════════ -->
 <?php if (!empty($agenda)): ?>
-<section class="section section-alt">
-  <div class="container">
-    <div class="row g-5 align-items-start">
-      <div class="col-lg-5">
-        <div class="section-badge">
+<section class="py-20 lg:py-28 bg-slate-50 dark:bg-slate-800/50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid lg:grid-cols-5 gap-12 items-start">
+      <div class="lg:col-span-2">
+        <div class="inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide mb-4">
           <i class="fas fa-calendar-alt"></i> Agenda
         </div>
-        <div class="section-heading mb-0">
-          <h2>Agenda <span>Kegiatan</span></h2>
-          <p>Jadwal kegiatan sekolah yang akan datang. Jangan sampai terlewat!</p>
-        </div>
-        <a href="<?= APP_URL ?>/kontak" class="btn btn-primary mt-4">
-          <i class="fas fa-envelope me-2"></i>Hubungi Kami
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-800 dark:text-white mb-3">Agenda <span class="text-blue-600">Kegiatan</span></h2>
+        <p class="text-slate-500 dark:text-slate-400 mb-6">Jadwal kegiatan sekolah yang akan datang. Jangan sampai terlewat!</p>
+        <a href="<?= APP_URL ?>/kontak" class="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold text-sm shadow-lg shadow-blue-500/25 hover:-translate-y-0.5 transition-all">
+          <i class="fas fa-envelope"></i>Hubungi Kami
         </a>
       </div>
-      <div class="col-lg-7">
-        <div class="agenda-list">
-          <?php foreach ($agenda as $ag): ?>
-          <div class="agenda-item">
-            <div class="agenda-date">
-              <span class="day"><?= date('d', strtotime($ag['start_date'])) ?></span>
-              <span class="month"><?= date('M', strtotime($ag['start_date'])) ?></span>
-            </div>
-            <div class="agenda-info">
-              <h6><?= htmlspecialchars($ag['title']) ?></h6>
-              <?php if (!empty($ag['location'])): ?>
-              <small><i class="fas fa-map-marker-alt me-1" style="color:var(--primary);"></i><?= htmlspecialchars($ag['location']) ?></small>
-              <?php endif; ?>
-              <?php if (!empty($ag['description'])): ?>
-              <p><?= htmlspecialchars(mb_substr($ag['description'], 0, 90)) ?></p>
-              <?php endif; ?>
-            </div>
+      <div class="lg:col-span-3 space-y-3">
+        <?php foreach ($agenda as $ag): ?>
+        <div class="flex gap-4 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl p-4 hover:translate-x-1 hover:border-blue-200 dark:hover:border-blue-700 transition-all">
+          <div class="w-14 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex flex-col items-center justify-center py-2 flex-shrink-0">
+            <span class="text-lg font-black text-white leading-none"><?= date('d', strtotime($ag['start_date'])) ?></span>
+            <span class="text-[10px] text-white/80 uppercase font-semibold"><?= date('M', strtotime($ag['start_date'])) ?></span>
           </div>
-          <?php endforeach; ?>
+          <div class="min-w-0">
+            <h6 class="font-bold text-sm text-slate-800 dark:text-white mb-1"><?= htmlspecialchars($ag['title']) ?></h6>
+            <?php if (!empty($ag['location'])): ?>
+            <p class="text-xs text-slate-400 mb-1"><i class="fas fa-map-marker-alt text-blue-500 mr-1"></i><?= htmlspecialchars($ag['location']) ?></p>
+            <?php endif; ?>
+            <?php if (!empty($ag['description'])): ?>
+            <p class="text-xs text-slate-400 leading-relaxed"><?= htmlspecialchars(mb_substr($ag['description'], 0, 90)) ?></p>
+            <?php endif; ?>
+          </div>
         </div>
+        <?php endforeach; ?>
       </div>
     </div>
   </div>
@@ -457,26 +393,21 @@ require_once __DIR__ . '/../layouts/header.php';
 <!-- ═══════════════════════════════════════════════════════════
      CTA SECTION
      ═══════════════════════════════════════════════════════════ -->
-<section class="cta-section">
-  <div class="cta-shape cta-shape-1"></div>
-  <div class="cta-shape cta-shape-2"></div>
-  <div class="container">
-    <div class="row justify-content-center">
-      <div class="col-lg-8">
-        <h2>Siap Bergabung Bersama Kami? 🎓</h2>
-        <p>
-          Daftarkan diri sekarang dan jadilah bagian dari keluarga besar SMK Pertamaku.
-          Pendaftaran online mudah, cepat, dan bisa dilakukan kapan saja!
-        </p>
-        <div class="cta-actions">
-          <a href="<?= APP_URL ?>/spmb/daftar" class="btn-hero-primary">
-            <i class="fas fa-pencil-alt"></i> Daftar Sekarang
-          </a>
-          <a href="<?= APP_URL ?>/spmb/cek" class="btn-hero-outline">
-            <i class="fas fa-search"></i> Cek Status Pendaftaran
-          </a>
-        </div>
-      </div>
+<section class="relative py-24 bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 overflow-hidden">
+  <div class="absolute w-60 h-60 bg-white/5 rounded-full -top-20 right-[5%]"></div>
+  <div class="absolute w-36 h-36 bg-white/5 rounded-full -bottom-10 left-[10%]"></div>
+  <div class="max-w-3xl mx-auto px-4 text-center relative z-10">
+    <h2 class="text-3xl sm:text-4xl font-extrabold text-white mb-4">Siap Bergabung Bersama Kami? 🎓</h2>
+    <p class="text-white/75 text-lg max-w-xl mx-auto mb-8 leading-relaxed">
+      Daftarkan diri sekarang dan jadilah bagian dari keluarga besar. Pendaftaran online mudah, cepat, dan bisa dilakukan kapan saja!
+    </p>
+    <div class="flex flex-wrap gap-3 justify-center">
+      <a href="<?= APP_URL ?>/spmb/daftar" class="px-7 py-3.5 bg-white text-blue-700 rounded-xl font-bold text-sm shadow-xl hover:-translate-y-0.5 hover:shadow-2xl transition-all inline-flex items-center gap-2">
+        <i class="fas fa-pencil-alt"></i>Daftar Sekarang
+      </a>
+      <a href="<?= APP_URL ?>/spmb/cek" class="px-7 py-3.5 bg-transparent border-2 border-white/50 text-white rounded-xl font-semibold text-sm hover:bg-white/10 hover:border-white hover:-translate-y-0.5 transition-all inline-flex items-center gap-2">
+        <i class="fas fa-search"></i>Cek Status
+      </a>
     </div>
   </div>
 </section>

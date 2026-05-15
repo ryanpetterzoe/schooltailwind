@@ -4,166 +4,119 @@ $adminName = $_SESSION['admin_name'] ?? 'Admin';
 $adminRole = $_SESSION['admin_role'] ?? 'admin';
 $currentPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
-// Unread contacts count
 $db = getDB();
 $unreadRes = $db->query("SELECT COUNT(*) as cnt FROM contacts WHERE is_read=0");
 $unreadCount = $unreadRes ? (int)$unreadRes->fetch_assoc()['cnt'] : 0;
-// Pending SPMB
 $pendingRes = $db->query("SELECT COUNT(*) as cnt FROM spmb_registrations WHERE status='pending'");
 $pendingCount = $pendingRes ? (int)$pendingRes->fetch_assoc()['cnt'] : 0;
 
 $pageTitle = $adminPageTitle ?? 'Admin Panel';
 ?>
 <!DOCTYPE html>
-<html lang="id" data-theme="light">
+<html lang="id" class="scroll-smooth">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= htmlspecialchars($pageTitle) ?> - Admin Panel</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="stylesheet" href="<?= APP_URL ?>/assets/css/style.css">
-    <script>(function(){ var t=localStorage.getItem('theme')||'light'; document.documentElement.setAttribute('data-theme',t); })();</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><?= htmlspecialchars($pageTitle) ?> - Admin Panel</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{fontFamily:{sans:['Inter','system-ui','sans-serif']}}}}</script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="<?= APP_URL ?>/assets/css/style.css">
+  <script>(function(){var t=localStorage.getItem('smk_theme')||'light';if(t==='dark')document.documentElement.classList.add('dark');})();</script>
 </head>
-<body>
+<body class="bg-gray-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-sans antialiased">
 
-<div class="admin-wrapper">
+<div class="flex min-h-screen">
 <!-- ========== SIDEBAR ========== -->
-<aside class="admin-sidebar" id="adminSidebar">
-    <a href="<?= APP_URL ?>/admin/dashboard" class="sidebar-brand">
-        <i class="fas fa-graduation-cap"></i>
-        <span>SMK Panel</span>
+<aside class="admin-sidebar bg-slate-900 flex flex-col" id="adminSidebar">
+  <a href="<?= APP_URL ?>/admin/dashboard" class="flex items-center gap-3 px-5 py-5 border-b border-slate-800">
+    <i class="fas fa-graduation-cap text-blue-400 text-lg"></i>
+    <span class="text-white font-bold">SMK Panel</span>
+  </a>
+
+  <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-1">
+    <!-- Dashboard -->
+    <a href="<?= APP_URL ?>/admin/dashboard" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors <?= strpos($currentPath,'dashboard') !== false ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white' ?>">
+      <i class="fas fa-tachometer-alt w-5 text-center"></i>Dashboard
     </a>
 
-    <nav class="sidebar-nav">
-        <!-- Dashboard -->
-        <div class="sidebar-section">
-            <a href="<?= APP_URL ?>/admin/dashboard" class="sidebar-link <?= strpos($currentPath,'dashboard') !== false ? 'active' : '' ?>">
-                <i class="fas fa-tachometer-alt"></i> Dashboard
-            </a>
-        </div>
+    <!-- Konten -->
+    <div class="pt-4"><span class="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Konten</span></div>
+    <a href="<?= APP_URL ?>/admin/berita" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors <?= strpos($currentPath,'/admin/berita') !== false ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white' ?>"><i class="fas fa-newspaper w-5 text-center"></i>Berita</a>
+    <a href="<?= APP_URL ?>/admin/galeri" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors <?= strpos($currentPath,'/admin/galeri') !== false ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white' ?>"><i class="fas fa-images w-5 text-center"></i>Galeri</a>
+    <a href="<?= APP_URL ?>/admin/slider" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors <?= strpos($currentPath,'/admin/slider') !== false ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white' ?>"><i class="fas fa-images w-5 text-center"></i>Slider</a>
+    <a href="<?= APP_URL ?>/admin/prestasi" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors <?= strpos($currentPath,'/admin/prestasi') !== false ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white' ?>"><i class="fas fa-trophy w-5 text-center"></i>Prestasi</a>
+    <a href="<?= APP_URL ?>/admin/testimonial" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors <?= strpos($currentPath,'/admin/testimonial') !== false ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white' ?>"><i class="fas fa-quote-left w-5 text-center"></i>Testimonial</a>
+    <a href="<?= APP_URL ?>/admin/agenda" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors <?= strpos($currentPath,'/admin/agenda') !== false ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white' ?>"><i class="fas fa-calendar-alt w-5 text-center"></i>Agenda</a>
 
-        <!-- Konten -->
-        <div class="sidebar-section">
-            <div class="sidebar-section-title">Konten</div>
-            <a href="<?= APP_URL ?>/admin/berita" class="sidebar-link <?= strpos($currentPath,'/admin/berita') !== false ? 'active' : '' ?>">
-                <i class="fas fa-newspaper"></i> Berita
-            </a>
-            <a href="<?= APP_URL ?>/admin/galeri" class="sidebar-link <?= strpos($currentPath,'/admin/galeri') !== false ? 'active' : '' ?>">
-                <i class="fas fa-images"></i> Galeri
-            </a>
-            <a href="<?= APP_URL ?>/admin/slider" class="sidebar-link <?= strpos($currentPath,'/admin/slider') !== false ? 'active' : '' ?>">
-                <i class="fas fa-images"></i> Slider
-            </a>
-            <a href="<?= APP_URL ?>/admin/prestasi" class="sidebar-link <?= strpos($currentPath,'/admin/prestasi') !== false ? 'active' : '' ?>">
-                <i class="fas fa-trophy"></i> Prestasi
-            </a>
-            <a href="<?= APP_URL ?>/admin/testimonial" class="sidebar-link <?= strpos($currentPath,'/admin/testimonial') !== false ? 'active' : '' ?>">
-                <i class="fas fa-quote-left"></i> Testimonial
-            </a>
-            <a href="<?= APP_URL ?>/admin/agenda" class="sidebar-link <?= strpos($currentPath,'/admin/agenda') !== false ? 'active' : '' ?>">
-                <i class="fas fa-calendar-alt"></i> Agenda
-            </a>
-        </div>
+    <!-- Akademik -->
+    <div class="pt-4"><span class="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Akademik</span></div>
+    <a href="<?= APP_URL ?>/admin/jurusan" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors <?= strpos($currentPath,'/admin/jurusan') !== false ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white' ?>"><i class="fas fa-book w-5 text-center"></i>Jurusan</a>
+    <a href="<?= APP_URL ?>/admin/guru" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors <?= strpos($currentPath,'/admin/guru') !== false ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white' ?>"><i class="fas fa-chalkboard-teacher w-5 text-center"></i>Guru</a>
+    <a href="<?= APP_URL ?>/admin/staff" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors <?= strpos($currentPath,'/admin/staff') !== false ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white' ?>"><i class="fas fa-users w-5 text-center"></i>Staff</a>
 
-        <!-- Akademik -->
-        <div class="sidebar-section">
-            <div class="sidebar-section-title">Akademik</div>
-            <a href="<?= APP_URL ?>/admin/jurusan" class="sidebar-link <?= strpos($currentPath,'/admin/jurusan') !== false ? 'active' : '' ?>">
-                <i class="fas fa-book"></i> Jurusan
-            </a>
-            <a href="<?= APP_URL ?>/admin/guru" class="sidebar-link <?= strpos($currentPath,'/admin/guru') !== false ? 'active' : '' ?>">
-                <i class="fas fa-chalkboard-teacher"></i> Guru
-            </a>
-            <a href="<?= APP_URL ?>/admin/staff" class="sidebar-link <?= strpos($currentPath,'/admin/staff') !== false ? 'active' : '' ?>">
-                <i class="fas fa-users"></i> Staff
-            </a>
-        </div>
+    <!-- SPMB -->
+    <div class="pt-4"><span class="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">SPMB</span></div>
+    <a href="<?= APP_URL ?>/admin/spmb/pendaftar" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors <?= strpos($currentPath,'/admin/spmb/pendaftar') !== false ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white' ?>"><i class="fas fa-user-plus w-5 text-center"></i>Pendaftar<?php if ($pendingCount > 0): ?><span class="ml-auto px-2 py-0.5 bg-amber-500 text-white text-[10px] font-bold rounded-full"><?= $pendingCount ?></span><?php endif; ?></a>
+    <a href="<?= APP_URL ?>/admin/spmb/pengaturan" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors <?= strpos($currentPath,'/admin/spmb/pengaturan') !== false ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white' ?>"><i class="fas fa-sliders-h w-5 text-center"></i>Pengaturan SPMB</a>
 
-        <!-- SPMB -->
-        <div class="sidebar-section">
-            <div class="sidebar-section-title">SPMB</div>
-            <a href="<?= APP_URL ?>/admin/spmb/pendaftar" class="sidebar-link <?= strpos($currentPath,'/admin/spmb/pendaftar') !== false ? 'active' : '' ?>">
-                <i class="fas fa-user-plus"></i> Pendaftar
-                <?php if ($pendingCount > 0): ?><span class="badge bg-warning text-dark ms-auto"><?= $pendingCount ?></span><?php endif; ?>
-            </a>
-            <a href="<?= APP_URL ?>/admin/spmb/pengaturan" class="sidebar-link <?= strpos($currentPath,'/admin/spmb/pengaturan') !== false ? 'active' : '' ?>">
-                <i class="fas fa-sliders-h"></i> Pengaturan SPMB
-            </a>
-        </div>
+    <!-- Komunikasi -->
+    <div class="pt-4"><span class="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Komunikasi</span></div>
+    <a href="<?= APP_URL ?>/admin/kontak" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors <?= strpos($currentPath,'/admin/kontak') !== false ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white' ?>"><i class="fas fa-envelope w-5 text-center"></i>Pesan Masuk<?php if ($unreadCount > 0): ?><span class="ml-auto px-2 py-0.5 bg-red-500 text-white text-[10px] font-bold rounded-full"><?= $unreadCount ?></span><?php endif; ?></a>
 
-        <!-- Kontak -->
-        <div class="sidebar-section">
-            <div class="sidebar-section-title">Komunikasi</div>
-            <a href="<?= APP_URL ?>/admin/kontak" class="sidebar-link <?= strpos($currentPath,'/admin/kontak') !== false ? 'active' : '' ?>">
-                <i class="fas fa-envelope"></i> Pesan Masuk
-                <?php if ($unreadCount > 0): ?><span class="badge bg-danger ms-auto"><?= $unreadCount ?></span><?php endif; ?>
-            </a>
-        </div>
+    <!-- Pengaturan -->
+    <div class="pt-4"><span class="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Pengaturan</span></div>
+    <a href="<?= APP_URL ?>/admin/settings/umum" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors <?= strpos($currentPath,'/admin/settings/umum') !== false ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white' ?>"><i class="fas fa-cog w-5 text-center"></i>Pengaturan Umum</a>
+    <a href="<?= APP_URL ?>/admin/settings/tampilan" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors <?= strpos($currentPath,'/admin/settings/tampilan') !== false ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white' ?>"><i class="fas fa-palette w-5 text-center"></i>Tampilan & Warna</a>
+  </nav>
 
-        <!-- Pengaturan -->
-        <div class="sidebar-section">
-            <div class="sidebar-section-title">Pengaturan</div>
-            <a href="<?= APP_URL ?>/admin/settings/umum" class="sidebar-link <?= strpos($currentPath,'/admin/settings/umum') !== false ? 'active' : '' ?>">
-                <i class="fas fa-cog"></i> Pengaturan Umum
-            </a>
-            <a href="<?= APP_URL ?>/admin/settings/tampilan" class="sidebar-link <?= strpos($currentPath,'/admin/settings/tampilan') !== false ? 'active' : '' ?>">
-                <i class="fas fa-palette"></i> Tampilan &amp; Warna
-            </a>
-        </div>
-    </nav>
-
-    <!-- Sidebar Footer -->
-    <div style="padding:16px;border-top:1px solid #1e293b;margin-top:auto;">
-        <a href="<?= APP_URL ?>/admin/logout" class="sidebar-link" style="color:#ef4444;">
-            <i class="fas fa-sign-out-alt"></i> Keluar
-        </a>
-    </div>
+  <!-- Sidebar Footer -->
+  <div class="px-3 py-4 border-t border-slate-800">
+    <a href="<?= APP_URL ?>/admin/logout" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-red-400 hover:bg-red-500/10 transition-colors">
+      <i class="fas fa-sign-out-alt w-5 text-center"></i>Keluar
+    </a>
+  </div>
 </aside>
 
 <!-- ========== MAIN CONTENT ========== -->
-<div class="admin-content">
-    <!-- Top Bar -->
-    <header class="admin-topbar">
-        <div class="d-flex align-items-center gap-3">
-            <button id="sidebarToggle" class="btn btn-sm d-lg-none" style="background:transparent;border:1px solid #e2e8f0;">
-                <i class="fas fa-bars"></i>
-            </button>
-            <h1 class="page-title"><?= htmlspecialchars($pageTitle) ?></h1>
-        </div>
-        <div class="admin-user">
-            <a href="<?= APP_URL ?>/" target="_blank" class="btn btn-sm btn-outline-secondary me-2" title="Lihat Website">
-                <i class="fas fa-external-link-alt"></i>
-            </a>
-            <button id="themeToggle" class="btn btn-sm" style="background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text);" title="Toggle Theme">
-                <i class="fas fa-moon"></i>
-            </button>
-            <div class="avatar ms-2"><?= strtoupper(substr($adminName, 0, 1)) ?></div>
-            <div class="d-none d-md-block ms-2">
-                <div style="font-size:0.85rem;font-weight:600;color:var(--text);"><?= htmlspecialchars($adminName) ?></div>
-                <div style="font-size:0.75rem;color:var(--text-muted);"><?= ucfirst($adminRole) ?></div>
-            </div>
-            <a href="<?= APP_URL ?>/admin/logout" class="btn btn-sm btn-outline-danger ms-2" title="Logout">
-                <i class="fas fa-sign-out-alt"></i>
-            </a>
-        </div>
-    </header>
+<div class="admin-content flex-1 flex flex-col">
+  <!-- Top Bar -->
+  <header class="sticky top-0 z-30 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-700 px-4 sm:px-6 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <button id="sidebarToggle" class="lg:hidden w-9 h-9 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300">
+        <i class="fas fa-bars"></i>
+      </button>
+      <h1 class="text-lg font-bold text-slate-800 dark:text-white"><?= htmlspecialchars($pageTitle) ?></h1>
+    </div>
+    <div class="flex items-center gap-2">
+      <a href="<?= APP_URL ?>/" target="_blank" class="w-9 h-9 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-blue-600 transition-colors" title="Lihat Website"><i class="fas fa-external-link-alt text-sm"></i></a>
+      <button id="themeToggle" class="w-9 h-9 flex items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:text-blue-600 transition-colors" title="Toggle Theme">
+        <i class="fas fa-moon dark:hidden"></i><i class="fas fa-sun hidden dark:inline"></i>
+      </button>
+      <div class="w-9 h-9 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-sm"><?= strtoupper(substr($adminName, 0, 1)) ?></div>
+      <div class="hidden sm:block">
+        <div class="text-sm font-semibold text-slate-800 dark:text-white"><?= htmlspecialchars($adminName) ?></div>
+        <div class="text-xs text-slate-400"><?= ucfirst($adminRole) ?></div>
+      </div>
+      <a href="<?= APP_URL ?>/admin/logout" class="w-9 h-9 flex items-center justify-center rounded-lg border border-red-200 dark:border-red-800 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors" title="Logout"><i class="fas fa-sign-out-alt text-sm"></i></a>
+    </div>
+  </header>
 
-    <!-- Inner Content -->
-    <div class="admin-inner">
+  <!-- Inner Content -->
+  <div class="flex-1 p-4 sm:p-6 lg:p-8">
 
     <?php if (isset($_SESSION['flash_success'])): ?>
-        <div class="alert alert-success alert-dismissible alert-auto-dismiss fade show">
-            <i class="fas fa-check-circle me-2"></i><?= htmlspecialchars($_SESSION['flash_success']) ?>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-        <?php unset($_SESSION['flash_success']); ?>
-    <?php endif; ?>
+    <div class="mb-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl text-green-700 dark:text-green-400 text-sm flex items-center justify-between" role="alert" data-dismiss-auto>
+      <span><i class="fas fa-check-circle mr-2"></i><?= htmlspecialchars($_SESSION['flash_success']) ?></span>
+      <button data-dismiss-alert class="text-green-400 hover:text-green-600">&times;</button>
+    </div>
+    <?php unset($_SESSION['flash_success']); endif; ?>
 
     <?php if (isset($_SESSION['flash_error'])): ?>
-        <div class="alert alert-danger alert-dismissible alert-auto-dismiss fade show">
-            <i class="fas fa-exclamation-circle me-2"></i><?= htmlspecialchars($_SESSION['flash_error']) ?>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-        <?php unset($_SESSION['flash_error']); ?>
-    <?php endif; ?>
+    <div class="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-red-700 dark:text-red-400 text-sm flex items-center justify-between" role="alert" data-dismiss-auto>
+      <span><i class="fas fa-exclamation-circle mr-2"></i><?= htmlspecialchars($_SESSION['flash_error']) ?></span>
+      <button data-dismiss-alert class="text-red-400 hover:text-red-600">&times;</button>
+    </div>
+    <?php unset($_SESSION['flash_error']); endif; ?>

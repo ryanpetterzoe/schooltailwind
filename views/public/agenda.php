@@ -3,71 +3,66 @@ $pageTitle = 'Agenda Kegiatan - ' . ($settings['school_name'] ?? 'SMK Pertamaku'
 require_once __DIR__ . '/../layouts/header.php';
 ?>
 
-<div class="page-header">
-    <div class="container">
-        <h1 class="fw-bold mb-2">Agenda Kegiatan</h1>
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb breadcrumb-dark mb-0">
-                <li class="breadcrumb-item"><a href="<?= APP_URL ?>/">Beranda</a></li>
-                <li class="breadcrumb-item active">Agenda</li>
-            </ol>
-        </nav>
-    </div>
-</div>
+<section class="relative bg-gradient-to-br from-blue-600 to-indigo-700 py-16 overflow-hidden">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+    <h1 class="text-3xl sm:text-4xl font-extrabold text-white mb-2">Agenda Kegiatan</h1>
+    <nav class="flex items-center gap-2 text-sm">
+      <a href="<?= APP_URL ?>/" class="text-white/70 hover:text-white transition-colors">Beranda</a>
+      <i class="fas fa-chevron-right text-white/40 text-xs"></i>
+      <span class="text-white">Agenda</span>
+    </nav>
+  </div>
+</section>
 
-<section class="section">
-    <div class="container">
-        <div class="section-heading text-center">
-            <div class="section-badge justify-content-center"><i class="fas fa-calendar-alt me-1"></i> Jadwal</div>
-            <h2>Agenda <span>Kegiatan Sekolah</span></h2>
-            <p>Kalender kegiatan dan jadwal penting sekolah</p>
-        </div>
-
-        <?php if (empty($agendas)): ?>
-        <div class="text-center py-5">
-            <i class="fas fa-calendar-times" style="font-size:3rem;color:var(--text-muted);"></i>
-            <p class="mt-3" style="color:var(--text-muted);">Belum ada agenda kegiatan.</p>
-        </div>
-        <?php else: ?>
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="agenda-list">
-                    <?php foreach ($agendas as $ag):
-                        $isPast = strtotime($ag['start_date']) < strtotime('today');
-                    ?>
-                    <div class="agenda-item" style="<?= $isPast ? 'opacity:0.6;' : '' ?>">
-                        <div class="agenda-date">
-                            <span class="day"><?= date('d', strtotime($ag['start_date'])) ?></span>
-                            <span class="month"><?= date('M', strtotime($ag['start_date'])) ?></span>
-                        </div>
-                        <div class="agenda-info flex-grow-1">
-                            <h6>
-                                <?= htmlspecialchars($ag['title']) ?>
-                                <?php if ($isPast): ?>
-                                <span class="badge ms-2" style="background:rgba(148,163,184,.15);color:var(--text-muted);font-size:.7rem;">Selesai</span>
-                                <?php else: ?>
-                                <span class="badge ms-2" style="background:rgba(34,197,94,.15);color:#16a34a;font-size:.7rem;">Upcoming</span>
-                                <?php endif; ?>
-                            </h6>
-                            <?php if (!empty($ag['location'])): ?>
-                            <small><i class="fas fa-map-marker-alt me-1" style="color:var(--primary);"></i><?= htmlspecialchars($ag['location']) ?></small>
-                            <?php endif; ?>
-                            <?php if (!empty($ag['end_date']) && $ag['end_date'] !== $ag['start_date']): ?>
-                            <small class="ms-3"><i class="fas fa-calendar me-1" style="color:var(--text-muted);"></i>
-                                s/d <?= date('d M Y', strtotime($ag['end_date'])) ?>
-                            </small>
-                            <?php endif; ?>
-                            <?php if (!empty($ag['description'])): ?>
-                            <p><?= htmlspecialchars($ag['description']) ?></p>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                    <?php endforeach; ?>
-                </div>
-            </div>
-        </div>
-        <?php endif; ?>
+<section class="py-16">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-12">
+      <div class="inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide mb-4">
+        <i class="fas fa-calendar-alt"></i> Jadwal
+      </div>
+      <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800 dark:text-white mb-2">Agenda <span class="text-blue-600">Kegiatan Sekolah</span></h2>
+      <p class="text-slate-400 max-w-lg mx-auto">Kalender kegiatan dan jadwal penting sekolah</p>
     </div>
+
+    <?php if (empty($agendas)): ?>
+    <div class="text-center py-16">
+      <i class="fas fa-calendar-times text-5xl text-slate-200 dark:text-slate-700 mb-4"></i>
+      <p class="text-slate-400">Belum ada agenda kegiatan.</p>
+    </div>
+    <?php else: ?>
+    <div class="max-w-3xl mx-auto space-y-3">
+      <?php foreach ($agendas as $ag):
+        $isPast = strtotime($ag['start_date']) < strtotime('today');
+      ?>
+      <div class="flex gap-4 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl p-4 hover:translate-x-1 hover:border-blue-200 dark:hover:border-blue-700 transition-all <?= $isPast ? 'opacity-60' : '' ?>">
+        <div class="w-14 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex flex-col items-center justify-center py-2 flex-shrink-0">
+          <span class="text-lg font-black text-white leading-none"><?= date('d', strtotime($ag['start_date'])) ?></span>
+          <span class="text-[10px] text-white/80 uppercase font-semibold"><?= date('M', strtotime($ag['start_date'])) ?></span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 mb-1">
+            <h6 class="font-bold text-sm text-slate-800 dark:text-white"><?= htmlspecialchars($ag['title']) ?></h6>
+            <?php if ($isPast): ?>
+            <span class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 text-slate-400 text-[10px] font-bold rounded-full">Selesai</span>
+            <?php else: ?>
+            <span class="px-2 py-0.5 bg-green-50 dark:bg-green-900/30 text-green-600 text-[10px] font-bold rounded-full">Upcoming</span>
+            <?php endif; ?>
+          </div>
+          <?php if (!empty($ag['location'])): ?>
+          <p class="text-xs text-slate-400 mb-1"><i class="fas fa-map-marker-alt text-blue-500 mr-1"></i><?= htmlspecialchars($ag['location']) ?></p>
+          <?php endif; ?>
+          <?php if (!empty($ag['end_date']) && $ag['end_date'] !== $ag['start_date']): ?>
+          <p class="text-xs text-slate-400 mb-1"><i class="fas fa-calendar mr-1"></i>s/d <?= date('d M Y', strtotime($ag['end_date'])) ?></p>
+          <?php endif; ?>
+          <?php if (!empty($ag['description'])): ?>
+          <p class="text-xs text-slate-400 leading-relaxed"><?= htmlspecialchars($ag['description']) ?></p>
+          <?php endif; ?>
+        </div>
+      </div>
+      <?php endforeach; ?>
+    </div>
+    <?php endif; ?>
+  </div>
 </section>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>
