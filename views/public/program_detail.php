@@ -3,117 +3,83 @@ $pageTitle = htmlspecialchars($program['name'] ?? 'Detail Jurusan') . ' - ' . ($
 require_once __DIR__ . '/../layouts/header.php';
 ?>
 
-<div style="background:linear-gradient(135deg,var(--primary),var(--primary-dark));padding:60px 0;color:#fff;">
-    <div class="container">
-        <h1 class="fw-bold mb-2"><?= htmlspecialchars($program['name'] ?? '') ?></h1>
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb mb-0"><li class="breadcrumb-item"><a href="<?= APP_URL ?>/" style="color:rgba(255,255,255,0.8);">Beranda</a></li><li class="breadcrumb-item"><a href="<?= APP_URL ?>/jurusan" style="color:rgba(255,255,255,0.8);">Jurusan</a></li><li class="breadcrumb-item active text-white"><?= htmlspecialchars($program['name'] ?? '') ?></li></ol>
-        </nav>
-    </div>
-</div>
+<section class="relative bg-gradient-to-br from-blue-600 to-indigo-700 py-16 overflow-hidden">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+    <h1 class="text-3xl sm:text-4xl font-extrabold text-white mb-2"><?= htmlspecialchars($program['name'] ?? '') ?></h1>
+    <nav class="flex items-center gap-2 text-sm">
+      <a href="<?= APP_URL ?>/" class="text-white/70 hover:text-white transition-colors">Beranda</a>
+      <i class="fas fa-chevron-right text-white/40 text-xs"></i>
+      <a href="<?= APP_URL ?>/jurusan" class="text-white/70 hover:text-white transition-colors">Jurusan</a>
+      <i class="fas fa-chevron-right text-white/40 text-xs"></i>
+      <span class="text-white"><?= htmlspecialchars($program['name'] ?? '') ?></span>
+    </nav>
+  </div>
+</section>
 
-<section class="section">
-    <div class="container">
-        <div class="row g-4">
-            <div class="col-lg-8">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center gap-3 mb-4">
-                            <div class="program-icon"><i class="<?= htmlspecialchars($program['icon'] ?? 'fas fa-book') ?>"></i></div>
-                            <div>
-                                <h2 style="color:var(--text);margin:0;"><?= htmlspecialchars($program['name'] ?? '') ?></h2>
-                                <?php if (!empty($program['code'])): ?><span class="badge bg-primary"><?= htmlspecialchars($program['code']) ?></span><?php endif; ?>
-                            </div>
-                        </div>
-                        <div style="color:var(--text);line-height:1.8;"><?= nl2br(htmlspecialchars($program['description'] ?? '')) ?></div>
-                    </div>
-                </div>
-
-                <?php if (!empty($relatedNews)): ?>
-                <div class="mt-4">
-                    <div class="d-flex align-items-center justify-content-between mb-3">
-                        <h5 style="color:var(--text);margin:0;">
-                            <i class="fas fa-newspaper me-2" style="color:var(--primary);"></i>
-                            Berita Jurusan Ini
-                        </h5>
-                        <a href="<?= APP_URL ?>/berita?program=<?= $program['id'] ?>"
-                           class="btn btn-sm btn-outline-primary">
-                            Semua Berita <i class="fas fa-arrow-right ms-1"></i>
-                        </a>
-                    </div>
-                    <div class="row g-3">
-                        <?php foreach ($relatedNews as $n): ?>
-                        <div class="col-md-6">
-                            <div class="news-card h-100">
-                                <!-- Thumbnail -->
-                                <a href="<?= APP_URL ?>/berita/<?= htmlspecialchars($n['slug']) ?>"
-                                   class="news-card-img-wrap d-block" style="text-decoration:none;position:relative;">
-                                    <?php if (!empty($n['image'])): ?>
-                                    <img src="<?= UPLOAD_URL . htmlspecialchars($n['image']) ?>"
-                                         alt="<?= htmlspecialchars($n['title']) ?>"
-                                         class="news-card-img">
-                                    <?php else: ?>
-                                    <div class="news-img-placeholder"><i class="fas fa-newspaper"></i></div>
-                                    <?php endif; ?>
-                                    <!-- Badge: jurusan atau umum -->
-                                    <?php if (!empty($n['program_name'])): ?>
-                                    <div style="position:absolute;top:8px;right:8px;
-                                                background:var(--gradient);color:#fff;
-                                                font-size:.65rem;font-weight:700;
-                                                padding:2px 8px;border-radius:50px;">
-                                        <?= htmlspecialchars($n['program_code'] ?? $n['program_name']) ?>
-                                    </div>
-                                    <?php else: ?>
-                                    <div style="position:absolute;top:8px;right:8px;
-                                                background:rgba(0,0,0,.45);color:#fff;
-                                                font-size:.65rem;font-weight:600;
-                                                padding:2px 8px;border-radius:50px;">
-                                        Umum
-                                    </div>
-                                    <?php endif; ?>
-                                </a>
-                                <div class="news-card-body">
-                                    <div class="news-card-meta">
-                                        <span class="news-cat-badge"><?= htmlspecialchars($n['category'] ?? 'Berita') ?></span>
-                                        <span class="news-date"><i class="fas fa-clock"></i><?= timeAgo($n['published_at']) ?></span>
-                                    </div>
-                                    <h5 style="font-size:.9rem;">
-                                        <a href="<?= APP_URL ?>/berita/<?= htmlspecialchars($n['slug']) ?>" style="color:inherit;text-decoration:none;">
-                                            <?= htmlspecialchars($n['title']) ?>
-                                        </a>
-                                    </h5>
-                                    <div class="news-card-footer">
-                                        <a href="<?= APP_URL ?>/berita/<?= htmlspecialchars($n['slug']) ?>" class="news-read-link">
-                                            Baca <i class="fas fa-arrow-right"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <?php endforeach; ?>
-                    </div>
-                </div>
-                <?php endif; ?>
+<section class="py-12 lg:py-16">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid lg:grid-cols-3 gap-8">
+      <div class="lg:col-span-2">
+        <div class="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl p-6 sm:p-8">
+          <div class="flex items-center gap-4 mb-6">
+            <div class="w-14 h-14 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center text-white text-xl shadow-lg shadow-blue-500/20">
+              <i class="<?= htmlspecialchars($program['icon'] ?? 'fas fa-book') ?>"></i>
             </div>
-            <div class="col-lg-4">
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <h5 style="color:var(--text);">Informasi Jurusan</h5>
-                        <hr style="border-color:var(--border);">
-                        <div class="d-flex justify-content-between mb-2"><span style="color:var(--text-muted);">Kode</span><strong style="color:var(--text);"><?= htmlspecialchars($program['code'] ?? '-') ?></strong></div>
-                        <div class="d-flex justify-content-between mb-2"><span style="color:var(--text-muted);">Kuota</span><strong style="color:var(--text);"><?= (int)($program['quota'] ?? 36) ?> Siswa</strong></div>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-body text-center">
-                        <h5 style="color:var(--text);">Tertarik Mendaftar?</h5>
-                        <p style="color:var(--text-muted);font-size:0.9rem;">Daftarkan diri Anda sekarang dan pilih jurusan ini</p>
-                        <a href="<?= APP_URL ?>/spmb/daftar" class="btn btn-primary w-100">Daftar Sekarang</a>
-                    </div>
-                </div>
+            <div>
+              <h2 class="text-xl font-bold text-slate-800 dark:text-white"><?= htmlspecialchars($program['name'] ?? '') ?></h2>
+              <?php if (!empty($program['code'])): ?>
+              <span class="px-2.5 py-0.5 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 text-xs font-bold rounded-full"><?= htmlspecialchars($program['code']) ?></span>
+              <?php endif; ?>
             </div>
+          </div>
+          <div class="text-slate-600 dark:text-slate-300 leading-relaxed"><?= nl2br(htmlspecialchars($program['description'] ?? '')) ?></div>
         </div>
+
+        <?php if (!empty($relatedNews)): ?>
+        <div class="mt-8">
+          <div class="flex items-center justify-between mb-4">
+            <h5 class="font-bold text-slate-800 dark:text-white flex items-center gap-2"><i class="fas fa-newspaper text-blue-500"></i>Berita Jurusan Ini</h5>
+            <a href="<?= APP_URL ?>/berita?program=<?= $program['id'] ?>" class="text-sm font-semibold text-blue-600 hover:underline">Semua Berita <i class="fas fa-arrow-right ml-1"></i></a>
+          </div>
+          <div class="grid sm:grid-cols-2 gap-4">
+            <?php foreach ($relatedNews as $n): ?>
+            <article class="group bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl overflow-hidden hover:shadow-lg transition-all flex flex-col">
+              <a href="<?= APP_URL ?>/berita/<?= htmlspecialchars($n['slug']) ?>" class="relative block h-36 overflow-hidden">
+                <?php if (!empty($n['image'])): ?>
+                <img src="<?= UPLOAD_URL . htmlspecialchars($n['image']) ?>" alt="" class="w-full h-full object-cover group-hover:scale-105 transition-transform">
+                <?php else: ?>
+                <div class="w-full h-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center"><i class="fas fa-newspaper text-2xl text-slate-300"></i></div>
+                <?php endif; ?>
+              </a>
+              <div class="p-4 flex-1 flex flex-col">
+                <span class="text-[11px] font-bold text-blue-600 bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 rounded-full w-fit mb-2"><?= htmlspecialchars($n['category'] ?? 'Berita') ?></span>
+                <h6 class="font-semibold text-sm text-slate-800 dark:text-white mb-1 leading-snug"><a href="<?= APP_URL ?>/berita/<?= htmlspecialchars($n['slug']) ?>" class="hover:text-blue-600"><?= htmlspecialchars($n['title']) ?></a></h6>
+                <span class="text-xs text-slate-400 mt-auto"><?= timeAgo($n['published_at']) ?></span>
+              </div>
+            </article>
+            <?php endforeach; ?>
+          </div>
+        </div>
+        <?php endif; ?>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="space-y-6">
+        <div class="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl p-6">
+          <h5 class="font-bold text-slate-800 dark:text-white mb-4">Informasi Jurusan</h5>
+          <div class="border-t border-slate-100 dark:border-slate-700 pt-4 space-y-3">
+            <div class="flex justify-between"><span class="text-sm text-slate-400">Kode</span><strong class="text-sm text-slate-700 dark:text-white"><?= htmlspecialchars($program['code'] ?? '-') ?></strong></div>
+            <div class="flex justify-between"><span class="text-sm text-slate-400">Kuota</span><strong class="text-sm text-slate-700 dark:text-white"><?= (int)($program['quota'] ?? 36) ?> Siswa</strong></div>
+          </div>
+        </div>
+        <div class="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl p-6 text-center">
+          <h5 class="font-bold text-slate-800 dark:text-white mb-2">Tertarik Mendaftar?</h5>
+          <p class="text-sm text-slate-400 mb-4">Daftarkan diri Anda sekarang dan pilih jurusan ini</p>
+          <a href="<?= APP_URL ?>/spmb/daftar" class="block w-full py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold text-sm shadow-lg shadow-blue-500/25 hover:-translate-y-0.5 transition-all">Daftar Sekarang</a>
+        </div>
+      </div>
     </div>
+  </div>
 </section>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>
