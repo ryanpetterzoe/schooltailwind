@@ -150,9 +150,9 @@ if (!function_exists('isActive')) {
       <a href="<?= APP_URL ?>/spmb" class="block px-4 py-2.5 rounded-lg text-sm font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 text-center mt-2">
         <i class="fas fa-pencil-alt mr-1"></i>SPMB
       </a>
-      <div class="flex items-center justify-between px-4 pt-2">
-        <span class="text-xs text-slate-500 dark:text-slate-400">Mode Gelap</span>
-        <button id="themeToggleMobile" class="w-9 h-9 flex items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+      <div class="flex items-center justify-between px-4 pt-3 pb-1">
+        <span class="text-sm text-slate-500 dark:text-slate-400 font-medium">Mode Gelap</span>
+        <button id="themeToggleMobile" class="w-12 h-12 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-lg active:scale-95 transition-all">
           <i class="fas fa-moon theme-icon-light"></i>
           <i class="fas fa-sun theme-icon-dark hidden"></i>
         </button>
@@ -161,9 +161,10 @@ if (!function_exists('isActive')) {
   </div>
 </nav>
 
-<!-- Inline mobile menu toggle (ensures it works even if main.js loads late) -->
+<!-- Inline scripts: mobile menu + theme toggle (ensures they work immediately) -->
 <script>
 (function(){
+  // Mobile menu toggle
   var btn = document.getElementById('mobileMenuBtn');
   var menu = document.getElementById('mobileMenu');
   var icon = document.getElementById('menuIcon');
@@ -178,6 +179,32 @@ if (!function_exists('isActive')) {
       }
     });
   }
+
+  // Theme toggle function
+  function doToggleTheme(){
+    var isDark = document.documentElement.classList.contains('dark');
+    if(isDark){
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('smk_theme','light');
+    } else {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('smk_theme','dark');
+    }
+    // Sync all theme icons
+    var nowDark = document.documentElement.classList.contains('dark');
+    document.querySelectorAll('.theme-icon-light').forEach(function(el){ el.style.display = nowDark ? 'none' : ''; });
+    document.querySelectorAll('.theme-icon-dark').forEach(function(el){ el.style.display = nowDark ? '' : 'none'; });
+  }
+
+  // Attach to all theme toggle buttons
+  document.querySelectorAll('#themeToggle, #themeToggleMobile').forEach(function(b){
+    b.addEventListener('click', doToggleTheme);
+  });
+
+  // Sync icons on load
+  var nowDark = document.documentElement.classList.contains('dark');
+  document.querySelectorAll('.theme-icon-light').forEach(function(el){ el.style.display = nowDark ? 'none' : ''; });
+  document.querySelectorAll('.theme-icon-dark').forEach(function(el){ el.style.display = nowDark ? '' : 'none'; });
 })();
 </script>
 
