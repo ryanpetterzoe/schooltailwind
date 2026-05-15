@@ -147,7 +147,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['do_install'])) {
                     } else {
                         $log[] = '✅ config/env.php ditulis';
 
-                        // 7. Buat install.lock
+                        // 7. Buat folder uploads jika belum ada
+                        $uploadDir = __DIR__ . '/assets/images/uploads';
+                        if (!is_dir($uploadDir)) {
+                            @mkdir($uploadDir, 0755, true);
+                        }
+                        $log[] = '✅ Folder uploads siap';
+
+                        // 8. Buat install.lock
                         file_put_contents(__DIR__ . '/install.lock', date('Y-m-d H:i:s'));
                         $log[] = '✅ install.lock dibuat';
 
@@ -171,6 +178,7 @@ $site_url = $scheme . '://' . $host . $dir;
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Install - SMK Website</title>
+<script src="https://cdn.tailwindcss.com"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#0f172a;color:#e2e8f0;font-family:'Segoe UI',sans-serif;

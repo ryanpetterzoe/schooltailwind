@@ -10,10 +10,10 @@ $footerCopyright = $settings['footer_copyright'] ?? 'Hak cipta dilindungi undang
 $currentYear = date('Y');
 
 $db = getDB();
-$progRes = $db->query("SELECT id, name FROM programs WHERE is_active=1 ORDER BY sort_order LIMIT 6");
+$progRes = @$db->query("SELECT id, name FROM programs WHERE is_active=1 ORDER BY sort_order LIMIT 6");
 $footerPrograms = $progRes ? $progRes->fetch_all(MYSQLI_ASSOC) : [];
 
-$smRes = $db->query("SELECT * FROM social_media WHERE is_active=1");
+$smRes = @$db->query("SELECT * FROM social_media WHERE is_active=1");
 $socialMedia = $smRes ? $smRes->fetch_all(MYSQLI_ASSOC) : [];
 ?>
 </main>

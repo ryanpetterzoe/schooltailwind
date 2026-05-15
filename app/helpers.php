@@ -41,17 +41,19 @@ function uploadFile($file, $prefix = 'img') {
 function getSetting($key) {
     $db = getDB();
     $key = $db->real_escape_string($key);
-    $res = $db->query("SELECT value FROM settings WHERE `key` = '$key' LIMIT 1");
+    $res = @$db->query("SELECT value FROM settings WHERE `key` = '$key' LIMIT 1");
     if ($res && $row = $res->fetch_assoc()) return $row['value'];
     return '';
 }
 
 function getSettings() {
     $db = getDB();
-    $res = $db->query("SELECT `key`, value FROM settings");
+    $res = @$db->query("SELECT `key`, value FROM settings");
     $data = [];
-    while ($row = $res->fetch_assoc()) {
-        $data[$row['key']] = $row['value'];
+    if ($res) {
+        while ($row = $res->fetch_assoc()) {
+            $data[$row['key']] = $row['value'];
+        }
     }
     return $data;
 }
