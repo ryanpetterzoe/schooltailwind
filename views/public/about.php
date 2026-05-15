@@ -175,4 +175,28 @@ $activeTab = isset($tabMap[$cleanUri]) ? $tabMap[$cleanUri] : 'profil';
   </div>
 </section>
 
+<!-- Inline tab init to ensure tabs work even if main.js loads late -->
+<script>
+(function(){
+  document.querySelectorAll('[data-tab-target]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var group = btn.closest('[data-tab-group]');
+      if(!group) return;
+      group.querySelectorAll('[data-tab-target]').forEach(function(t){
+        t.classList.remove('border-blue-600','text-blue-600');
+        t.classList.add('border-transparent','text-slate-500');
+      });
+      btn.classList.remove('border-transparent','text-slate-500');
+      btn.classList.add('border-blue-600','text-blue-600');
+      var target = btn.getAttribute('data-tab-target');
+      var content = document.querySelector('[data-tab-content]');
+      if(!content) return;
+      content.querySelectorAll('[data-tab-panel]').forEach(function(p){ p.classList.add('hidden'); });
+      var panel = content.querySelector('[data-tab-panel="'+target+'"]');
+      if(panel) panel.classList.remove('hidden');
+    });
+  });
+})();
+</script>
+
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>
