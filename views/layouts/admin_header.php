@@ -5,9 +5,9 @@ $adminRole = $_SESSION['admin_role'] ?? 'admin';
 $currentPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
 $db = getDB();
-$unreadRes = $db->query("SELECT COUNT(*) as cnt FROM contacts WHERE is_read=0");
+$unreadRes = @$db->query("SELECT COUNT(*) as cnt FROM contacts WHERE is_read=0");
 $unreadCount = $unreadRes ? (int)$unreadRes->fetch_assoc()['cnt'] : 0;
-$pendingRes = $db->query("SELECT COUNT(*) as cnt FROM spmb_registrations WHERE status='pending'");
+$pendingRes = @$db->query("SELECT COUNT(*) as cnt FROM spmb_registrations WHERE status='pending'");
 $pendingCount = $pendingRes ? (int)$pendingRes->fetch_assoc()['cnt'] : 0;
 
 $pageTitle = $adminPageTitle ?? 'Admin Panel';

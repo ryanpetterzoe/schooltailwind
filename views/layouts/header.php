@@ -8,12 +8,15 @@ $favicon     = !empty($settings['school_favicon']) ? UPLOAD_URL . $settings['sch
 $uri         = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $appBase     = defined('APP_BASE') ? APP_BASE : '/webpertamaku';
 
-function isActive(string $path, string $uri, string $base): string {
-    $clean = str_replace($base, '', $uri);
-    $clean = '/' . ltrim($clean, '/') ?: '/';
-    if ($path === '/' && ($clean === '/' || $clean === '')) return 'active';
-    if ($path !== '/' && strpos($clean, $path) === 0) return 'active';
-    return '';
+if (!function_exists('isActive')) {
+    function isActive($path, $uri, $base) {
+        $clean = str_replace($base, '', $uri);
+        $clean = '/' . ltrim($clean, '/');
+        if ($clean === '') $clean = '/';
+        if ($path === '/' && ($clean === '/' || $clean === '')) return 'active';
+        if ($path !== '/' && strpos($clean, $path) === 0) return 'active';
+        return '';
+    }
 }
 ?>
 <!DOCTYPE html>
