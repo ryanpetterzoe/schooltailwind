@@ -171,6 +171,25 @@ function initHeroSlider() {
     indicators.forEach((dot, i) => {
         dot.addEventListener('click', () => { clearInterval(interval); goTo(i); interval = setInterval(next, 5500); });
     });
+
+    // Touch/Swipe support for mobile
+    const sliderContainer = document.querySelector('.hero-slider');
+    if (sliderContainer) {
+        let touchStartX = 0;
+        let touchEndX = 0;
+        sliderContainer.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+        sliderContainer.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            const diff = touchStartX - touchEndX;
+            if (Math.abs(diff) > 50) {
+                clearInterval(interval);
+                if (diff > 0) { next(); } else { prev(); }
+                interval = setInterval(next, 5500);
+            }
+        }, { passive: true });
+    }
 }
 
 /* ============================================================

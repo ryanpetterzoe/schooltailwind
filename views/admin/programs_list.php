@@ -1,38 +1,49 @@
 <?php $adminPageTitle = 'Manajemen Jurusan'; require_once __DIR__ . '/../layouts/admin_header.php'; ?>
 
-<div class="admin-table-wrapper">
-    <div class="admin-table-header">
-        <h5><i class="fas fa-book me-2"></i>Daftar Jurusan</h5>
-        <a href="<?= APP_URL ?>/admin/jurusan/tambah" class="btn btn-sm btn-primary"><i class="fas fa-plus me-1"></i>Tambah Jurusan</a>
+<div class="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl overflow-hidden">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 sm:p-6 border-b border-slate-100 dark:border-slate-700">
+        <h5 class="text-lg font-semibold text-slate-800 dark:text-white flex items-center gap-2"><i class="fas fa-book text-blue-600"></i>Daftar Jurusan</h5>
+        <a href="<?= APP_URL ?>/admin/jurusan/tambah" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors inline-flex items-center gap-1">
+            <i class="fas fa-plus"></i>Tambah Jurusan
+        </a>
     </div>
-    <div class="table-responsive">
-        <table class="table">
-            <thead><tr><th>Nama Jurusan</th><th>Kode</th><th>Kuota</th><th>Urutan</th><th>Status</th><th>Aksi</th></tr></thead>
-            <tbody>
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead>
+                <tr class="bg-slate-50 dark:bg-slate-700/50">
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Nama Jurusan</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Kode</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Kuota</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Urutan</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Status</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Aksi</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
                 <?php if (empty($programs)): ?>
-                <tr><td colspan="6" class="text-center py-4" style="color:var(--text-muted);">Belum ada jurusan.</td></tr>
+                <tr><td colspan="6" class="px-4 py-8 text-center text-slate-400 dark:text-slate-500">Belum ada jurusan.</td></tr>
                 <?php else: ?>
                 <?php foreach ($programs as $prog): ?>
-                <tr>
-                    <td>
-                        <div class="d-flex align-items-center gap-3">
-                            <div style="width:40px;height:40px;border-radius:8px;background:rgba(26,86,219,0.1);display:flex;align-items:center;justify-content:center;color:var(--primary);">
+                <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+                    <td class="px-4 py-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
                                 <i class="<?= htmlspecialchars($prog['icon'] ?? 'fas fa-book') ?>"></i>
                             </div>
                             <div>
-                                <div style="font-weight:600;color:var(--text);"><?= htmlspecialchars($prog['name']) ?></div>
-                                <small style="color:var(--text-muted);"><?= htmlspecialchars(substr($prog['description'] ?? '', 0, 80)) ?>...</small>
+                                <div class="font-semibold text-slate-800 dark:text-white"><?= htmlspecialchars($prog['name']) ?></div>
+                                <small class="text-slate-400 dark:text-slate-500"><?= htmlspecialchars(substr($prog['description'] ?? '', 0, 80)) ?>...</small>
                             </div>
                         </div>
                     </td>
-                    <td><span class="badge bg-primary"><?= htmlspecialchars($prog['code'] ?? '-') ?></span></td>
-                    <td style="color:var(--text);"><?= (int)$prog['quota'] ?> siswa</td>
-                    <td style="color:var(--text-muted);"><?= (int)$prog['sort_order'] ?></td>
-                    <td><span class="badge <?= $prog['is_active'] ? 'bg-success' : 'bg-secondary' ?>"><?= $prog['is_active'] ? 'Aktif' : 'Nonaktif' ?></span></td>
-                    <td>
-                        <div class="d-flex gap-1">
-                            <a href="<?= APP_URL ?>/admin/jurusan/edit/<?= $prog['id'] ?>" class="btn btn-xs btn-outline-primary" style="padding:3px 8px;font-size:0.75rem;"><i class="fas fa-edit"></i></a>
-                            <a href="<?= APP_URL ?>/admin/jurusan/hapus/<?= $prog['id'] ?>" class="btn btn-xs btn-outline-danger" style="padding:3px 8px;font-size:0.75rem;" data-confirm="Hapus jurusan ini?"><i class="fas fa-trash"></i></a>
+                    <td class="px-4 py-3"><span class="px-2 py-0.5 text-xs font-bold rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300"><?= htmlspecialchars($prog['code'] ?? '-') ?></span></td>
+                    <td class="px-4 py-3 text-slate-700 dark:text-slate-300"><?= (int)$prog['quota'] ?> siswa</td>
+                    <td class="px-4 py-3 text-slate-500 dark:text-slate-400"><?= (int)$prog['sort_order'] ?></td>
+                    <td class="px-4 py-3"><span class="px-2 py-0.5 text-xs font-bold rounded-full <?= $prog['is_active'] ? 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300' : 'bg-slate-100 dark:bg-slate-600 text-slate-600 dark:text-slate-300' ?>"><?= $prog['is_active'] ? 'Aktif' : 'Nonaktif' ?></span></td>
+                    <td class="px-4 py-3">
+                        <div class="flex items-center gap-1">
+                            <a href="<?= APP_URL ?>/admin/jurusan/edit/<?= $prog['id'] ?>" class="p-1.5 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-500 hover:text-blue-600 hover:border-blue-300 transition-colors"><i class="fas fa-edit text-xs"></i></a>
+                            <a href="<?= APP_URL ?>/admin/jurusan/hapus/<?= $prog['id'] ?>" class="p-1.5 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-500 hover:text-red-600 hover:border-red-300 transition-colors" data-confirm="Hapus jurusan ini?"><i class="fas fa-trash text-xs"></i></a>
                         </div>
                     </td>
                 </tr>

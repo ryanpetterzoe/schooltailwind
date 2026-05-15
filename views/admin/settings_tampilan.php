@@ -1,207 +1,145 @@
 <?php $adminPageTitle = 'Pengaturan Tampilan'; require_once __DIR__ . '/../layouts/admin_header.php'; ?>
 
-<div class="admin-card" style="max-width:700px;">
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl p-6">
 
-    <h5 class="mb-4"><i class="fas fa-palette me-2" style="color:var(--primary);"></i>Pengaturan Warna & Tampilan</h5>
+        <h5 class="text-lg font-semibold text-slate-800 dark:text-white flex items-center gap-2 mb-6"><i class="fas fa-palette text-blue-600"></i>Pengaturan Warna & Tampilan</h5>
 
-    <form method="POST" action="<?= APP_URL ?>/admin/settings/tampilan">
-        <input type="hidden" name="_token" value="<?= htmlspecialchars(isset($_SESSION['csrf_token']) ? $_SESSION['csrf_token'] : '') ?>">
+        <form method="POST" action="<?= APP_URL ?>/admin/settings/tampilan">
+            <input type="hidden" name="_token" value="<?= htmlspecialchars(isset($_SESSION['csrf_token']) ? $_SESSION['csrf_token'] : '') ?>">
 
-        <!-- Color Preview -->
-        <div class="mb-4 p-3 rounded" style="background:var(--bg-secondary);border:1px solid var(--border);">
-            <p style="color:var(--text-muted);font-size:.82rem;margin-bottom:12px;">
-                <i class="fas fa-info-circle me-1"></i>
-                Preview warna akan terlihat setelah disimpan dan halaman direfresh.
-            </p>
-            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-                <div style="width:40px;height:40px;border-radius:10px;background:<?= htmlspecialchars($settings['accent_primary'] ?? '#2563eb') ?>;box-shadow:0 2px 8px rgba(0,0,0,.2);"></div>
-                <span style="color:var(--text-secondary);font-size:.85rem;">Warna primer saat ini: <strong><?= htmlspecialchars($settings['accent_primary'] ?? '#2563eb') ?></strong></span>
-            </div>
-        </div>
-
-        <div class="row g-4 mb-4">
-            <!-- Primary Color -->
-            <div class="col-md-6">
-                <label class="form-label fw-semibold">
-                    <i class="fas fa-circle me-1" style="color:var(--primary);"></i>
-                    Warna Primer (Accent)
-                </label>
-                <p style="color:var(--text-muted);font-size:.78rem;margin-bottom:8px;">
-                    Warna utama: tombol, link, highlight, badge, icon.
+            <!-- Color Preview -->
+            <div class="mb-6 p-4 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+                <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">
+                    <i class="fas fa-info-circle mr-1"></i>Preview warna akan terlihat setelah disimpan dan halaman direfresh.
                 </p>
-                <div style="display:flex;gap:8px;align-items:center;">
-                    <input type="color" name="accent_primary" class="form-control form-control-color"
-                           style="width:60px;height:40px;padding:2px;border-radius:8px;cursor:pointer;"
-                           value="<?= htmlspecialchars($settings['accent_primary'] ?? '#2563eb') ?>">
-                    <input type="text" id="accent_primary_hex" class="form-control"
-                           style="font-family:monospace;"
-                           value="<?= htmlspecialchars($settings['accent_primary'] ?? '#2563eb') ?>"
-                           placeholder="#2563eb"
-                           oninput="syncColorPicker('accent_primary', this.value)">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg shadow-md" style="background:<?= htmlspecialchars($settings['accent_primary'] ?? '#2563eb') ?>;"></div>
+                    <span class="text-sm text-slate-600 dark:text-slate-300">Warna primer saat ini: <strong><?= htmlspecialchars($settings['accent_primary'] ?? '#2563eb') ?></strong></span>
                 </div>
             </div>
 
-            <!-- Dark variant -->
-            <div class="col-md-6">
-                <label class="form-label fw-semibold">
-                    <i class="fas fa-circle me-1" style="color:var(--primary-dark);"></i>
-                    Warna Primer (Gelap)
-                </label>
-                <p style="color:var(--text-muted);font-size:.78rem;margin-bottom:8px;">
-                    Varian gelap untuk hover, gradient, dan dark mode.
-                </p>
-                <div style="display:flex;gap:8px;align-items:center;">
-                    <input type="color" name="accent_dark" class="form-control form-control-color"
-                           style="width:60px;height:40px;padding:2px;border-radius:8px;cursor:pointer;"
-                           value="<?= htmlspecialchars($settings['accent_dark'] ?? '#1d4ed8') ?>">
-                    <input type="text" id="accent_dark_hex" class="form-control"
-                           style="font-family:monospace;"
-                           value="<?= htmlspecialchars($settings['accent_dark'] ?? '#1d4ed8') ?>"
-                           placeholder="#1d4ed8"
-                           oninput="syncColorPicker('accent_dark', this.value)">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <!-- Primary Color -->
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                        <i class="fas fa-circle mr-1 text-blue-600"></i>Warna Primer (Accent)
+                    </label>
+                    <p class="text-xs text-slate-400 dark:text-slate-500 mb-2">Warna utama: tombol, link, highlight, badge.</p>
+                    <div class="flex items-center gap-2">
+                        <input type="color" name="accent_primary" class="w-14 h-10 p-0.5 rounded-lg cursor-pointer border border-slate-200 dark:border-slate-700"
+                               value="<?= htmlspecialchars($settings['accent_primary'] ?? '#2563eb') ?>">
+                        <input type="text" id="accent_primary_hex" class="flex-1 px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               value="<?= htmlspecialchars($settings['accent_primary'] ?? '#2563eb') ?>"
+                               placeholder="#2563eb"
+                               oninput="syncColorPicker('accent_primary', this.value)">
+                    </div>
+                </div>
+
+                <!-- Dark variant -->
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                        <i class="fas fa-circle mr-1 text-blue-800"></i>Warna Primer (Gelap)
+                    </label>
+                    <p class="text-xs text-slate-400 dark:text-slate-500 mb-2">Varian gelap untuk hover, gradient, dark mode.</p>
+                    <div class="flex items-center gap-2">
+                        <input type="color" name="accent_dark" class="w-14 h-10 p-0.5 rounded-lg cursor-pointer border border-slate-200 dark:border-slate-700"
+                               value="<?= htmlspecialchars($settings['accent_dark'] ?? '#1d4ed8') ?>">
+                        <input type="text" id="accent_dark_hex" class="flex-1 px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               value="<?= htmlspecialchars($settings['accent_dark'] ?? '#1d4ed8') ?>"
+                               placeholder="#1d4ed8"
+                               oninput="syncColorPicker('accent_dark', this.value)">
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Preset Colors -->
-        <div class="mb-4">
-            <label class="form-label fw-semibold">Preset Warna Populer</label>
-            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;">
-                <?php
-                $presets = [
-                    ['name'=>'Biru (Default)', 'primary'=>'#2563eb', 'dark'=>'#1d4ed8'],
-                    ['name'=>'Ungu',           'primary'=>'#7c3aed', 'dark'=>'#6d28d9'],
-                    ['name'=>'Merah',          'primary'=>'#dc2626', 'dark'=>'#b91c1c'],
-                    ['name'=>'Hijau',          'primary'=>'#16a34a', 'dark'=>'#15803d'],
-                    ['name'=>'Oranye',         'primary'=>'#ea580c', 'dark'=>'#c2410c'],
-                    ['name'=>'Teal',           'primary'=>'#0d9488', 'dark'=>'#0f766e'],
-                    ['name'=>'Pink',           'primary'=>'#db2777', 'dark'=>'#be185d'],
-                    ['name'=>'Hitam',          'primary'=>'#1e293b', 'dark'=>'#0f172a'],
-                ];
-                foreach ($presets as $p): ?>
-                <button type="button" class="preset-btn"
-                        data-primary="<?= $p['primary'] ?>"
-                        data-dark="<?= $p['dark'] ?>"
-                        title="<?= $p['name'] ?>"
-                        onclick="applyPreset(this)"
-                        style="width:36px;height:36px;border-radius:10px;border:3px solid transparent;
-                               background:<?= $p['primary'] ?>;cursor:pointer;transition:all .2s;
-                               <?= (($settings['accent_primary'] ?? '#2563eb') === $p['primary']) ? 'border-color:#f1f5f9;transform:scale(1.15);' : '' ?>">
+            <!-- Preset Colors -->
+            <div class="mb-6">
+                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Preset Warna Populer</label>
+                <div class="flex flex-wrap gap-2 mt-2">
+                    <?php
+                    $presets = [
+                        ['name'=>'Biru (Default)','primary'=>'#2563eb','dark'=>'#1d4ed8'],
+                        ['name'=>'Ungu','primary'=>'#7c3aed','dark'=>'#6d28d9'],
+                        ['name'=>'Merah','primary'=>'#dc2626','dark'=>'#b91c1c'],
+                        ['name'=>'Hijau','primary'=>'#16a34a','dark'=>'#15803d'],
+                        ['name'=>'Oranye','primary'=>'#ea580c','dark'=>'#c2410c'],
+                        ['name'=>'Teal','primary'=>'#0d9488','dark'=>'#0f766e'],
+                        ['name'=>'Pink','primary'=>'#db2777','dark'=>'#be185d'],
+                        ['name'=>'Hitam','primary'=>'#1e293b','dark'=>'#0f172a'],
+                    ];
+                    foreach ($presets as $p): ?>
+                    <button type="button" class="preset-btn w-9 h-9 rounded-lg border-[3px] cursor-pointer transition-all hover:scale-110 <?= (($settings['accent_primary'] ?? '#2563eb') === $p['primary']) ? 'border-slate-300 dark:border-slate-500 scale-110' : 'border-transparent' ?>"
+                            data-primary="<?= $p['primary'] ?>"
+                            data-dark="<?= $p['dark'] ?>"
+                            title="<?= $p['name'] ?>"
+                            onclick="applyPreset(this)"
+                            style="background:<?= $p['primary'] ?>;">
+                    </button>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+
+            <!-- Default Theme -->
+            <div class="mb-6">
+                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Tema Default Website</label>
+                <p class="text-xs text-slate-400 dark:text-slate-500 mb-3">Tema yang digunakan pengunjung baru (sebelum toggle manual).</p>
+                <div class="flex flex-wrap gap-3">
+                    <label class="flex items-center gap-2 cursor-pointer px-4 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 has-[:checked]:border-blue-500">
+                        <input type="radio" name="theme_default" value="light" class="text-blue-600 focus:ring-blue-500" <?= (($settings['theme_default'] ?? 'light') === 'light') ? 'checked' : '' ?>>
+                        <i class="fas fa-sun text-amber-400"></i>
+                        <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Light Mode</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer px-4 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 has-[:checked]:border-blue-500">
+                        <input type="radio" name="theme_default" value="dark" class="text-blue-600 focus:ring-blue-500" <?= (($settings['theme_default'] ?? 'light') === 'dark') ? 'checked' : '' ?>>
+                        <i class="fas fa-moon text-indigo-500"></i>
+                        <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Dark Mode</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors">
+                    <i class="fas fa-save mr-1"></i> Simpan Tampilan
                 </button>
-                <?php endforeach; ?>
+                <button type="button" class="px-4 py-2 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 rounded-lg text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors" onclick="resetToDefault()">
+                    <i class="fas fa-undo mr-1"></i> Reset ke Default
+                </button>
             </div>
-        </div>
-
-        <!-- Default Theme -->
-        <div class="mb-4">
-            <label class="form-label fw-semibold">Tema Default Website</label>
-            <p style="color:var(--text-muted);font-size:.78rem;margin-bottom:10px;">
-                Tema yang digunakan pengunjung baru (sebelum toggle manual).
-            </p>
-            <div style="display:flex;gap:12px;">
-                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:10px 16px;border-radius:10px;border:2px solid var(--border);background:var(--bg-card);">
-                    <input type="radio" name="theme_default" value="light"
-                           <?= (($settings['theme_default'] ?? 'light') === 'light') ? 'checked' : '' ?>>
-                    <i class="fas fa-sun" style="color:#fbbf24;"></i>
-                    <span style="color:var(--text);font-weight:500;">Light Mode</span>
-                </label>
-                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:10px 16px;border-radius:10px;border:2px solid var(--border);background:var(--bg-card);">
-                    <input type="radio" name="theme_default" value="dark"
-                           <?= (($settings['theme_default'] ?? 'light') === 'dark') ? 'checked' : '' ?>>
-                    <i class="fas fa-moon" style="color:#6366f1;"></i>
-                    <span style="color:var(--text);font-weight:500;">Dark Mode</span>
-                </label>
-            </div>
-        </div>
-
-        <div class="d-flex gap-2 align-items-center">
-            <button type="submit" class="btn btn-primary">
-                <i class="fas fa-save me-1"></i> Simpan Tampilan
-            </button>
-            <button type="button" class="btn btn-outline-secondary" onclick="resetToDefault()">
-                <i class="fas fa-undo me-1"></i> Reset ke Default
-            </button>
-        </div>
-    </form>
+        </form>
+    </div>
 </div>
-
-<!-- CSS Variable Injector -->
-<?php
-$pri = $settings['accent_primary'] ?? '#2563eb';
-$drk = $settings['accent_dark']    ?? '#1d4ed8';
-// Convert hex to rgb for glow effects
-function hexToRgb($hex) {
-    $hex = ltrim($hex, '#');
-    if (strlen($hex) === 3) $hex = $hex[0].$hex[0].$hex[1].$hex[1].$hex[2].$hex[2];
-    return [hexdec(substr($hex,0,2)), hexdec(substr($hex,2,2)), hexdec(substr($hex,4,2))];
-}
-$rgb = hexToRgb($pri);
-?>
-<style>
-/* Live accent color preview for admin panel settings page */
-:root {
-    --accent-preview: <?= htmlspecialchars($pri) ?>;
-}
-</style>
 
 <script>
 function syncColorPicker(name, hexVal) {
-    // Sync color picker with text input
     var picker = document.querySelector('input[name="' + name + '"][type="color"]');
-    var text   = document.getElementById(name + '_hex');
-    if (/^#[0-9a-fA-F]{6}$/.test(hexVal)) {
-        if (picker) picker.value = hexVal;
-    }
-    // Sync text from picker
-    if (picker) {
-        picker.addEventListener('input', function() {
-            if (text) text.value = this.value;
-        });
-    }
+    var text = document.getElementById(name + '_hex');
+    if (/^#[0-9a-fA-F]{6}$/.test(hexVal)) { if (picker) picker.value = hexVal; }
+    if (picker) { picker.addEventListener('input', function() { if (text) text.value = this.value; }); }
 }
-
-// Init sync on load
 document.querySelectorAll('input[type="color"]').forEach(function(picker) {
     var name = picker.name;
     var text = document.getElementById(name + '_hex');
-    picker.addEventListener('input', function() {
-        if (text) text.value = this.value;
-    });
+    picker.addEventListener('input', function() { if (text) text.value = this.value; });
 });
-
 function applyPreset(btn) {
-    var primary = btn.getAttribute('data-primary');
-    var dark    = btn.getAttribute('data-dark');
-
-    // Set color pickers
+    var primary = btn.getAttribute('data-primary'), dark = btn.getAttribute('data-dark');
     var p1 = document.querySelector('input[name="accent_primary"][type="color"]');
     var p2 = document.querySelector('input[name="accent_dark"][type="color"]');
     var t1 = document.getElementById('accent_primary_hex');
     var t2 = document.getElementById('accent_dark_hex');
-
-    if (p1) p1.value = primary;
-    if (p2) p2.value = dark;
-    if (t1) t1.value = primary;
-    if (t2) t2.value = dark;
-
-    // Highlight selected preset
-    document.querySelectorAll('.preset-btn').forEach(function(b) {
-        b.style.borderColor = 'transparent';
-        b.style.transform = 'scale(1)';
-    });
-    btn.style.borderColor = '#f1f5f9';
-    btn.style.transform = 'scale(1.15)';
+    if (p1) p1.value = primary; if (p2) p2.value = dark;
+    if (t1) t1.value = primary; if (t2) t2.value = dark;
+    document.querySelectorAll('.preset-btn').forEach(function(b) { b.style.borderColor = 'transparent'; b.style.transform = 'scale(1)'; });
+    btn.style.borderColor = '#94a3b8'; btn.style.transform = 'scale(1.15)';
 }
-
 function resetToDefault() {
     var p1 = document.querySelector('input[name="accent_primary"][type="color"]');
     var p2 = document.querySelector('input[name="accent_dark"][type="color"]');
     var t1 = document.getElementById('accent_primary_hex');
     var t2 = document.getElementById('accent_dark_hex');
-    if (p1) p1.value = '#2563eb';
-    if (p2) p2.value = '#1d4ed8';
-    if (t1) t1.value = '#2563eb';
-    if (t2) t2.value = '#1d4ed8';
+    if (p1) p1.value = '#2563eb'; if (p2) p2.value = '#1d4ed8';
+    if (t1) t1.value = '#2563eb'; if (t2) t2.value = '#1d4ed8';
 }
 </script>
 
