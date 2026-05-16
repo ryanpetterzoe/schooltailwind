@@ -98,9 +98,9 @@ require_once __DIR__ . '/../layouts/header.php';
 
 
 <!-- ═══════════════════════════════════════════════════════════
-     ABOUT SNIPPET
+     ABOUT SNIPPET — putih sempurna
      ═══════════════════════════════════════════════════════════ -->
-<section class="py-20 lg:py-28">
+<section class="py-20 lg:py-28 bg-white dark:bg-slate-900">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="grid lg:grid-cols-12 gap-12 items-center">
       <!-- Visual -->
@@ -175,9 +175,12 @@ require_once __DIR__ . '/../layouts/header.php';
 
 
 <!-- ═══════════════════════════════════════════════════════════
-     PROGRAM KEAHLIAN
+     PROGRAM KEAHLIAN — putih agak abu (slate-50)
      ═══════════════════════════════════════════════════════════ -->
-<section class="py-20 lg:py-28 bg-slate-50 dark:bg-slate-800/50">
+<section class="relative py-20 lg:py-28 bg-slate-50 dark:bg-slate-800/40 overflow-hidden">
+  <!-- subtle dot pattern di sudut, hanya untuk variasi visual -->
+  <div class="absolute -top-10 -right-10 w-72 h-72 bg-blue-500/[0.04] rounded-full blur-3xl pointer-events-none"></div>
+  <div class="absolute -bottom-10 -left-10 w-72 h-72 bg-indigo-500/[0.04] rounded-full blur-3xl pointer-events-none"></div>
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="text-center mb-14">
       <div class="inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide mb-4">
@@ -188,16 +191,32 @@ require_once __DIR__ . '/../layouts/header.php';
     </div>
     <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
       <?php foreach ($programs as $prog): ?>
-      <a href="<?= APP_URL ?>/jurusan/<?= (int)$prog['id'] ?>" class="group block bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl p-6 hover:-translate-y-1.5 hover:shadow-xl hover:border-blue-200 dark:hover:border-blue-700 transition-all duration-300 relative overflow-hidden">
-        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 to-indigo-600 scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300"></div>
-        <div class="w-14 h-14 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center text-white text-xl mb-4 shadow-lg shadow-blue-500/25 group-hover:scale-110 group-hover:-rotate-3 transition-transform">
-          <i class="<?= htmlspecialchars($prog['icon'] ?? 'fas fa-book') ?>"></i>
+      <a href="<?= APP_URL ?>/jurusan/<?= (int)$prog['id'] ?>" class="group block bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl overflow-hidden hover:-translate-y-1.5 hover:shadow-xl hover:border-blue-200 dark:hover:border-blue-700 transition-all duration-300 relative">
+        <?php if (!empty($prog['image'])): ?>
+        <div class="relative h-32 overflow-hidden">
+          <img src="<?= UPLOAD_URL . htmlspecialchars($prog['image']) ?>"
+               alt="<?= htmlspecialchars($prog['name']) ?>"
+               loading="lazy" decoding="async"
+               class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent"></div>
+          <div class="absolute bottom-2 left-3 w-11 h-11 bg-white/95 dark:bg-slate-800 rounded-xl flex items-center justify-center text-blue-600 text-base shadow-md ring-1 ring-white/30">
+            <i class="<?= htmlspecialchars($prog['icon'] ?? 'fas fa-book') ?>"></i>
+          </div>
         </div>
-        <h5 class="font-bold text-slate-800 dark:text-white mb-2"><?= htmlspecialchars($prog['name']) ?></h5>
-        <p class="text-sm text-slate-400 leading-relaxed mb-4"><?= htmlspecialchars(mb_substr($prog['description'] ?? '', 0, 90)) ?>...</p>
-        <div class="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-700">
-          <span class="text-xs font-semibold text-blue-600 bg-blue-50 dark:bg-blue-900/30 px-2.5 py-1 rounded-full"><i class="fas fa-users mr-1"></i>Kuota <?= (int)$prog['quota'] ?></span>
-          <span class="w-7 h-7 bg-blue-50 dark:bg-blue-900/30 rounded-lg flex items-center justify-center text-blue-600 text-xs group-hover:bg-blue-600 group-hover:text-white transition-all"><i class="fas fa-arrow-right"></i></span>
+        <div class="p-6 pt-4">
+        <?php else: ?>
+        <div class="p-6">
+          <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 to-indigo-600 scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300"></div>
+          <div class="w-14 h-14 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center text-white text-xl mb-4 shadow-lg shadow-blue-500/25 group-hover:scale-110 group-hover:-rotate-3 transition-transform">
+            <i class="<?= htmlspecialchars($prog['icon'] ?? 'fas fa-book') ?>"></i>
+          </div>
+        <?php endif; ?>
+          <h5 class="font-bold text-slate-800 dark:text-white mb-2"><?= htmlspecialchars($prog['name']) ?></h5>
+          <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed mb-4"><?= htmlspecialchars(richExcerpt($prog['description'] ?? '', 90)) ?>...</p>
+          <div class="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-700">
+            <span class="text-xs font-semibold text-blue-600 bg-blue-50 dark:bg-blue-900/30 px-2.5 py-1 rounded-full"><i class="fas fa-users mr-1"></i>Kuota <?= (int)$prog['quota'] ?></span>
+            <span class="w-7 h-7 bg-blue-50 dark:bg-blue-900/30 rounded-lg flex items-center justify-center text-blue-600 text-xs group-hover:bg-blue-600 group-hover:text-white transition-all"><i class="fas fa-arrow-right"></i></span>
+          </div>
         </div>
       </a>
       <?php endforeach; ?>
@@ -212,9 +231,9 @@ require_once __DIR__ . '/../layouts/header.php';
 
 
 <!-- ═══════════════════════════════════════════════════════════
-     BERITA TERKINI
+     BERITA TERKINI — putih sempurna
      ═══════════════════════════════════════════════════════════ -->
-<section class="py-20 lg:py-28">
+<section class="py-20 lg:py-28 bg-white dark:bg-slate-900">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between mb-12">
       <div>
@@ -270,7 +289,8 @@ require_once __DIR__ . '/../layouts/header.php';
      PRESTASI
      ═══════════════════════════════════════════════════════════ -->
 <?php if (!empty($achievements)): ?>
-<section class="py-20 lg:py-28 bg-slate-50 dark:bg-slate-800/50">
+<section class="relative py-20 lg:py-28 bg-gradient-to-b from-slate-100/70 via-slate-50 to-white dark:from-slate-800/60 dark:via-slate-800/40 dark:to-slate-900 overflow-hidden">
+  <div class="absolute top-1/3 left-1/2 -translate-x-1/2 w-96 h-96 bg-amber-300/[0.05] rounded-full blur-3xl pointer-events-none"></div>
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="text-center mb-14">
       <div class="inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide mb-4">
@@ -318,7 +338,7 @@ require_once __DIR__ . '/../layouts/header.php';
      TESTIMONIALS
      ═══════════════════════════════════════════════════════════ -->
 <?php if (!empty($testimonials)): ?>
-<section class="py-20 lg:py-28">
+<section class="py-20 lg:py-28 bg-white dark:bg-slate-900">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="text-center mb-14">
       <div class="inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide mb-4">
@@ -354,7 +374,8 @@ require_once __DIR__ . '/../layouts/header.php';
      AGENDA KEGIATAN
      ═══════════════════════════════════════════════════════════ -->
 <?php if (!empty($agenda)): ?>
-<section class="py-20 lg:py-28 bg-slate-50 dark:bg-slate-800/50">
+<section class="relative py-20 lg:py-28 bg-slate-50 dark:bg-slate-800/40 overflow-hidden">
+  <div class="absolute -top-10 right-1/4 w-72 h-72 bg-blue-500/[0.04] rounded-full blur-3xl pointer-events-none"></div>
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="grid lg:grid-cols-5 gap-12 items-start">
       <div class="lg:col-span-2">

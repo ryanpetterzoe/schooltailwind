@@ -23,23 +23,38 @@ require_once __DIR__ . '/../layouts/header.php';
     </div>
     <div class="grid md:grid-cols-2 gap-6">
       <?php foreach ($programs as $prog): ?>
-      <div class="bg-white dark:bg-slate-800 border-l-4 border-l-blue-600 border border-slate-100 dark:border-slate-700 rounded-2xl p-6 hover:-translate-y-1 hover:shadow-xl transition-all">
-        <div class="flex gap-5">
-          <div class="w-16 h-16 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center text-white text-2xl shadow-lg shadow-blue-500/20 flex-shrink-0">
+      <div class="group bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl overflow-hidden hover:-translate-y-1 hover:shadow-xl transition-all flex flex-col">
+
+        <!-- Banner image (or icon-only fallback) -->
+        <a href="<?= APP_URL ?>/jurusan/<?= $prog['id'] ?>" class="relative block h-44 bg-gradient-to-br from-blue-600 to-indigo-600 overflow-hidden">
+          <?php if (!empty($prog['image'])): ?>
+          <img src="<?= UPLOAD_URL . htmlspecialchars($prog['image']) ?>"
+               alt="<?= htmlspecialchars($prog['name']) ?>"
+               loading="lazy" decoding="async"
+               class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-900/70 via-slate-900/20 to-transparent"></div>
+          <?php else: ?>
+          <div class="w-full h-full flex items-center justify-center text-white/30 text-7xl">
             <i class="<?= htmlspecialchars($prog['icon'] ?? 'fas fa-book') ?>"></i>
           </div>
-          <div class="flex-1">
-            <div class="flex items-center gap-2 mb-2">
-              <h5 class="font-bold text-slate-800 dark:text-white"><?= htmlspecialchars($prog['name']) ?></h5>
-              <?php if (!empty($prog['code'])): ?>
-              <span class="px-2 py-0.5 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 text-xs font-bold rounded-full"><?= htmlspecialchars($prog['code']) ?></span>
-              <?php endif; ?>
-            </div>
-            <p class="text-sm text-slate-400 leading-relaxed mb-4"><?= htmlspecialchars(substr($prog['description'] ?? '', 0, 180)) ?>...</p>
-            <div class="flex items-center gap-4">
-              <span class="text-sm text-slate-400"><i class="fas fa-users mr-1 text-blue-500"></i>Kuota: <strong class="text-slate-700 dark:text-white"><?= $prog['quota'] ?></strong></span>
-              <a href="<?= APP_URL ?>/jurusan/<?= $prog['id'] ?>" class="px-4 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs font-bold rounded-lg shadow hover:-translate-y-0.5 transition-all inline-flex items-center gap-1">Detail <i class="fas fa-arrow-right"></i></a>
-            </div>
+          <?php endif; ?>
+          <!-- Floating icon badge -->
+          <div class="absolute bottom-3 left-3 w-12 h-12 bg-white dark:bg-slate-800 rounded-xl flex items-center justify-center text-blue-600 text-xl shadow-lg ring-2 ring-white/20">
+            <i class="<?= htmlspecialchars($prog['icon'] ?? 'fas fa-book') ?>"></i>
+          </div>
+          <?php if (!empty($prog['code'])): ?>
+          <span class="absolute top-3 right-3 px-2.5 py-0.5 bg-white/90 dark:bg-slate-900/80 backdrop-blur text-blue-700 dark:text-blue-300 text-xs font-bold rounded-full shadow"><?= htmlspecialchars($prog['code']) ?></span>
+          <?php endif; ?>
+        </a>
+
+        <div class="p-5 flex-1 flex flex-col">
+          <h5 class="font-bold text-slate-800 dark:text-white mb-2 group-hover:text-blue-600 transition-colors">
+            <a href="<?= APP_URL ?>/jurusan/<?= $prog['id'] ?>"><?= htmlspecialchars($prog['name']) ?></a>
+          </h5>
+          <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed mb-4 flex-1"><?= htmlspecialchars(richExcerpt($prog['description'] ?? '', 180)) ?>...</p>
+          <div class="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-700">
+            <span class="text-sm text-slate-500 dark:text-slate-400"><i class="fas fa-users mr-1 text-blue-500"></i>Kuota: <strong class="text-slate-700 dark:text-white"><?= $prog['quota'] ?></strong></span>
+            <a href="<?= APP_URL ?>/jurusan/<?= $prog['id'] ?>" class="px-4 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs font-bold rounded-lg shadow hover:-translate-y-0.5 transition-all inline-flex items-center gap-1">Detail <i class="fas fa-arrow-right"></i></a>
           </div>
         </div>
       </div>
