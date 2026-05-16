@@ -60,6 +60,7 @@ $settings = getSettings();
     <!-- Akademik -->
     <div class="pt-4"><span class="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Akademik</span></div>
     <a href="<?= APP_URL ?>/admin/jurusan" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors <?= strpos($currentPath,'/admin/jurusan') !== false ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white' ?>"><i class="fas fa-book w-5 text-center"></i>Jurusan</a>
+    <a href="<?= APP_URL ?>/admin/fasilitas" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors <?= strpos($currentPath,'/admin/fasilitas') !== false ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white' ?>"><i class="fas fa-building w-5 text-center"></i>Fasilitas</a>
     <a href="<?= APP_URL ?>/admin/guru" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors <?= strpos($currentPath,'/admin/guru') !== false ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white' ?>"><i class="fas fa-chalkboard-teacher w-5 text-center"></i>Guru</a>
     <a href="<?= APP_URL ?>/admin/staff" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors <?= strpos($currentPath,'/admin/staff') !== false ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white' ?>"><i class="fas fa-users w-5 text-center"></i>Staff</a>
 

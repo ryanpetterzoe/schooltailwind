@@ -62,6 +62,38 @@ CREATE TABLE IF NOT EXISTS `program_images` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ========================
+-- TABEL: facilities (fasilitas sekolah, ditampilkan di tab Profil > Fasilitas)
+-- Bentuknya mirror sederhana dari `programs`: ikon FontAwesome + judul +
+-- deskripsi (rich-text). Kolom `image` adalah cover utama; foto-foto
+-- tambahan disimpan di tabel `facility_images` (multi-upload), sehingga
+-- modul fasilitas bisa pakai pola galeri yang sama dengan jurusan.
+-- ========================
+CREATE TABLE IF NOT EXISTS `facilities` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `name` VARCHAR(200) NOT NULL,
+  `description` LONGTEXT,
+  `image` VARCHAR(255) DEFAULT NULL,
+  `icon` VARCHAR(100) DEFAULT 'fas fa-building',
+  `is_active` TINYINT(1) DEFAULT 1,
+  `sort_order` INT DEFAULT 0,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ========================
+-- TABEL: facility_images (foto-foto pendukung tiap fasilitas, multi-upload)
+-- ========================
+CREATE TABLE IF NOT EXISTS `facility_images` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `facility_id` INT NOT NULL,
+  `image` VARCHAR(255) NOT NULL,
+  `caption` VARCHAR(250) DEFAULT NULL,
+  `sort_order` INT DEFAULT 0,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  KEY `idx_facility_images_facility` (`facility_id`),
+  CONSTRAINT `fk_facility_images_facility` FOREIGN KEY (`facility_id`) REFERENCES `facilities`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ========================
 -- TABEL: pages
 -- ========================
 CREATE TABLE IF NOT EXISTS `pages` (
@@ -336,6 +368,15 @@ INSERT INTO `programs` (`name`, `code`, `description`, `icon`, `quota`, `sort_or
 ('Rekayasa Perangkat Lunak', 'RPL', 'Program keahlian pengembangan aplikasi web, mobile, dan desktop menggunakan berbagai bahasa pemrograman modern.', 'fas fa-laptop-code', 36, 2),
 ('Teknik Audio Video', 'TAV', 'Program keahlian yang mempelajari elektronika, sistem audio, perangkat video dan multimedia.', 'fas fa-tv', 36, 3),
 ('Akuntansi dan Keuangan Lembaga', 'AKL', 'Program keahlian yang mempelajari pencatatan keuangan, perpajakan, dan manajemen keuangan perusahaan.', 'fas fa-calculator', 36, 4);
+
+-- Facilities default (6 item awal — mirror data yang sebelumnya hardcoded di views/public/about.php)
+INSERT INTO `facilities` (`name`, `description`, `icon`, `sort_order`) VALUES
+('Lab Komputer',     '<p>Laboratorium komputer modern dengan spesifikasi terkini untuk praktik pemrograman, jaringan, dan multimedia.</p>', 'fas fa-desktop', 1),
+('Internet WiFi',    '<p>Akses internet cepat di seluruh area sekolah untuk mendukung kegiatan belajar mengajar berbasis digital.</p>',      'fas fa-wifi',    2),
+('Perpustakaan',     '<p>Koleksi buku lengkap dan ruang baca yang nyaman, mendukung literasi siswa di luar jam pelajaran.</p>',           'fas fa-book',    3),
+('Lapangan Olahraga','<p>Sarana olahraga lengkap untuk berbagai kegiatan: bola, voli, basket, dan upacara.</p>',                          'fas fa-futbol',  4),
+('Laboratorium',     '<p>Lab sains dan teknologi yang modern, untuk mendukung praktik mata pelajaran kejuruan.</p>',                       'fas fa-flask',   5),
+('Kantin Sehat',     '<p>Kantin dengan makanan bergizi dan higienis, ramah kantong siswa.</p>',                                            'fas fa-utensils',6);
 
 -- SPMB Settings default
 INSERT INTO `spmb_settings` (`academic_year`, `open_date`, `close_date`, `announcement_date`, `quota_total`, `is_active`, `info`, `requirements`) VALUES

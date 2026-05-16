@@ -86,6 +86,11 @@ if ($uri === '/admin/jurusan/tambah') { ($method==='POST') ? $cms->programSave()
 if (preg_match('#^/admin/jurusan/edit/(\d+)$#', $uri, $m)) { ($method==='POST') ? $cms->programSave($m[1]) : $cms->programForm($m[1]); return; }
 if (preg_match('#^/admin/jurusan/hapus/(\d+)$#', $uri, $m)) { $cms->programDelete($m[1]); return; }
 
+if ($uri === '/admin/fasilitas') { $cms->facilitiesList(); return; }
+if ($uri === '/admin/fasilitas/tambah') { ($method==='POST') ? $cms->facilitySave() : $cms->facilityForm(); return; }
+if (preg_match('#^/admin/fasilitas/edit/(\d+)$#', $uri, $m)) { ($method==='POST') ? $cms->facilitySave($m[1]) : $cms->facilityForm($m[1]); return; }
+if (preg_match('#^/admin/fasilitas/hapus/(\d+)$#', $uri, $m)) { $cms->facilityDelete($m[1]); return; }
+
 if ($uri === '/admin/guru') { $cms->teachersList(); return; }
 if ($uri === '/admin/guru/tambah') { ($method==='POST') ? $cms->teacherSave() : $cms->teacherForm(); return; }
 if (preg_match('#^/admin/guru/edit/(\d+)$#', $uri, $m)) { ($method==='POST') ? $cms->teacherSave($m[1]) : $cms->teacherForm($m[1]); return; }

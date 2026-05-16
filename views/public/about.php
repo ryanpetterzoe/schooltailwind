@@ -150,26 +150,77 @@ $activeTab = isset($tabMap[$cleanUri]) ? $tabMap[$cleanUri] : 'profil';
       <div data-tab-panel="fasilitas" class="<?= $activeTab !== 'fasilitas' ? 'hidden' : '' ?>">
         <h3 class="text-2xl font-bold text-slate-800 dark:text-white mb-2">Fasilitas Sekolah</h3>
         <p class="text-slate-400 mb-8">Kami menyediakan fasilitas lengkap untuk mendukung proses belajar mengajar</p>
+
+        <?php if (empty($facilities)): ?>
+        <div class="bg-white dark:bg-slate-800 border border-dashed border-slate-200 dark:border-slate-700 rounded-2xl p-10 text-center text-slate-400 dark:text-slate-500">
+          <i class="fas fa-building text-3xl mb-2 block"></i>
+          Belum ada fasilitas yang ditampilkan.
+        </div>
+        <?php else: ?>
         <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <?php
-          $fasilitas = [
-            ['icon'=>'fas fa-desktop','name'=>'Lab Komputer','desc'=>'Laboratorium komputer modern dengan spesifikasi terkini'],
-            ['icon'=>'fas fa-wifi','name'=>'Internet WiFi','desc'=>'Akses internet cepat di seluruh area sekolah'],
-            ['icon'=>'fas fa-book','name'=>'Perpustakaan','desc'=>'Koleksi buku lengkap dan ruang baca nyaman'],
-            ['icon'=>'fas fa-futbol','name'=>'Lapangan Olahraga','desc'=>'Sarana olahraga lengkap untuk berbagai kegiatan'],
-            ['icon'=>'fas fa-flask','name'=>'Laboratorium','desc'=>'Lab sains dan teknologi yang modern'],
-            ['icon'=>'fas fa-utensils','name'=>'Kantin Sehat','desc'=>'Kantin dengan makanan bergizi dan higienis'],
-          ];
-          foreach ($fasilitas as $f): ?>
-          <div class="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl p-6 hover:-translate-y-1 hover:shadow-lg transition-all">
-            <div class="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center text-white text-lg mb-4 shadow-lg shadow-blue-500/20">
-              <i class="<?= $f['icon'] ?>"></i>
+          <?php foreach ($facilities as $idx => $f):
+            // Bangun list slide untuk tiap card. Gallery diutamakan; kalau
+            // tidak ada gallery, single cover image dipakai. Kalau dua-duanya
+            // kosong card tampil hanya dengan ikon (compact look).
+            $slides = [];
+            if (!empty($f['images'])) {
+              foreach ($f['images'] as $fi) {
+                $slides[] = ['image' => $fi['image'], 'caption' => $fi['caption'] ?? ''];
+              }
+            } elseif (!empty($f['image'])) {
+              $slides[] = ['image' => $f['image'], 'caption' => ''];
+            }
+            $hasMedia    = !empty($slides);
+            $isSlideshow = count($slides) > 1;
+            $cardId      = 'facCard' . (int)$f['id'];
+          ?>
+          <div class="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl overflow-hidden hover:-translate-y-1 hover:shadow-lg transition-all flex flex-col">
+
+            <?php if ($hasMedia): ?>
+            <!-- Cover / slideshow -->
+            <div id="<?= $cardId ?>" class="relative aspect-video bg-slate-200 dark:bg-slate-900 overflow-hidden" data-fac-slideshow="<?= $isSlideshow ? '1' : '0' ?>">
+              <?php foreach ($slides as $i => $s): ?>
+              <div class="fac-slide absolute inset-0 transition-opacity duration-700 ease-in-out <?= $i === 0 ? 'opacity-100' : 'opacity-0 pointer-events-none' ?>" data-index="<?= $i ?>">
+                <img src="<?= UPLOAD_URL . htmlspecialchars($s['image']) ?>"
+                     alt="<?= htmlspecialchars($s['caption'] ?: $f['name']) ?>"
+                     loading="lazy" decoding="async"
+                     class="w-full h-full object-cover">
+              </div>
+              <?php endforeach; ?>
+
+              <!-- Floating ikon di atas gambar -->
+              <div class="absolute top-3 left-3 w-11 h-11 bg-white/95 dark:bg-slate-800 rounded-xl flex items-center justify-center text-blue-600 text-lg shadow-lg">
+                <i class="<?= htmlspecialchars($f['icon'] ?? 'fas fa-building') ?>"></i>
+              </div>
+
+              <?php if ($isSlideshow): ?>
+              <!-- Indicator dots -->
+              <div class="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
+                <?php foreach ($slides as $i => $_): ?>
+                <button type="button" data-fac-indicator="<?= $i ?>"
+                        class="fac-indicator h-1.5 rounded-full transition-all duration-300 <?= $i === 0 ? 'w-5 bg-white' : 'w-1.5 bg-white/60' ?>"></button>
+                <?php endforeach; ?>
+              </div>
+              <?php endif; ?>
             </div>
-            <h5 class="font-bold text-slate-800 dark:text-white mb-2"><?= $f['name'] ?></h5>
-            <p class="text-sm text-slate-400 leading-relaxed"><?= $f['desc'] ?></p>
+            <?php endif; ?>
+
+            <div class="p-6 flex-1 flex flex-col">
+              <?php if (!$hasMedia): ?>
+              <!-- Compact look (icon-only) — sama seperti versi lama -->
+              <div class="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center text-white text-lg mb-4 shadow-lg shadow-blue-500/20">
+                <i class="<?= htmlspecialchars($f['icon'] ?? 'fas fa-building') ?>"></i>
+              </div>
+              <?php endif; ?>
+              <h5 class="font-bold text-slate-800 dark:text-white mb-2"><?= htmlspecialchars($f['name']) ?></h5>
+              <div class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed prose prose-sm prose-slate dark:prose-invert max-w-none">
+                <?= safeRichHtml($f['description'] ?? '') ?>
+              </div>
+            </div>
           </div>
           <?php endforeach; ?>
         </div>
+        <?php endif; ?>
       </div>
     </div>
   </div>
@@ -195,6 +246,42 @@ $activeTab = isset($tabMap[$cleanUri]) ? $tabMap[$cleanUri] : 'profil';
       var panel = content.querySelector('[data-tab-panel="'+target+'"]');
       if(panel) panel.classList.remove('hidden');
     });
+  });
+
+  /* ────────────────────────────────────────────────────────────
+     Per-card slideshow untuk tab Fasilitas. Aktif hanya pada
+     wrapper yang punya data-fac-slideshow="1" (>1 foto). Setiap
+     kartu jalan independen, auto-rotate 4 detik, jeda saat hover.
+     ──────────────────────────────────────────────────────────── */
+  document.querySelectorAll('[data-fac-slideshow="1"]').forEach(function(box){
+    var slides     = box.querySelectorAll('.fac-slide');
+    var indicators = box.querySelectorAll('.fac-indicator');
+    if (slides.length < 2) return;
+    var current = 0;
+    var paused  = false;
+    function show(i){
+      current = (i + slides.length) % slides.length;
+      slides.forEach(function(s, idx){
+        s.classList.toggle('opacity-100', idx === current);
+        s.classList.toggle('opacity-0',   idx !== current);
+        s.classList.toggle('pointer-events-none', idx !== current);
+      });
+      indicators.forEach(function(b, idx){
+        var on = idx === current;
+        b.classList.toggle('w-5',         on);
+        b.classList.toggle('bg-white',    on);
+        b.classList.toggle('w-1.5',       !on);
+        b.classList.toggle('bg-white/60', !on);
+      });
+    }
+    indicators.forEach(function(b){
+      b.addEventListener('click', function(){
+        show(parseInt(b.getAttribute('data-fac-indicator'), 10));
+      });
+    });
+    box.addEventListener('mouseenter', function(){ paused = true; });
+    box.addEventListener('mouseleave', function(){ paused = false; });
+    setInterval(function(){ if (!paused) show(current + 1); }, 4000);
   });
 })();
 </script>
