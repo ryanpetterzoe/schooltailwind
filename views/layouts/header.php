@@ -57,8 +57,8 @@ if (!function_exists('isActive')) {
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <!-- Custom CSS -->
-  <link rel="stylesheet" href="<?= APP_URL ?>/assets/css/style.css">
+  <!-- Custom CSS — cache-busted by file mtime so users always get latest rules -->
+  <link rel="stylesheet" href="<?= APP_URL ?>/assets/css/style.css?v=<?= @filemtime(__DIR__ . '/../../assets/css/style.css') ?: time() ?>">
   <!-- Theme init — prevent flash -->
   <script>
     (function(){

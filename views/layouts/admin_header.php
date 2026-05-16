@@ -26,7 +26,7 @@ $settings = getSettings();
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="<?= APP_URL ?>/assets/css/style.css">
+  <link rel="stylesheet" href="<?= APP_URL ?>/assets/css/style.css?v=<?= @filemtime(__DIR__ . '/../../assets/css/style.css') ?: time() ?>">
   <!-- Quill 2 (rich text editor, MIT licensed, no API key) -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css">
   <link rel="stylesheet" href="<?= APP_URL ?>/assets/css/admin-editor.css?v=<?= @filemtime(__DIR__ . '/../../assets/css/admin-editor.css') ?: time() ?>">
