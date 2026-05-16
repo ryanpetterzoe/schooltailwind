@@ -146,12 +146,12 @@ body, nav, main, footer, .admin-content, header {
 
 
 /* ============================================================
-   PUBLIC — rich content image alignment + overflow containment
+   PUBLIC — rich content alignment + overflow containment
    ------------------------------------------------------------
-   Mirrors the alignment rules the admin editor uses, so images
-   resized/aligned via the editor look the same on public pages.
-   The .prose container is added by Tailwind Typography on the
-   pages that render safeRichHtml() output.
+   Mirrors the alignment rules the admin editor uses, so text and
+   images aligned/resized via the editor look the same on public
+   pages. The .prose container is added by Tailwind Typography on
+   the pages that render safeRichHtml() output.
    ============================================================ */
 
 /* CRITICAL: make .prose its own block formatting context so floated
@@ -166,9 +166,30 @@ body, nav, main, footer, .admin-content, header {
      pushing the card wider than its container. */
   overflow-wrap: anywhere;
   word-break: break-word;
+  /* Keep all content sized to the available card width regardless
+     of the reader's screen size. */
+  max-width: 100%;
 }
 
-/* Float-aligned images set by the admin editor */
+/* ── QUILL TEXT ALIGNMENT ────────────────────────────────────
+   Quill 2 stores text alignment as classes on block elements
+   (ql-align-center / ql-align-right / ql-align-justify).
+   Default (left) has no class. Quill's own stylesheet is only
+   loaded inside the admin editor, so on public pages we MUST
+   declare these rules ourselves — otherwise everything looks
+   left-aligned even when the author justified it. */
+.prose .ql-align-center  { text-align: center; }
+.prose .ql-align-right   { text-align: right; }
+.prose .ql-align-justify { text-align: justify; }
+.prose .ql-align-left    { text-align: left; }
+
+/* When a paragraph is centered/right-aligned, an inline image
+   inside it should follow the same alignment naturally. */
+.prose .ql-align-center img,
+.prose .ql-align-right img,
+.prose .ql-align-left img { display: inline-block; }
+
+/* Float-aligned images (set by our custom image overlay) */
 .prose img[data-align="left"] {
   float: left;
   display: inline-block;
@@ -195,6 +216,20 @@ body, nav, main, footer, .admin-content, header {
    stay inside its container — covers images uploaded before this fix
    landed and pasted-in HTML from external sources. */
 .prose img { max-width: 100%; height: auto; }
+
+/* On narrow screens, unfloating images prevents the adjacent text
+   from getting squeezed into a tiny column (which made paragraphs
+   look "terpotong" beside the image). Below 640px each image takes
+   its own row, full width, so reading flow stays comfortable. */
+@media (max-width: 640px) {
+  .prose img[data-align="left"],
+  .prose img[data-align="right"] {
+    float: none;
+    display: block;
+    margin: 0.6em auto;
+    max-width: 100%;
+  }
+}
 
 /* Tables, pre, blockquotes can also overflow on mobile if content
    is too wide. Keep them contained. */
