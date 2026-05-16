@@ -22,8 +22,8 @@ require_once __DIR__ . '/../layouts/header.php';
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="grid lg:grid-cols-3 gap-8">
       <!-- Article -->
-      <div class="lg:col-span-2">
-        <article class="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl p-6 sm:p-8">
+      <div class="lg:col-span-2 min-w-0">
+        <article class="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl p-6 sm:p-8 overflow-hidden">
           <!-- Meta -->
           <div class="flex flex-wrap items-center gap-3 mb-5">
             <span class="px-2.5 py-0.5 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 text-xs font-bold rounded-full"><?= htmlspecialchars($news['category'] ?? '') ?></span>
@@ -46,9 +46,12 @@ require_once __DIR__ . '/../layouts/header.php';
           <img src="<?= UPLOAD_URL . htmlspecialchars($news['image']) ?>" alt="<?= htmlspecialchars($news['title'] ?? '') ?>" loading="lazy" decoding="async" class="w-full h-64 sm:h-80 object-cover rounded-xl mb-6">
           <?php endif; ?>
 
-          <!-- Content -->
+          <!-- Content (rendered through safeRichHtml: strips <script>/<style>/
+               on* handlers, but keeps Quill formatting + width/align attrs
+               on <img>). The .prose container has display:flow-root in
+               style.css so floated images can never escape this card. -->
           <div class="prose prose-slate dark:prose-invert max-w-none text-slate-700 dark:text-slate-300 leading-relaxed">
-            <?= $news['content'] ?? '' ?>
+            <?= safeRichHtml($news['content'] ?? '') ?>
           </div>
 
           <!-- Share -->
