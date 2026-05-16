@@ -142,3 +142,33 @@ body, nav, main, footer, .admin-content, header {
   .admin-sidebar, #backToTop, .whatsapp-float, nav { display: none !important; }
   .admin-content { margin-left: 0 !important; }
 }
+
+
+
+/* ============================================================
+   PUBLIC — rich content image alignment
+   ------------------------------------------------------------
+   Mirrors the alignment rules the admin editor uses, so images
+   resized/aligned via the editor look the same on public pages.
+   The .prose container is added by Tailwind Typography on the
+   pages that render safeRichHtml() output.
+   ============================================================ */
+.prose img[data-align="left"] {
+  float: left;
+  display: inline-block;
+  margin: 0.4em 1em 0.4em 0;
+}
+.prose img[data-align="right"] {
+  float: right;
+  display: inline-block;
+  margin: 0.4em 0 0.4em 1em;
+}
+.prose img[data-align="center"] {
+  float: none;
+  display: block;
+  margin: 0.6em auto;
+}
+/* Clear floats at the end of each prose block so the next paragraph
+   doesn't end up sitting next to a floated image when the user
+   doesn't put enough text after it. */
+.prose::after { content: ""; display: block; clear: both; }
