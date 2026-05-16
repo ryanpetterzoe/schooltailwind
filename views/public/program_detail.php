@@ -20,7 +20,28 @@ require_once __DIR__ . '/../layouts/header.php';
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="grid lg:grid-cols-3 gap-8">
       <div class="lg:col-span-2">
+        <!-- Banner image (jika ada) -->
+        <?php if (!empty($program['image'])): ?>
+        <div class="relative rounded-2xl overflow-hidden mb-6 shadow-lg">
+          <img src="<?= UPLOAD_URL . htmlspecialchars($program['image']) ?>"
+               alt="<?= htmlspecialchars($program['name'] ?? '') ?>"
+               class="w-full h-56 sm:h-72 object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent"></div>
+          <div class="absolute bottom-4 left-4 flex items-center gap-3">
+            <div class="w-14 h-14 bg-white/95 dark:bg-slate-800 rounded-xl flex items-center justify-center text-blue-600 text-xl shadow-lg">
+              <i class="<?= htmlspecialchars($program['icon'] ?? 'fas fa-book') ?>"></i>
+            </div>
+            <div class="text-white">
+              <div class="text-xs uppercase tracking-wider opacity-80">Jurusan</div>
+              <div class="font-bold text-lg"><?= htmlspecialchars($program['name'] ?? '') ?></div>
+            </div>
+          </div>
+        </div>
+        <?php endif; ?>
+
         <div class="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl p-6 sm:p-8">
+          <?php if (empty($program['image'])): ?>
+          <!-- Header card (kalau tidak ada banner) -->
           <div class="flex items-center gap-4 mb-6">
             <div class="w-14 h-14 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center text-white text-xl shadow-lg shadow-blue-500/20">
               <i class="<?= htmlspecialchars($program['icon'] ?? 'fas fa-book') ?>"></i>
@@ -32,6 +53,11 @@ require_once __DIR__ . '/../layouts/header.php';
               <?php endif; ?>
             </div>
           </div>
+          <?php elseif (!empty($program['code'])): ?>
+          <div class="mb-4">
+            <span class="px-2.5 py-0.5 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 text-xs font-bold rounded-full"><?= htmlspecialchars($program['code']) ?></span>
+          </div>
+          <?php endif; ?>
           <div class="text-slate-600 dark:text-slate-300 leading-relaxed prose prose-slate dark:prose-invert max-w-none"><?= safeRichHtml($program['description'] ?? '') ?></div>
         </div>
 
