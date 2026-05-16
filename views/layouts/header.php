@@ -33,6 +33,8 @@ if (!function_exists('isActive')) {
   <?php if ($favicon): ?>
   <link rel="icon" type="image/x-icon" href="<?= htmlspecialchars($favicon) ?>">
   <?php endif; ?>
+  <!-- Accent palette (CSS vars + Tailwind override window var) -->
+  <?= renderAccentTheme($settings) ?>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -40,10 +42,10 @@ if (!function_exists('isActive')) {
       darkMode: 'class',
       theme: {
         extend: {
-          colors: {
-            primary: { 50:'#eff6ff', 100:'#dbeafe', 200:'#bfdbfe', 300:'#93c5fd', 400:'#60a5fa', 500:'#3b82f6', 600:'#2563eb', 700:'#1d4ed8', 800:'#1e40af', 900:'#1e3a8a' },
-            accent: { 400:'#a78bfa', 500:'#8b5cf6', 600:'#7c3aed' },
-          },
+          colors: Object.assign({
+            primary: window.__accentTailwindColors.blue,
+            accent:  window.__accentTailwindColors.indigo,
+          }, window.__accentTailwindColors),
           fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
         }
       }
