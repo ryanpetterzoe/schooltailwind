@@ -102,11 +102,11 @@
             <div class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Visi Sekolah</label>
-                    <textarea name="about_vision" data-rich-editor data-editor-simple data-editor-height="180" class="w-full" rows="3"><?= htmlspecialchars($settings['about_vision'] ?? '') ?></textarea>
+                    <textarea name="about_vision" data-rich-editor data-editor-height="180" class="w-full" rows="3"><?= htmlspecialchars($settings['about_vision'] ?? '') ?></textarea>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Misi Sekolah</label>
-                    <textarea name="about_mission" data-rich-editor data-editor-simple data-editor-height="220" class="w-full" rows="6"><?= htmlspecialchars($settings['about_mission'] ?? '') ?></textarea>
+                    <textarea name="about_mission" data-rich-editor data-editor-height="220" class="w-full" rows="6"><?= htmlspecialchars($settings['about_mission'] ?? '') ?></textarea>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Sejarah Sekolah</label>
@@ -127,7 +127,7 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Sambutan Kepala Sekolah</label>
-                    <textarea name="principal_message" data-rich-editor data-editor-simple data-editor-height="220" class="w-full" rows="5"><?= htmlspecialchars($settings['principal_message'] ?? '') ?></textarea>
+                    <textarea name="principal_message" data-rich-editor data-editor-height="220" class="w-full" rows="5"><?= htmlspecialchars($settings['principal_message'] ?? '') ?></textarea>
                 </div>
             </div>
             <div class="mt-6"><button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors"><i class="fas fa-save mr-2"></i>Simpan</button></div>

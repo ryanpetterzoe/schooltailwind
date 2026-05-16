@@ -42,11 +42,11 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Informasi SPMB</label>
-                    <textarea name="info" data-rich-editor data-editor-simple data-editor-height="200" class="w-full" rows="4" placeholder="Informasi umum tentang SPMB yang tampil di halaman publik..."><?= htmlspecialchars($spmb['info'] ?? '') ?></textarea>
+                    <textarea name="info" data-rich-editor data-editor-height="200" class="w-full" rows="4" placeholder="Informasi umum tentang SPMB yang tampil di halaman publik..."><?= htmlspecialchars($spmb['info'] ?? '') ?></textarea>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Persyaratan Pendaftaran</label>
-                    <textarea name="requirements" data-rich-editor data-editor-simple data-editor-height="240" class="w-full" rows="6" placeholder="1. Persyaratan pertama&#10;2. Persyaratan kedua&#10;..."><?= htmlspecialchars($spmb['requirements'] ?? '') ?></textarea>
+                    <textarea name="requirements" data-rich-editor data-editor-height="240" class="w-full" rows="6" placeholder="1. Persyaratan pertama&#10;2. Persyaratan kedua&#10;..."><?= htmlspecialchars($spmb['requirements'] ?? '') ?></textarea>
                     <small class="text-xs text-slate-400 dark:text-slate-500 mt-1 block">Gunakan list (bullet/nomor) dari toolbar untuk merapikan persyaratan.</small>
                 </div>
             </div>

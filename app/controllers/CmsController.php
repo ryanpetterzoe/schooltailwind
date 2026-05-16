@@ -786,4 +786,144 @@ class CmsController {
         $g = $db->real_escape_string($group);
         $db->query("INSERT INTO settings (`key`,`value`,`group`) VALUES ('$k','$v','$g') ON DUPLICATE KEY UPDATE `value`='$v'");
     }
+
+    /* ============================================================
+       FACILITIES (modul Profil > Fasilitas Sekolah)
+       Mirror persis pola jurusan: list / form / save / delete +
+       multi-photo gallery via tabel facility_images.
+       ============================================================ */
+
+    public function facilitiesList() {
+        requireLogin();
+        ensureFacilitiesSchema();
+        $db = getDB();
+        $res = $db->query("SELECT * FROM facilities ORDER BY sort_order ASC, id ASC");
+        $facilities = $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
+        require_once __DIR__ . '/../../views/admin/facilities_list.php';
+    }
+
+    public function facilityForm($id = null) {
+        requireLogin();
+        ensureFacilitiesSchema();
+        $db = getDB();
+        if (empty($_SESSION['csrf_token'])) $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+        $facility = null;
+        $facilityImages = [];
+        if ($id) {
+            $res = $db->query("SELECT * FROM facilities WHERE id=" . (int)$id . " LIMIT 1");
+            $facility = $res ? $res->fetch_assoc() : null;
+            if ($facility) {
+                $facilityImages = getFacilityImages($id);
+            }
+        }
+        require_once __DIR__ . '/../../views/admin/facilities_form.php';
+    }
+
+    public function facilitySave($id = null) {
+        requireLogin();
+        ensureFacilitiesSchema();
+        $db = getDB();
+        $name        = clean($_POST['name'] ?? '');
+        // description carries Quill HTML — keep raw, only escape for SQL
+        $description = $db->real_escape_string($_POST['description'] ?? '');
+        $icon        = clean($_POST['icon'] ?? 'fas fa-building');
+        $sortOrder   = (int)($_POST['sort_order'] ?? 0);
+        $isActive    = isset($_POST['is_active']) ? 1 : 0;
+
+        // Cover image (single, optional)
+        $imageVal = '';
+        if (!empty($_FILES['image']['tmp_name'])) {
+            $imageVal = uploadFile($_FILES['image'], 'facility');
+        }
+
+        if ($id) {
+            $imgSql = $imageVal ? ", image='$imageVal'" : '';
+            $db->query("UPDATE facilities SET name='$name',description='$description',icon='$icon',sort_order=$sortOrder,is_active=$isActive$imgSql WHERE id=" . (int)$id);
+            $facilityId = (int)$id;
+        } else {
+            $db->query("INSERT INTO facilities (name,description,icon,sort_order,is_active,image) VALUES ('$name','$description','$icon',$sortOrder,$isActive,'$imageVal')");
+            $facilityId = (int)$db->insert_id;
+        }
+
+        // -- Multi-photo gallery (mirror modul jurusan) --
+
+        // 1. Update captions/sort for existing images
+        if (!empty($_POST['existing_image_id']) && is_array($_POST['existing_image_id'])) {
+            foreach ($_POST['existing_image_id'] as $idx => $imgId) {
+                $imgId = (int)$imgId;
+                if ($imgId <= 0) continue;
+                $cap  = $db->real_escape_string($_POST['existing_image_caption'][$idx] ?? '');
+                $sort = (int)($_POST['existing_image_sort'][$idx] ?? 0);
+                $db->query("UPDATE facility_images SET caption='$cap', sort_order=$sort WHERE id=$imgId AND facility_id=$facilityId");
+            }
+        }
+
+        // 2. Delete images marked for removal
+        if (!empty($_POST['delete_image_ids'])) {
+            $deleteIds = array_filter(array_map('intval', explode(',', $_POST['delete_image_ids'])));
+            if ($deleteIds) {
+                $idList = implode(',', $deleteIds);
+                $delRes = $db->query("SELECT image FROM facility_images WHERE id IN ($idList) AND facility_id=$facilityId");
+                if ($delRes) {
+                    while ($r = $delRes->fetch_assoc()) {
+                        $f = UPLOAD_PATH . $r['image'];
+                        if (is_file($f)) @unlink($f);
+                    }
+                }
+                $db->query("DELETE FROM facility_images WHERE id IN ($idList) AND facility_id=$facilityId");
+            }
+        }
+
+        // 3. Insert newly uploaded files
+        if (!empty($_FILES['gallery_images']) && is_array($_FILES['gallery_images']['name'])) {
+            $files = $_FILES['gallery_images'];
+            $count = count($files['name']);
+            $maxSortRes = $db->query("SELECT COALESCE(MAX(sort_order), 0) AS m FROM facility_images WHERE facility_id=$facilityId");
+            $nextSort = $maxSortRes ? ((int)$maxSortRes->fetch_assoc()['m'] + 1) : 1;
+            for ($i = 0; $i < $count; $i++) {
+                if (empty($files['tmp_name'][$i])) continue;
+                $single = [
+                    'name'     => $files['name'][$i],
+                    'type'     => $files['type'][$i],
+                    'tmp_name' => $files['tmp_name'][$i],
+                    'error'    => $files['error'][$i],
+                    'size'     => $files['size'][$i],
+                ];
+                $fname = uploadFile($single, 'facility_gal');
+                if ($fname) {
+                    $cap = $db->real_escape_string($_POST['new_image_caption'][$i] ?? '');
+                    $sort = $nextSort++;
+                    $db->query("INSERT INTO facility_images (facility_id,image,caption,sort_order) VALUES ($facilityId,'$fname','$cap',$sort)");
+                }
+            }
+        }
+
+        $this->flash('flash_success', 'Fasilitas berhasil disimpan.');
+        redirect('/admin/fasilitas');
+    }
+
+    public function facilityDelete($id) {
+        requireLogin();
+        ensureFacilitiesSchema();
+        $db = getDB();
+        $id = (int)$id;
+        // Remove uploaded gallery files first
+        $imgRes = @$db->query("SELECT image FROM facility_images WHERE facility_id=$id");
+        if ($imgRes) {
+            while ($r = $imgRes->fetch_assoc()) {
+                $f = UPLOAD_PATH . $r['image'];
+                if (is_file($f)) @unlink($f);
+            }
+        }
+        @$db->query("DELETE FROM facility_images WHERE facility_id=$id");
+        // Also remove single cover image file if any
+        $coverRes = @$db->query("SELECT image FROM facilities WHERE id=$id");
+        if ($coverRes && ($r = $coverRes->fetch_assoc()) && !empty($r['image'])) {
+            $f = UPLOAD_PATH . $r['image'];
+            if (is_file($f)) @unlink($f);
+        }
+        $db->query("DELETE FROM facilities WHERE id=$id");
+        $this->flash('flash_success', 'Fasilitas berhasil dihapus.');
+        redirect('/admin/fasilitas');
+    }
 }

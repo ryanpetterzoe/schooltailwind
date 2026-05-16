@@ -416,3 +416,99 @@ if (!function_exists('getProgramImages')) {
         return $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
     }
 }
+
+
+
+/* ============================================================
+   FACILITIES (modul baru)
+   facilities = item fasilitas sekolah (Lab, WiFi, dll)
+   facility_images = foto-foto pendukung tiap fasilitas (multi-upload)
+   Auto-create kedua tabel saat method ini dipanggil pertama kali, jadi
+   site yang sudah running pre-feature tidak perlu re-run installer.
+   ============================================================ */
+if (!function_exists('ensureFacilitiesSchema')) {
+    function ensureFacilitiesSchema() {
+        static $checked = false;
+        if ($checked) return;
+        $checked = true;
+        $db = getDB();
+        if (!$db) return;
+        @$db->query("CREATE TABLE IF NOT EXISTS `facilities` (
+            `id` INT AUTO_INCREMENT PRIMARY KEY,
+            `name` VARCHAR(200) NOT NULL,
+            `description` LONGTEXT,
+            `image` VARCHAR(255) DEFAULT NULL,
+            `icon` VARCHAR(100) DEFAULT 'fas fa-building',
+            `is_active` TINYINT(1) DEFAULT 1,
+            `sort_order` INT DEFAULT 0,
+            `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        @$db->query("CREATE TABLE IF NOT EXISTS `facility_images` (
+            `id` INT AUTO_INCREMENT PRIMARY KEY,
+            `facility_id` INT NOT NULL,
+            `image` VARCHAR(255) NOT NULL,
+            `caption` VARCHAR(250) DEFAULT NULL,
+            `sort_order` INT DEFAULT 0,
+            `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            KEY `idx_facility_images_facility` (`facility_id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+        // Pre-seed 6 default facilities on first run, only if the table
+        // was just created and is empty. Replicates the items that used
+        // to be hardcoded inside views/public/about.php so existing
+        // installations keep showing something useful out of the box.
+        $cntRes = @$db->query("SELECT COUNT(*) AS c FROM facilities");
+        if ($cntRes) {
+            $row = $cntRes->fetch_assoc();
+            if ($row && (int)$row['c'] === 0) {
+                $defaults = [
+                    ['Lab Komputer',      '<p>Laboratorium komputer modern dengan spesifikasi terkini untuk praktik pemrograman, jaringan, dan multimedia.</p>', 'fas fa-desktop',  1],
+                    ['Internet WiFi',     '<p>Akses internet cepat di seluruh area sekolah untuk mendukung kegiatan belajar mengajar berbasis digital.</p>',      'fas fa-wifi',     2],
+                    ['Perpustakaan',      '<p>Koleksi buku lengkap dan ruang baca yang nyaman, mendukung literasi siswa di luar jam pelajaran.</p>',           'fas fa-book',     3],
+                    ['Lapangan Olahraga', '<p>Sarana olahraga lengkap untuk berbagai kegiatan: bola, voli, basket, dan upacara.</p>',                          'fas fa-futbol',   4],
+                    ['Laboratorium',      '<p>Lab sains dan teknologi yang modern, untuk mendukung praktik mata pelajaran kejuruan.</p>',                       'fas fa-flask',    5],
+                    ['Kantin Sehat',      '<p>Kantin dengan makanan bergizi dan higienis, ramah kantong siswa.</p>',                                            'fas fa-utensils', 6],
+                ];
+                foreach ($defaults as $d) {
+                    $name = $db->real_escape_string($d[0]);
+                    $desc = $db->real_escape_string($d[1]);
+                    $icon = $db->real_escape_string($d[2]);
+                    $sort = (int)$d[3];
+                    @$db->query("INSERT INTO `facilities` (`name`,`description`,`icon`,`sort_order`,`is_active`) VALUES ('$name','$desc','$icon',$sort,1)");
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Fetch all images attached to a facility, ordered. Returns [] if none.
+ */
+if (!function_exists('getFacilityImages')) {
+    function getFacilityImages($facilityId) {
+        ensureFacilitiesSchema();
+        $db = getDB();
+        $facilityId = (int)$facilityId;
+        $res = @$db->query("SELECT * FROM facility_images WHERE facility_id=$facilityId ORDER BY sort_order ASC, id ASC");
+        return $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
+    }
+}
+
+/**
+ * Fetch active facilities (with their image counts) for the public
+ * "Profil > Fasilitas" tab. Each row carries an extra `image_count`
+ * key so the view can decide whether to show a slideshow vs single
+ * cover. Triggers schema auto-create on first call.
+ */
+if (!function_exists('getActiveFacilities')) {
+    function getActiveFacilities() {
+        ensureFacilitiesSchema();
+        $db = getDB();
+        if (!$db) return [];
+        $res = @$db->query("SELECT f.*, (SELECT COUNT(*) FROM facility_images fi WHERE fi.facility_id=f.id) AS image_count
+                            FROM facilities f
+                            WHERE f.is_active=1
+                            ORDER BY f.sort_order ASC, f.id ASC");
+        return $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
+    }
+}

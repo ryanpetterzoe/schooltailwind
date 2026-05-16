@@ -40,6 +40,15 @@ class PublicController {
 
     public function about() {
         $settings = getSettings();
+        // Fasilitas Sekolah — di-render di tab "Fasilitas". Fetch list aktif
+        // dan attach foto-foto galeri tiap item, supaya view bisa pilih
+        // tampilan card (slideshow / cover tunggal / ikon-saja) berdasar
+        // ada-tidaknya gambar.
+        $facilities = function_exists('getActiveFacilities') ? getActiveFacilities() : [];
+        foreach ($facilities as &$f) {
+            $f['images'] = ($f['image_count'] ?? 0) > 0 ? getFacilityImages($f['id']) : [];
+        }
+        unset($f);
         require_once __DIR__ . '/../../views/public/about.php';
     }
 
