@@ -5,24 +5,33 @@
  * The hidden textarea stays in the form so the existing PHP handler keeps
  * working — we just sync the HTML back on every change.
  *
- * IMAGE RESIZE/ALIGN (lessons learned from PR #15/#16)
- * ----------------------------------------------------
- * Quill 2's default Image blot already preserves these <img> attributes:
- *   - alt
- *   - height
- *   - width   (HTML attribute, not CSS!)
- * So we DON'T need a custom blot — we just have to set width via the
- * HTML attribute (e.g. img.setAttribute('width', '50%')) and it survives
- * Quill's normalisation. For float/center alignment we wrap the image
- * in a class on a parent <p> using Quill's standard alignment, OR use
- * a `data-align` attribute that we re-apply via MutationObserver.
+ * IMAGE RESIZE/ALIGN — three independent code paths
+ * --------------------------------------------------
+ * 1. CLICK + OVERLAY (primary UX, like MS Word)
+ *    Click an image -> floating toolbar with L/C/R + 25/50/100% +
+ *    delete buttons appears, plus a corner drag-handle.
  *
- * The previous attempts tried to monkey-patch ImageBlot.ATTRIBUTES,
- * subclass it, etc. — all failed because Quill 2 caches blot constructors
- * internally, and stripping inline `style` is a known limitation. The
- * present implementation sidesteps the problem entirely by relying on
- * the `width` attribute that's already whitelisted, plus a tiny CSS
- * helper for alignment.
+ * 2. KEYBOARD SHORTCUTS (fallback)
+ *    With an image selected (clicked once):
+ *      [   shrinks the image by 10% of editor width
+ *      ]   grows it by 10%
+ *      Backspace/Delete  removes it
+ *
+ * 3. RESIZE PROMPT (always-available fallback)
+ *    Double-click an image -> prompt() asking for a percentage,
+ *    no UI dependencies at all. Guaranteed to work even if the
+ *    overlay code has any bug whatsoever.
+ *
+ * Storage strategy
+ * ----------------
+ * Width is set via `img.setAttribute('width', '<pct>%')` — Quill 2's
+ * default Image blot whitelists `width`, so it survives normalisation
+ * and round-trips through .innerHTML. Alignment uses a `data-align`
+ * attribute paired with CSS rules in admin-editor.css and (for the
+ * public side) style.css.
+ *
+ * A MutationObserver watches the editor and re-applies cached
+ * width/align if Quill ever wipes them (e.g. on undo/redo).
  */
 (function () {
     if (typeof Quill === 'undefined') {
@@ -84,6 +93,10 @@
         });
 
         attachImageTools(quill, textarea);
+
+        // Floating help tip — appears once below the editor explaining
+        // the image resize/align affordance, dismissible.
+        attachImageHelpTip(wrap);
 
         var form = textarea.form;
         if (form && !form.dataset.richSubmitHook) {
@@ -325,6 +338,56 @@
             }
         });
 
+        // Double-click on an image -> prompt for a custom width percent.
+        // Fallback path that doesn't depend on the overlay UI at all —
+        // works even if CSS breaks or the overlay misposiciones.
+        editorBody.addEventListener('dblclick', function (e) {
+            var img = e.target.closest('img');
+            if (!img || !editorBody.contains(img)) return;
+            e.preventDefault();
+            e.stopPropagation();
+            var currentWidth = img.getAttribute('width') || '100%';
+            var input = window.prompt(
+                'Ukuran gambar dalam persen (10–100):\n' +
+                '— Kosongkan untuk 100% (full width)\n' +
+                '— Contoh: 50 untuk setengah lebar editor',
+                String(currentWidth).replace('%', '')
+            );
+            if (input === null) return; // cancelled
+            var pct = parseInt(input, 10);
+            if (isNaN(pct) || pct <= 0) pct = 100;
+            pct = Math.max(10, Math.min(100, pct));
+            setWidthPct(img, pct);
+            show(img); // re-position overlay
+            syncTextarea();
+        });
+
+        // Keyboard shortcuts when an image is selected:
+        //   [ shrinks 10%, ] grows 10%, Delete/Backspace removes
+        document.addEventListener('keydown', function (e) {
+            if (!current) return;
+            // Don't intercept when typing in an input/textarea elsewhere
+            var t = e.target;
+            if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA')) return;
+            if (e.key === '[' || e.key === ']') {
+                e.preventDefault();
+                var w = current.getAttribute('width') || '100%';
+                var p = parseInt(String(w).replace('%', ''), 10);
+                if (isNaN(p)) p = 100;
+                p = e.key === '[' ? Math.max(10, p - 10) : Math.min(100, p + 10);
+                setWidthPct(current, p);
+                position();
+                syncTextarea();
+            } else if (e.key === 'Delete' || e.key === 'Backspace') {
+                if (current.parentNode) {
+                    e.preventDefault();
+                    current.parentNode.removeChild(current);
+                    hide();
+                    syncTextarea();
+                }
+            }
+        });
+
         // Click outside both editor and overlay -> deselect.
         document.addEventListener('mousedown', function (e) {
             if (!current) return;
@@ -374,6 +437,31 @@
 
     function init() {
         document.querySelectorAll('textarea[data-rich-editor]').forEach(buildEditor);
+    }
+
+    /* ============================================================
+     * HELP TIP — small banner under each editor explaining the
+     * image resize gesture so users discover it.
+     * ============================================================ */
+    function attachImageHelpTip(wrap) {
+        if (wrap.dataset.tipAttached === '1') return;
+        wrap.dataset.tipAttached = '1';
+        var dismissed = false;
+        try { dismissed = localStorage.getItem('rich-editor-tip-dismissed') === '1'; } catch (e) {}
+        if (dismissed) return;
+
+        var tip = document.createElement('div');
+        tip.className = 'rich-editor-tip';
+        tip.innerHTML =
+            '<i class="fas fa-info-circle"></i>' +
+            '<span><strong>Tips gambar:</strong> klik foto → muncul toolbar untuk resize 25/50/100% & alignment kiri/tengah/kanan. ' +
+            'Atau <strong>double-klik</strong> foto untuk masukkan persen manual. Tombol <kbd>[</kbd> / <kbd>]</kbd> kecilkan/besarkan 10%.</span>' +
+            '<button type="button" class="rich-editor-tip-close" title="Sembunyikan">&times;</button>';
+        wrap.parentNode.insertBefore(tip, wrap.nextSibling);
+        tip.querySelector('.rich-editor-tip-close').addEventListener('click', function () {
+            tip.remove();
+            try { localStorage.setItem('rich-editor-tip-dismissed', '1'); } catch (e) {}
+        });
     }
 
     if (document.readyState === 'loading') {

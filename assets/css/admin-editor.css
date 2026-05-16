@@ -234,3 +234,62 @@
     color: #f87171;
 }
 .dark .rich-image-overlay .rich-image-toolbar .rich-image-sep { background: #334155; }
+
+
+
+/* ============================================================
+   IMAGE RESIZE HELP TIP
+   ============================================================ */
+.rich-editor-tip {
+    margin-top: 8px;
+    padding: 10px 14px;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #1e40af;
+    border-radius: 8px;
+    font-size: 12px;
+    line-height: 1.55;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+.rich-editor-tip i.fa-info-circle {
+    color: #2563eb;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+.rich-editor-tip kbd {
+    display: inline-block;
+    padding: 1px 6px;
+    background: #fff;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    font-family: ui-monospace, monospace;
+    font-size: 11px;
+    color: #475569;
+}
+.rich-editor-tip-close {
+    background: transparent;
+    border: none;
+    color: #1e40af;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 4px;
+    margin-left: auto;
+}
+.rich-editor-tip-close:hover { color: #dc2626; }
+
+.dark .rich-editor-tip {
+    background: rgba(30, 64, 175, 0.18);
+    border-color: rgba(96, 165, 250, 0.35);
+    color: #93c5fd;
+}
+.dark .rich-editor-tip i.fa-info-circle { color: #60a5fa; }
+.dark .rich-editor-tip kbd {
+    background: #0f172a;
+    border-color: #334155;
+    color: #cbd5e1;
+}
+.dark .rich-editor-tip-close { color: #93c5fd; }
+.dark .rich-editor-tip-close:hover { color: #f87171; }

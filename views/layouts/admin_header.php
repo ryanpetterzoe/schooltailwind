@@ -29,7 +29,7 @@ $settings = getSettings();
   <link rel="stylesheet" href="<?= APP_URL ?>/assets/css/style.css">
   <!-- Quill 2 (rich text editor, MIT licensed, no API key) -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css">
-  <link rel="stylesheet" href="<?= APP_URL ?>/assets/css/admin-editor.css">
+  <link rel="stylesheet" href="<?= APP_URL ?>/assets/css/admin-editor.css?v=<?= @filemtime(__DIR__ . '/../../assets/css/admin-editor.css') ?: time() ?>">
   <script>(function(){var t=localStorage.getItem('smk_theme')||'light';if(t==='dark')document.documentElement.classList.add('dark');})();</script>
 </head>
 <body class="bg-gray-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-sans antialiased">
