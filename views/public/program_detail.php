@@ -46,7 +46,7 @@ require_once __DIR__ . '/../layouts/header.php';
             <article class="group bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl overflow-hidden hover:shadow-lg transition-all flex flex-col">
               <a href="<?= APP_URL ?>/berita/<?= htmlspecialchars($n['slug']) ?>" class="relative block h-36 overflow-hidden">
                 <?php if (!empty($n['image'])): ?>
-                <img src="<?= UPLOAD_URL . htmlspecialchars($n['image']) ?>" alt="" class="w-full h-full object-cover group-hover:scale-105 transition-transform">
+                <img src="<?= UPLOAD_URL . htmlspecialchars($n['image']) ?>" alt="" loading="lazy" decoding="async" class="w-full h-full object-cover group-hover:scale-105 transition-transform">
                 <?php else: ?>
                 <div class="w-full h-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center"><i class="fas fa-newspaper text-2xl text-slate-300"></i></div>
                 <?php endif; ?>

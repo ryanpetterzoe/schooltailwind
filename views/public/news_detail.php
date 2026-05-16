@@ -43,7 +43,7 @@ require_once __DIR__ . '/../layouts/header.php';
 
           <!-- Image -->
           <?php if (!empty($news['image'])): ?>
-          <img src="<?= UPLOAD_URL . htmlspecialchars($news['image']) ?>" alt="<?= htmlspecialchars($news['title'] ?? '') ?>" class="w-full h-64 sm:h-80 object-cover rounded-xl mb-6">
+          <img src="<?= UPLOAD_URL . htmlspecialchars($news['image']) ?>" alt="<?= htmlspecialchars($news['title'] ?? '') ?>" loading="lazy" decoding="async" class="w-full h-64 sm:h-80 object-cover rounded-xl mb-6">
           <?php endif; ?>
 
           <!-- Content -->
@@ -80,7 +80,7 @@ require_once __DIR__ . '/../layouts/header.php';
           <div class="flex gap-3 mb-4 last:mb-0">
             <div class="w-16 h-14 rounded-lg overflow-hidden flex-shrink-0 bg-slate-100 dark:bg-slate-700">
               <?php if (!empty($ln['image'])): ?>
-              <img src="<?= UPLOAD_URL . htmlspecialchars($ln['image']) ?>" class="w-full h-full object-cover" alt="">
+              <img src="<?= UPLOAD_URL . htmlspecialchars($ln['image']) ?>" loading="lazy" decoding="async" class="w-full h-full object-cover" alt="">
               <?php else: ?>
               <div class="w-full h-full flex items-center justify-center"><i class="fas fa-newspaper text-slate-300 dark:text-slate-500"></i></div>
               <?php endif; ?>

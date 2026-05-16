@@ -165,7 +165,8 @@ require_once __DIR__ . '/../layouts/admin_header.php';
                    accept="image/jpeg,image/png,image/webp,image/gif"
                    onchange="previewThumbnail(this)">
             <small class="text-slate-400 dark:text-slate-500 text-xs mt-1 block">
-                Format: JPG, PNG, WebP. Rasio 16:9 (1280×720px). Maks. 2MB.
+                <i class="fas fa-bolt text-blue-500 mr-1"></i>Otomatis dikompres &amp; di-resize maks 1920px saat upload (hemat ruang &amp; cepat dimuat).
+                Format: JPG, PNG, WebP. Rasio 16:9 (1280×720px).
             </small>
 
             <?php if (!empty($news['image'])): ?>

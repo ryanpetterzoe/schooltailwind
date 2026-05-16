@@ -38,7 +38,7 @@ require_once __DIR__ . '/../layouts/header.php';
         <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed mb-5 italic relative">"<?= htmlspecialchars($t['content']) ?>"</p>
         <div class="flex items-center gap-3">
           <?php if (!empty($t['photo'])): ?>
-          <img src="<?= UPLOAD_URL . htmlspecialchars($t['photo']) ?>" alt="<?= htmlspecialchars($t['name']) ?>" class="w-10 h-10 rounded-full object-cover flex-shrink-0">
+          <img src="<?= UPLOAD_URL . htmlspecialchars($t['photo']) ?>" alt="<?= htmlspecialchars($t['name']) ?>" loading="lazy" decoding="async" class="w-10 h-10 rounded-full object-cover flex-shrink-0">
           <?php else: ?>
           <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
             <?= strtoupper(substr($t['name'], 0, 1)) ?>

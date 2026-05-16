@@ -108,6 +108,7 @@ require_once __DIR__ . '/../layouts/header.php';
         <?php if (!empty($settings['school_building_photo'])): ?>
         <img src="<?= UPLOAD_URL . htmlspecialchars($settings['school_building_photo']) ?>"
              alt="Gedung <?= htmlspecialchars($settings['school_name'] ?? '') ?>"
+             loading="lazy" decoding="async"
              class="w-full h-[400px] object-cover rounded-2xl shadow-2xl">
         <?php else: ?>
         <div class="w-full h-[400px] bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-700 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-600 flex flex-col items-center justify-center gap-3">
@@ -235,6 +236,7 @@ require_once __DIR__ . '/../layouts/header.php';
         <div class="relative h-48 overflow-hidden">
           <?php if (!empty($article['image'])): ?>
           <img src="<?= UPLOAD_URL . htmlspecialchars($article['image']) ?>" alt="<?= htmlspecialchars($article['title']) ?>"
+               loading="lazy" decoding="async"
                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
           <?php else: ?>
           <div class="w-full h-full bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-600 flex items-center justify-center">

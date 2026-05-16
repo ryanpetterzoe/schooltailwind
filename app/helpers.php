@@ -25,6 +25,89 @@ function cleanRaw($data) {
     return $db->real_escape_string(trim($data));
 }
 
+/**
+ * Image compression / resize using GD.
+ * - JPEG  -> re-encoded JPEG quality 82
+ * - PNG   -> kept PNG (compression level 8) so transparency survives
+ * - WEBP  -> re-encoded WebP quality 82
+ * - GIF   -> left untouched (may be animated)
+ * Resizes so that the longest side is at most $maxSide pixels.
+ * Strips EXIF/metadata as a side-effect of re-encoding.
+ * Returns true on success, false on failure (caller can leave the original in place).
+ */
+function compressImage($path, $maxSide = 1920, $quality = 82) {
+    if (!extension_loaded('gd') || !file_exists($path)) return false;
+
+    $info = @getimagesize($path);
+    if (!$info) return false;
+    list($w, $h, $type) = $info;
+
+    // GIFs are kept as-is (preserve animation; GD only renders first frame).
+    if ($type === IMAGETYPE_GIF) return true;
+
+    // Load source
+    switch ($type) {
+        case IMAGETYPE_JPEG: $src = @imagecreatefromjpeg($path); break;
+        case IMAGETYPE_PNG:  $src = @imagecreatefrompng($path);  break;
+        case IMAGETYPE_WEBP: $src = function_exists('imagecreatefromwebp') ? @imagecreatefromwebp($path) : null; break;
+        default: return false;
+    }
+    if (!$src) return false;
+
+    // Auto-rotate JPEG using EXIF orientation if available
+    if ($type === IMAGETYPE_JPEG && function_exists('exif_read_data')) {
+        $exif = @exif_read_data($path);
+        if (!empty($exif['Orientation'])) {
+            switch ((int)$exif['Orientation']) {
+                case 3: $src = imagerotate($src, 180, 0); break;
+                case 6: $src = imagerotate($src, -90, 0); $tmp = $w; $w = $h; $h = $tmp; break;
+                case 8: $src = imagerotate($src, 90, 0);  $tmp = $w; $w = $h; $h = $tmp; break;
+            }
+        }
+    }
+
+    // Compute new dimensions (only shrink, never upscale)
+    $longest = max($w, $h);
+    if ($longest > $maxSide) {
+        $ratio  = $maxSide / $longest;
+        $newW   = (int)round($w * $ratio);
+        $newH   = (int)round($h * $ratio);
+        $resized = imagecreatetruecolor($newW, $newH);
+
+        if ($type === IMAGETYPE_PNG || $type === IMAGETYPE_WEBP) {
+            imagealphablending($resized, false);
+            imagesavealpha($resized, true);
+            $transparent = imagecolorallocatealpha($resized, 0, 0, 0, 127);
+            imagefilledrectangle($resized, 0, 0, $newW, $newH, $transparent);
+        }
+        imagecopyresampled($resized, $src, 0, 0, 0, 0, $newW, $newH, $w, $h);
+        imagedestroy($src);
+        $src = $resized;
+    } elseif ($type === IMAGETYPE_PNG || $type === IMAGETYPE_WEBP) {
+        // Even without resize, keep alpha intact during re-encode
+        imagealphablending($src, false);
+        imagesavealpha($src, true);
+    }
+
+    // Save
+    $ok = false;
+    switch ($type) {
+        case IMAGETYPE_JPEG:
+            $ok = imagejpeg($src, $path, $quality);
+            break;
+        case IMAGETYPE_PNG:
+            // PNG quality is 0 (no compression) - 9 (max)
+            $pngLevel = 8;
+            $ok = imagepng($src, $path, $pngLevel);
+            break;
+        case IMAGETYPE_WEBP:
+            $ok = function_exists('imagewebp') ? imagewebp($src, $path, $quality) : false;
+            break;
+    }
+    imagedestroy($src);
+    return (bool)$ok;
+}
+
 function uploadFile($file, $prefix = 'img') {
     if (!isset($file['tmp_name']) || empty($file['tmp_name'])) return '';
     $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
@@ -33,6 +116,9 @@ function uploadFile($file, $prefix = 'img') {
     $filename = $prefix . '_' . time() . '_' . rand(1000,9999) . '.' . $ext;
     $dest = UPLOAD_PATH . $filename;
     if (move_uploaded_file($file['tmp_name'], $dest)) {
+        // Auto-compress (resize >1920px, re-encode, strip EXIF). On failure
+        // we keep the original file so upload still succeeds.
+        compressImage($dest, 1920, 82);
         return $filename;
     }
     return '';
