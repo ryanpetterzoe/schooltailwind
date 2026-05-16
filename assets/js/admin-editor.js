@@ -2,10 +2,19 @@
  * Admin Rich Text Editor (Quill 2)
  * --------------------------------
  * Auto-converts every <textarea data-rich-editor> into a WYSIWYG editor
- * with a Word-like toolbar (heading, bold/italic, color, lists, alignment,
- * link, image). The original textarea stays in the DOM (hidden) so the
- * existing PHP form handling keeps working — we just sync the HTML back
- * before submit. No API key, no external service.
+ * with a Word-like toolbar. The original textarea stays in the DOM
+ * (hidden) so existing PHP form handling keeps working — we just sync
+ * the HTML back before submit. No API key, no external service.
+ *
+ * IMAGE RESIZE/ALIGN
+ * ------------------
+ * Click an image to reveal a corner drag-handle and a floating toolbar
+ * (L/C/R align + 25/50/100% preset width + delete). Quill 2's default
+ * Image format only whitelists `alt`, `width`, `height`, so we register
+ * a proper subclass that ALSO preserves `style` and `class` attributes.
+ * The width/float survive the next text-change and round-trip through
+ * the model. The hidden textarea is updated on every change so the
+ * form submits the latest HTML.
  *
  * Usage in PHP:
  *   <textarea name="content" data-rich-editor></textarea>
@@ -17,57 +26,62 @@
 (function () {
     if (typeof Quill === 'undefined') return;
 
-    /* ------------------------------------------------------------
-     * Custom Image blot that preserves inline style + width/height +
-     * align attribute. Out of the box Quill 2 only keeps `src` and
-     * `alt`, so the `style="width: 50%; float: left"` we set when the
-     * user resizes/aligns gets stripped on the next text-change.
-     *
-     * We register a sub-class of the built-in Image format that adds
-     * `style`, `width`, `height`, `align` to its allowed attributes.
-     * ------------------------------------------------------------ */
-    try {
-        var ImageBlot = Quill.import('formats/image');
-        if (ImageBlot && !ImageBlot.__resizableRegistered) {
-            // Tell Quill which DOM attributes to keep when serializing the blot
-            ImageBlot.sanitize = function (url) { return url; };
-            // Whitelist additional <img> attributes we want preserved
-            var EXTRA_ATTRS = ['style', 'width', 'height', 'align', 'data-align'];
-            EXTRA_ATTRS.forEach(function (attr) {
-                // Quill walks ATTRIBUTES on Image when reading from DOM
-                if (ImageBlot.ATTRIBUTES && ImageBlot.ATTRIBUTES.indexOf(attr) === -1) {
-                    ImageBlot.ATTRIBUTES.push(attr);
-                }
-            });
-            // For Quill 2 the built-in Image uses formats(domNode) /
-            // create(value). Override formats() so each image-blot
-            // round-trips its style + align attributes.
-            var origFormats = ImageBlot.formats;
-            ImageBlot.formats = function (domNode) {
-                var f = (typeof origFormats === 'function') ? origFormats.call(this, domNode) : {};
-                EXTRA_ATTRS.forEach(function (attr) {
-                    if (domNode.hasAttribute(attr)) {
-                        f[attr] = domNode.getAttribute(attr);
-                    }
-                });
-                return f;
-            };
-            // And on the prototype, so format(name, value) writes them back
-            var protoFormat = ImageBlot.prototype.format;
-            ImageBlot.prototype.format = function (name, value) {
-                if (EXTRA_ATTRS.indexOf(name) !== -1) {
-                    if (value) this.domNode.setAttribute(name, value);
-                    else this.domNode.removeAttribute(name);
-                } else if (typeof protoFormat === 'function') {
-                    protoFormat.call(this, name, value);
-                }
-            };
-            ImageBlot.__resizableRegistered = true;
-            Quill.register(ImageBlot, true);
-        }
-    } catch (e) { /* Quill version without formats/image — silently ignore */ }
+    /* ============================================================
+     * 1. ResizableImage blot
+     * ------------------------------------------------------------
+     * Proper ES6 subclass of Quill's built-in Image format that adds
+     * `style`, `class`, `width`, `height` to the list of preserved
+     * attributes. We override BOTH `static formats()` AND
+     * `prototype.format()` so the round-trip works in both directions
+     * (DOM -> model and model -> DOM).
+     * ============================================================ */
+    var ImageBase = Quill.import('formats/image');
 
-    // --- Toolbar presets ---
+    function ResizableImage() {
+        ImageBase.apply(this, arguments);
+    }
+    // ES5-style inheritance because Quill 2's CDN build is ES2017
+    // and we want to stay compatible with older browsers in admin.
+    ResizableImage.prototype = Object.create(ImageBase.prototype);
+    ResizableImage.prototype.constructor = ResizableImage;
+
+    // Copy static members from the parent (blotName, tagName, etc.)
+    Object.getOwnPropertyNames(ImageBase).forEach(function (k) {
+        if (['length', 'name', 'prototype'].indexOf(k) !== -1) return;
+        try { ResizableImage[k] = ImageBase[k]; } catch (e) {}
+    });
+
+    // Use OUR own list, not the parent's. Order matters for round-trip.
+    ResizableImage.ATTRIBUTES = ['alt', 'height', 'width', 'style', 'class'];
+
+    // DOM -> model: read the image's attributes into the format object.
+    ResizableImage.formats = function (domNode) {
+        return ResizableImage.ATTRIBUTES.reduce(function (acc, attr) {
+            if (domNode.hasAttribute(attr)) {
+                var val = domNode.getAttribute(attr);
+                if (val !== null && val !== '') acc[attr] = val;
+            }
+            return acc;
+        }, {});
+    };
+
+    // model -> DOM: write the attributes back onto the image element.
+    ResizableImage.prototype.format = function (name, value) {
+        if (ResizableImage.ATTRIBUTES.indexOf(name) > -1) {
+            if (value) this.domNode.setAttribute(name, value);
+            else this.domNode.removeAttribute(name);
+        } else {
+            ImageBase.prototype.format.call(this, name, value);
+        }
+    };
+
+    // Replace Quill's built-in image format with our subclass.
+    Quill.register(ResizableImage, true);
+    Quill.register('formats/image', ResizableImage, true);
+
+    /* ============================================================
+     * 2. Toolbar presets
+     * ============================================================ */
     var FULL_TOOLBAR = [
         [{ header: [1, 2, 3, false] }],
         ['bold', 'italic', 'underline', 'strike'],
@@ -77,7 +91,6 @@
         ['blockquote', 'link', 'image'],
         ['clean'],
     ];
-
     var SIMPLE_TOOLBAR = [
         [{ header: [2, 3, false] }],
         ['bold', 'italic', 'underline'],
@@ -85,17 +98,19 @@
         ['link', 'clean'],
     ];
 
-    // Lookup so the form-submit hook can find the Quill instance for a textarea
     var instances = new WeakMap();
 
+    /* ============================================================
+     * 3. Build editor for one textarea
+     * ============================================================ */
     function buildEditor(textarea) {
         if (textarea.dataset.richInitialized === '1') return;
+        textarea.dataset.richInitialized = '1';
 
         var simple = textarea.hasAttribute('data-editor-simple');
         var height = parseInt(textarea.dataset.editorHeight, 10) || 320;
         var toolbar = simple ? SIMPLE_TOOLBAR : FULL_TOOLBAR;
 
-        // Wrapper with Tailwind-friendly border so it blends with our forms
         var wrap = document.createElement('div');
         wrap.className =
             'rich-editor-wrap rounded-xl border border-slate-200 dark:border-slate-700 ' +
@@ -108,83 +123,65 @@
         editorDiv.innerHTML = textarea.value || '';
 
         wrap.appendChild(editorDiv);
-
-        // Hide textarea but keep it in the form so the name attribute submits.
         textarea.style.display = 'none';
         textarea.parentNode.insertBefore(wrap, textarea.nextSibling);
 
         var quill = new Quill(editorDiv, {
             theme: 'snow',
             placeholder: textarea.placeholder || 'Tulis konten di sini...',
-            modules: {
-                toolbar: toolbar,
-            },
+            modules: { toolbar: toolbar },
         });
-
         instances.set(textarea, quill);
-        textarea.dataset.richInitialized = '1';
 
-        // Sync HTML back to textarea on every change (so server-side validation
-        // that reads the textarea value before submit still works).
+        // Mirror to textarea on every text-change.
         quill.on('text-change', function () {
             var html = quill.root.innerHTML;
-            // Quill renders an empty editor as "<p><br></p>". For a required
-            // field we want that to count as empty so HTML5 validation triggers.
             textarea.value = html === '<p><br></p>' ? '' : html;
         });
 
-        // MS Word-like image resize + alignment.
-        // Click an image -> show toolbar (L/C/R + preset sizes) and a
-        // bottom-right corner drag handle. Inline style on the <img> is
-        // what gets persisted, so the public side (which renders the HTML
-        // through safeRichHtml) shows the same width/alignment without
-        // needing any new server logic.
-        attachImageTools(quill, editorDiv, textarea);
+        // Image resize/align tools.
+        attachImageTools(quill, textarea);
 
-        // Belt-and-braces: re-sync right before the form is submitted
+        // Re-sync just before form submit (defence-in-depth).
         var form = textarea.form;
         if (form && !form.dataset.richSubmitHook) {
             form.dataset.richSubmitHook = '1';
-            form.addEventListener(
-                'submit',
-                function () {
-                    form
-                        .querySelectorAll('textarea[data-rich-editor]')
-                        .forEach(function (ta) {
-                            var q = instances.get(ta);
-                            if (!q) return;
-                            var h = q.root.innerHTML;
-                            ta.value = h === '<p><br></p>' ? '' : h;
-                        });
-                },
-                true
-            );
+            form.addEventListener('submit', function () {
+                form.querySelectorAll('textarea[data-rich-editor]').forEach(function (ta) {
+                    var q = instances.get(ta);
+                    if (!q) return;
+                    var h = q.root.innerHTML;
+                    ta.value = h === '<p><br></p>' ? '' : h;
+                });
+            }, true);
         }
     }
 
     function init() {
-        document
-            .querySelectorAll('textarea[data-rich-editor]')
-            .forEach(buildEditor);
+        document.querySelectorAll('textarea[data-rich-editor]').forEach(buildEditor);
     }
 
     /* ============================================================
-       IMAGE TOOLS — Word-style resize + alignment
-       ------------------------------------------------------------
-       Native, no plugin required. We listen for clicks on <img>
-       inside any Quill editor body, then overlay:
-         - bottom-right drag handle (proportional resize)
-         - floating toolbar with Left / Center / Right alignment
-           and 25% / 50% / 100% preset width
-       Width is persisted as inline `style="width: …%;"`. Alignment
-       is persisted as `float: left` / `float: right` / `display:block;
-       margin: 0 auto;`. Both survive `safeRichHtml()` server-side.
-       ============================================================ */
-    function attachImageTools(quill, editorDiv, textarea) {
-        var current = null;     // currently selected <img>
-        var overlay = null;     // wrapper that holds handle + toolbar
+     * 4. IMAGE TOOLS — Word-style resize + alignment
+     * ------------------------------------------------------------
+     * - Click an image -> floating toolbar + corner drag-handle.
+     * - Drag the handle to resize proportionally; width persists as
+     *   inline `style="width: <pct>%"` AND `width="<pct>%"`.
+     * - Toolbar presets: 25 / 50 / 100% + L / C / R align + delete.
+     * - Alignment uses inline `style="float: …; margin: …;"` plus
+     *   `data-align` for round-trip identification.
+     * ============================================================ */
+    function attachImageTools(quill, textarea) {
+        var editorBody = quill.root;          // the .ql-editor div
+        var current = null;                   // currently selected <img>
+        var overlay = null;
         var dragging = false;
-        var startX = 0, startY = 0, startW = 0, startH = 0, ratio = 1;
+        var startX = 0, startW = 0;
+
+        // Cache of size/style we last set per image, keyed by the image
+        // element. Used by the MutationObserver below to restore the
+        // attributes if Quill ever removes them during normalization.
+        var savedAttrs = new WeakMap();
 
         function ensureOverlay() {
             if (overlay) return overlay;
@@ -192,9 +189,9 @@
             overlay.className = 'rich-image-overlay';
             overlay.innerHTML = ''
                 + '<div class="rich-image-toolbar">'
-                +   '<button type="button" data-action="align-left"   title="Rata Kiri (teks mengalir di kanan)"><i class="fas fa-align-left"></i></button>'
+                +   '<button type="button" data-action="align-left"   title="Rata Kiri"><i class="fas fa-align-left"></i></button>'
                 +   '<button type="button" data-action="align-center" title="Rata Tengah"><i class="fas fa-align-center"></i></button>'
-                +   '<button type="button" data-action="align-right"  title="Rata Kanan (teks mengalir di kiri)"><i class="fas fa-align-right"></i></button>'
+                +   '<button type="button" data-action="align-right"  title="Rata Kanan"><i class="fas fa-align-right"></i></button>'
                 +   '<span class="rich-image-sep"></span>'
                 +   '<button type="button" data-action="size-25"  title="Lebar 25%">25%</button>'
                 +   '<button type="button" data-action="size-50"  title="Lebar 50%">50%</button>'
@@ -205,23 +202,44 @@
                 + '<div class="rich-image-handle" title="Seret untuk ubah ukuran"></div>';
             document.body.appendChild(overlay);
 
-            // Toolbar actions
-            overlay.querySelector('.rich-image-toolbar').addEventListener('mousedown', function (e) {
-                // Prevent stealing focus from the image
-                e.preventDefault();
-            });
-            overlay.querySelector('.rich-image-toolbar').addEventListener('click', function (e) {
+            var bar = overlay.querySelector('.rich-image-toolbar');
+            bar.addEventListener('mousedown', function (e) { e.preventDefault(); });
+            bar.addEventListener('click', function (e) {
                 var btn = e.target.closest('button[data-action]');
                 if (!btn || !current) return;
                 e.preventDefault();
                 applyAction(btn.getAttribute('data-action'));
             });
 
-            // Resize handle
             var handle = overlay.querySelector('.rich-image-handle');
             handle.addEventListener('mousedown', startResize);
             handle.addEventListener('touchstart', startResize, { passive: false });
             return overlay;
+        }
+
+        function applyToImage(img) {
+            // Re-apply whatever attributes we have cached for this img.
+            var s = savedAttrs.get(img);
+            if (!s) return false;
+            var changed = false;
+            if (s.width != null && img.getAttribute('width') !== s.width) {
+                img.setAttribute('width', s.width); changed = true;
+            }
+            if (s.style != null && img.getAttribute('style') !== s.style) {
+                img.setAttribute('style', s.style); changed = true;
+            }
+            if (s.align != null && img.getAttribute('data-align') !== s.align) {
+                img.setAttribute('data-align', s.align); changed = true;
+            }
+            return changed;
+        }
+
+        function snapshot(img) {
+            savedAttrs.set(img, {
+                width: img.getAttribute('width'),
+                style: img.getAttribute('style'),
+                align: img.getAttribute('data-align'),
+            });
         }
 
         function applyAction(action) {
@@ -231,38 +249,41 @@
                     current.style.float = 'left';
                     current.style.display = '';
                     current.style.margin = '0.4em 1em 0.4em 0';
+                    current.setAttribute('data-align', 'left');
                     break;
                 case 'align-center':
                     current.style.float = 'none';
                     current.style.display = 'block';
                     current.style.margin = '0.6em auto';
+                    current.setAttribute('data-align', 'center');
                     break;
                 case 'align-right':
                     current.style.float = 'right';
                     current.style.display = '';
                     current.style.margin = '0.4em 0 0.4em 1em';
+                    current.setAttribute('data-align', 'right');
                     break;
-                case 'size-25':  current.style.width = '25%';  current.style.height = 'auto'; break;
-                case 'size-50':  current.style.width = '50%';  current.style.height = 'auto'; break;
-                case 'size-100': current.style.width = '100%'; current.style.height = 'auto'; break;
+                case 'size-25':  setWidthPct(current, 25); break;
+                case 'size-50':  setWidthPct(current, 50); break;
+                case 'size-100': setWidthPct(current, 100); break;
                 case 'remove':
                     current.parentNode && current.parentNode.removeChild(current);
                     hide();
                     syncTextarea();
                     return;
             }
-            // Cache the inline style we just set, so the MutationObserver
-            // below can put it back if Quill's normalizer strips it.
-            current.dataset.persistStyle = current.getAttribute('style') || '';
+            snapshot(current);
             position();
             syncTextarea();
         }
 
+        function setWidthPct(img, pct) {
+            img.setAttribute('width', pct + '%');
+            img.style.width  = pct + '%';
+            img.style.height = 'auto';
+        }
+
         function syncTextarea() {
-            // Mirror the editor's HTML back into the hidden <textarea>
-            // (which is what the form actually submits). Image attribute
-            // changes don't fire a Quill text-change event so we have to
-            // do this ourselves whenever the user resizes/aligns a photo.
             if (!textarea) return;
             var html = quill.root.innerHTML;
             textarea.value = html === '<p><br></p>' ? '' : html;
@@ -271,26 +292,15 @@
         function position() {
             if (!current || !overlay) return;
             var r = current.getBoundingClientRect();
-            // Account for page scroll (overlay is appended to <body>)
-            var top  = r.top  + window.scrollY;
-            var left = r.left + window.scrollX;
-            overlay.style.top    = top + 'px';
-            overlay.style.left   = left + 'px';
-            overlay.style.width  = r.width + 'px';
+            overlay.style.top    = (r.top  + window.scrollY) + 'px';
+            overlay.style.left   = (r.left + window.scrollX) + 'px';
+            overlay.style.width  = r.width  + 'px';
             overlay.style.height = r.height + 'px';
             overlay.style.display = 'block';
         }
 
-        function show(img) {
-            current = img;
-            ensureOverlay();
-            position();
-        }
-
-        function hide() {
-            current = null;
-            if (overlay) overlay.style.display = 'none';
-        }
+        function show(img) { current = img; ensureOverlay(); position(); }
+        function hide()    { current = null; if (overlay) overlay.style.display = 'none'; }
 
         function startResize(e) {
             if (!current) return;
@@ -298,10 +308,7 @@
             dragging = true;
             var p = e.touches ? e.touches[0] : e;
             startX = p.clientX;
-            startY = p.clientY;
             startW = current.getBoundingClientRect().width;
-            startH = current.getBoundingClientRect().height;
-            ratio  = startH > 0 ? (startW / startH) : 1;
 
             document.addEventListener('mousemove', onResize);
             document.addEventListener('mouseup', endResize);
@@ -315,16 +322,14 @@
             var dx = p.clientX - startX;
             var newW = Math.max(40, startW + dx);
 
-            // Clamp to editor body width so the image never overflows
-            var bodyW = editorDiv.clientWidth - 8;
+            var bodyW = editorBody.clientWidth - 8;
+            if (bodyW < 40) bodyW = 40;
             if (newW > bodyW) newW = bodyW;
 
-            // Convert to % of the editor width so it stays responsive
             var pct = Math.round((newW / bodyW) * 100);
             pct = Math.max(10, Math.min(100, pct));
-            current.style.width  = pct + '%';
-            current.style.height = 'auto';
-            current.dataset.persistStyle = current.getAttribute('style') || '';
+            setWidthPct(current, pct);
+            snapshot(current);
             position();
         }
         function endResize() {
@@ -337,10 +342,10 @@
             syncTextarea();
         }
 
-        // Click on image in editor -> show overlay
-        editorDiv.addEventListener('click', function (e) {
+        // Click on an image -> select + show overlay.
+        editorBody.addEventListener('click', function (e) {
             var img = e.target.closest('img');
-            if (img && editorDiv.contains(img)) {
+            if (img && editorBody.contains(img)) {
                 show(img);
                 e.stopPropagation();
             } else {
@@ -348,31 +353,7 @@
             }
         });
 
-        // Belt-and-suspenders: if Quill ever strips the inline style
-        // attribute on an <img> we set, restore it from data-persist-style.
-        // This catches cases where the registered Image blot override
-        // didn't take effect (e.g. older Quill version, OR an image was
-        // pasted in and then resized before Quill rebuilt the model).
-        var mo = new MutationObserver(function (mutations) {
-            mutations.forEach(function (m) {
-                if (m.type !== 'attributes') return;
-                var img = m.target;
-                if (!img || img.tagName !== 'IMG') return;
-                var saved = img.dataset.persistStyle;
-                if (!saved) return;
-                if (m.attributeName === 'style' && img.getAttribute('style') !== saved) {
-                    img.setAttribute('style', saved);
-                    syncTextarea();
-                }
-            });
-        });
-        mo.observe(editorDiv, {
-            attributes: true,
-            subtree: true,
-            attributeFilter: ['style', 'width', 'height'],
-        });
-
-        // Hide overlay when clicking outside or scrolling/resizing
+        // Click outside -> deselect.
         document.addEventListener('mousedown', function (e) {
             if (!current) return;
             if (overlay && overlay.contains(e.target)) return;
@@ -381,6 +362,69 @@
         });
         window.addEventListener('scroll', function () { if (current) position(); }, true);
         window.addEventListener('resize', function () { if (current) position(); });
+
+        /* --------------------------------------------------------
+         * Defence-in-depth: MutationObserver
+         *
+         * Even with the ResizableImage subclass registered, certain
+         * code paths in Quill (paste handling, undo/redo, format
+         * commands triggered on neighbouring text) can replace the
+         * <img> element with a freshly-built one that lost our
+         * inline style. The observer:
+         *
+         *  - On attribute mutation (style/width changed): if the
+         *    new value differs from the cached value, restore.
+         *  - On childList mutation (img added): if the new img has
+         *    an entry in savedAttrs (matched by `src`), re-apply.
+         *
+         * Together this guarantees the user's resize/align stays
+         * visible even when Quill normalises the DOM under us.
+         * -------------------------------------------------------- */
+        var srcCache = {};   // src -> { width, style, align }
+        function rememberBySrc(img) {
+            var s = savedAttrs.get(img);
+            if (s && img.src) srcCache[img.src] = s;
+        }
+        function recoverBySrc(img) {
+            if (!img.src) return false;
+            var s = srcCache[img.src];
+            if (!s) return false;
+            savedAttrs.set(img, s);
+            return applyToImage(img);
+        }
+
+        var mo = new MutationObserver(function (mutations) {
+            var didRestore = false;
+            mutations.forEach(function (m) {
+                if (m.type === 'attributes' && m.target.tagName === 'IMG') {
+                    if (applyToImage(m.target)) didRestore = true;
+                } else if (m.type === 'childList') {
+                    m.addedNodes.forEach(function (n) {
+                        if (n.tagName === 'IMG') {
+                            if (recoverBySrc(n)) didRestore = true;
+                        } else if (n.querySelectorAll) {
+                            n.querySelectorAll('img').forEach(function (img) {
+                                if (recoverBySrc(img)) didRestore = true;
+                            });
+                        }
+                    });
+                }
+            });
+            if (didRestore) syncTextarea();
+        });
+        mo.observe(editorBody, {
+            childList: true,
+            subtree: true,
+            attributes: true,
+            attributeFilter: ['style', 'width', 'height', 'data-align'],
+        });
+
+        // Whenever we snapshot an image, also remember by src.
+        var origSnapshot = snapshot;
+        snapshot = function (img) {
+            origSnapshot(img);
+            rememberBySrc(img);
+        };
     }
 
     if (document.readyState === 'loading') {
