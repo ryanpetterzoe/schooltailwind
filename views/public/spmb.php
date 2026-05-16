@@ -39,7 +39,7 @@ require_once __DIR__ . '/../layouts/header.php';
         <?php if (!empty($spmbSettings['info'])): ?>
         <div class="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl p-6">
           <h4 class="font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2"><i class="fas fa-info-circle text-blue-500"></i>Informasi SPMB</h4>
-          <div class="border-t border-slate-100 dark:border-slate-700 pt-4 text-slate-600 dark:text-slate-300 leading-relaxed"><?= nl2br(htmlspecialchars($spmbSettings['info'])) ?></div>
+          <div class="border-t border-slate-100 dark:border-slate-700 pt-4 text-slate-600 dark:text-slate-300 leading-relaxed prose prose-slate dark:prose-invert max-w-none"><?= safeRichHtml($spmbSettings['info']) ?></div>
         </div>
         <?php endif; ?>
 
@@ -47,7 +47,7 @@ require_once __DIR__ . '/../layouts/header.php';
         <?php if (!empty($spmbSettings['requirements'])): ?>
         <div class="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl p-6">
           <h4 class="font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2"><i class="fas fa-clipboard-list text-blue-500"></i>Persyaratan Pendaftaran</h4>
-          <div class="border-t border-slate-100 dark:border-slate-700 pt-4 text-slate-600 dark:text-slate-300 leading-loose"><?= nl2br(htmlspecialchars($spmbSettings['requirements'])) ?></div>
+          <div class="border-t border-slate-100 dark:border-slate-700 pt-4 text-slate-600 dark:text-slate-300 leading-loose prose prose-slate dark:prose-invert max-w-none"><?= safeRichHtml($spmbSettings['requirements']) ?></div>
         </div>
         <?php endif; ?>
 

@@ -52,7 +52,7 @@ $levels = ['sekolah','kabupaten','provinsi','nasional','internasional'];
               <?php else: ?>bg-slate-50 text-slate-600 dark:bg-slate-700 dark:text-slate-300<?php endif; ?>"><?= ucfirst($ach['level']) ?></span>
           </div>
           <?php if (!empty($ach['description'])): ?>
-          <p class="text-xs text-slate-400 leading-relaxed mb-2"><?= htmlspecialchars($ach['description']) ?></p>
+          <p class="text-xs text-slate-400 leading-relaxed mb-2"><?= htmlspecialchars(richExcerpt($ach['description'], 200)) ?></p>
           <?php endif; ?>
           <?php if (!empty($ach['year'])): ?>
           <span class="text-xs text-slate-400"><i class="fas fa-calendar mr-1"></i>Tahun <?= $ach['year'] ?></span>

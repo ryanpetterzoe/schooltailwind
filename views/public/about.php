@@ -99,13 +99,13 @@ $activeTab = isset($tabMap[$cleanUri]) ? $tabMap[$cleanUri] : 'profil';
           <div class="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl p-8">
             <h4 class="text-xl font-bold text-blue-600 mb-4 flex items-center gap-2"><i class="fas fa-eye"></i>Visi</h4>
             <div class="border-t border-slate-100 dark:border-slate-700 pt-4">
-              <p class="text-slate-600 dark:text-slate-300 leading-relaxed"><?= nl2br(htmlspecialchars($settings['about_vision'] ?? '')) ?></p>
+              <p class="text-slate-600 dark:text-slate-300 leading-relaxed prose prose-slate dark:prose-invert max-w-none"><?= safeRichHtml($settings['about_vision'] ?? '') ?></p>
             </div>
           </div>
           <div class="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl p-8">
             <h4 class="text-xl font-bold text-blue-600 mb-4 flex items-center gap-2"><i class="fas fa-list-check"></i>Misi</h4>
             <div class="border-t border-slate-100 dark:border-slate-700 pt-4">
-              <div class="text-slate-600 dark:text-slate-300 leading-relaxed"><?= nl2br(htmlspecialchars($settings['about_mission'] ?? '')) ?></div>
+              <div class="text-slate-600 dark:text-slate-300 leading-relaxed prose prose-slate dark:prose-invert max-w-none"><?= safeRichHtml($settings['about_mission'] ?? '') ?></div>
             </div>
           </div>
         </div>
@@ -116,7 +116,7 @@ $activeTab = isset($tabMap[$cleanUri]) ? $tabMap[$cleanUri] : 'profil';
         <div class="max-w-3xl mx-auto">
           <h3 class="text-2xl font-bold text-slate-800 dark:text-white mb-6">Sejarah Sekolah</h3>
           <div class="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl p-8">
-            <p class="text-slate-600 dark:text-slate-300 leading-relaxed"><?= nl2br(htmlspecialchars($settings['about_history'] ?? 'Informasi sejarah belum tersedia.')) ?></p>
+            <p class="text-slate-600 dark:text-slate-300 leading-relaxed prose prose-slate dark:prose-invert max-w-none"><?= !empty($settings['about_history']) ? safeRichHtml($settings['about_history']) : 'Informasi sejarah belum tersedia.' ?></p>
           </div>
         </div>
       </div>
@@ -139,7 +139,7 @@ $activeTab = isset($tabMap[$cleanUri]) ? $tabMap[$cleanUri] : 'profil';
             <div class="flex-1">
               <h4 class="text-lg font-bold text-blue-600 mb-3">Sambutan Kepala Sekolah</h4>
               <div class="border-t border-slate-100 dark:border-slate-700 pt-4">
-                <p class="text-slate-600 dark:text-slate-300 leading-relaxed italic">"<?= nl2br(htmlspecialchars($settings['principal_message'] ?? '')) ?>"</p>
+                <p class="text-slate-600 dark:text-slate-300 leading-relaxed italic prose prose-slate dark:prose-invert max-w-none">"<?= safeRichHtml($settings['principal_message'] ?? '') ?>"</p>
               </div>
             </div>
           </div>

@@ -102,15 +102,15 @@
             <div class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Visi Sekolah</label>
-                    <textarea name="about_vision" class="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" rows="3"><?= htmlspecialchars($settings['about_vision'] ?? '') ?></textarea>
+                    <textarea name="about_vision" data-rich-editor data-editor-simple data-editor-height="180" class="w-full" rows="3"><?= htmlspecialchars($settings['about_vision'] ?? '') ?></textarea>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Misi Sekolah</label>
-                    <textarea name="about_mission" class="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" rows="6"><?= htmlspecialchars($settings['about_mission'] ?? '') ?></textarea>
+                    <textarea name="about_mission" data-rich-editor data-editor-simple data-editor-height="220" class="w-full" rows="6"><?= htmlspecialchars($settings['about_mission'] ?? '') ?></textarea>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Sejarah Sekolah</label>
-                    <textarea name="about_history" class="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" rows="6"><?= htmlspecialchars($settings['about_history'] ?? '') ?></textarea>
+                    <textarea name="about_history" data-rich-editor data-editor-height="280" class="w-full" rows="6"><?= htmlspecialchars($settings['about_history'] ?? '') ?></textarea>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div class="md:col-span-2">
@@ -127,7 +127,7 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Sambutan Kepala Sekolah</label>
-                    <textarea name="principal_message" class="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" rows="5"><?= htmlspecialchars($settings['principal_message'] ?? '') ?></textarea>
+                    <textarea name="principal_message" data-rich-editor data-editor-simple data-editor-height="220" class="w-full" rows="5"><?= htmlspecialchars($settings['principal_message'] ?? '') ?></textarea>
                 </div>
             </div>
             <div class="mt-6"><button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors"><i class="fas fa-save mr-2"></i>Simpan</button></div>

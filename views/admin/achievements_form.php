@@ -25,7 +25,7 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Deskripsi</label>
-                    <textarea name="description" class="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" rows="4"><?= htmlspecialchars($achievement['description'] ?? '') ?></textarea>
+                    <textarea name="description" data-rich-editor data-editor-simple data-editor-height="200" class="w-full" rows="4"><?= htmlspecialchars($achievement['description'] ?? '') ?></textarea>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Foto (opsional)</label>

@@ -153,6 +153,40 @@ function timeAgo($datetime) {
     return date('d M Y', strtotime($datetime));
 }
 
+function safeRichHtml($html) {
+    if ($html === null || $html === '') return '';
+    // Plain text fallback for legacy entries
+    if (strip_tags($html) === $html) {
+        return nl2br(htmlspecialchars($html));
+    }
+    // Remove <script>, <style>, <iframe> blocks entirely
+    $clean = preg_replace('#<(script|style|iframe)\b[^>]*>.*?</\1>#is', '', $html);
+    $clean = preg_replace('#<(script|style|iframe)\b[^>]*/?>#is', '', $clean);
+    // Strip inline event handlers (onclick=, onerror=, ...)
+    $clean = preg_replace('#\son[a-z]+\s*=\s*"[^"]*"#i', '', $clean);
+    $clean = preg_replace("#\son[a-z]+\s*=\s*'[^']*'#i", '', $clean);
+    $clean = preg_replace('#\son[a-z]+\s*=\s*[^\s>]+#i', '', $clean);
+    // Disallow javascript: URLs
+    $clean = preg_replace('#(href|src)\s*=\s*"javascript:[^"]*"#i', '$1="#"', $clean);
+    $clean = preg_replace("#(href|src)\s*=\s*'javascript:[^']*'#i", '$1="#"', $clean);
+    return $clean;
+}
+
+/**
+ * Plain-text excerpt from a string that may contain HTML. Strips tags,
+ * collapses whitespace, then truncates at $len characters. Use for card
+ * previews / list pages where rich formatting would break the layout.
+ */
+function richExcerpt($html, $len = 120) {
+    if ($html === null || $html === '') return '';
+    // Drop script/style content so the inner text doesn't leak through strip_tags
+    $tmp = preg_replace('#<(script|style)\b[^>]*>.*?</\1>#is', '', $html);
+    $text = trim(html_entity_decode(strip_tags($tmp), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+    $text = preg_replace('/\s+/u', ' ', $text);
+    if (mb_strlen($text) <= $len) return $text;
+    return mb_substr($text, 0, $len);
+}
+
 function activeMenu($page, $current) {
     return $page === $current ? 'active' : '';
 }

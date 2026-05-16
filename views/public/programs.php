@@ -35,7 +35,7 @@ require_once __DIR__ . '/../layouts/header.php';
               <span class="px-2 py-0.5 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 text-xs font-bold rounded-full"><?= htmlspecialchars($prog['code']) ?></span>
               <?php endif; ?>
             </div>
-            <p class="text-sm text-slate-400 leading-relaxed mb-4"><?= htmlspecialchars(substr($prog['description'] ?? '', 0, 180)) ?>...</p>
+          <p class="text-sm text-slate-400 leading-relaxed mb-4"><?= htmlspecialchars(richExcerpt($prog['description'] ?? '', 180)) ?>...</p>
             <div class="flex items-center gap-4">
               <span class="text-sm text-slate-400"><i class="fas fa-users mr-1 text-blue-500"></i>Kuota: <strong class="text-slate-700 dark:text-white"><?= $prog['quota'] ?></strong></span>
               <a href="<?= APP_URL ?>/jurusan/<?= $prog['id'] ?>" class="px-4 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs font-bold rounded-lg shadow hover:-translate-y-0.5 transition-all inline-flex items-center gap-1">Detail <i class="fas fa-arrow-right"></i></a>
