@@ -133,60 +133,73 @@ function initCounters() {
 }
 
 /* ============================================================
-   Hero Slider
+   Hero Slider (Tailwind-native opacity transition)
    ============================================================ */
 function initHeroSlider() {
-    const slides = document.querySelectorAll('.hero-slide');
-    const indicators = document.querySelectorAll('.hero-indicator');
+    const slides = Array.from(document.querySelectorAll('.hero-slide'));
+    const indicators = Array.from(document.querySelectorAll('.hero-indicator'));
     if (slides.length < 2) return;
 
     let current = 0;
     const total = slides.length;
+    const INTERVAL_MS = 5500;
 
-    function goTo(index) {
-        slides[current].classList.remove('active');
-        if (indicators[current]) indicators[current].classList.remove('w-6', 'bg-white');
-        if (indicators[current]) indicators[current].classList.add('w-2', 'bg-white/50');
-
-        current = index;
-
-        slides[current].classList.add('active');
-        if (indicators[current]) indicators[current].classList.remove('w-2', 'bg-white/50');
-        if (indicators[current]) indicators[current].classList.add('w-6', 'bg-white');
+    function activateSlide(idx) {
+        slides.forEach((slide, i) => {
+            const isActive = i === idx;
+            slide.classList.toggle('opacity-100', isActive);
+            slide.classList.toggle('opacity-0', !isActive);
+            slide.classList.toggle('pointer-events-none', !isActive);
+        });
+        indicators.forEach((dot, i) => {
+            const isActive = i === idx;
+            dot.classList.toggle('w-6', isActive);
+            dot.classList.toggle('bg-white', isActive);
+            dot.classList.toggle('w-2', !isActive);
+            dot.classList.toggle('bg-white/50', !isActive);
+        });
+        current = idx;
     }
 
-    function next() { goTo((current + 1) % total); }
-    function prev() { goTo((current - 1 + total) % total); }
+    function next() { activateSlide((current + 1) % total); }
+    function prev() { activateSlide((current - 1 + total) % total); }
 
     // Auto play
-    let interval = setInterval(next, 5500);
+    let interval = setInterval(next, INTERVAL_MS);
+    function resetInterval() {
+        clearInterval(interval);
+        interval = setInterval(next, INTERVAL_MS);
+    }
+
+    // Pause on hover (desktop)
+    const sliderContainer = document.querySelector('.hero-slider');
+    if (sliderContainer) {
+        sliderContainer.addEventListener('mouseenter', () => clearInterval(interval));
+        sliderContainer.addEventListener('mouseleave', resetInterval);
+    }
 
     // Controls
     const prevBtn = document.getElementById('heroPrev');
     const nextBtn = document.getElementById('heroNext');
-    if (prevBtn) prevBtn.addEventListener('click', () => { clearInterval(interval); prev(); interval = setInterval(next, 5500); });
-    if (nextBtn) nextBtn.addEventListener('click', () => { clearInterval(interval); next(); interval = setInterval(next, 5500); });
+    if (prevBtn) prevBtn.addEventListener('click', () => { prev(); resetInterval(); });
+    if (nextBtn) nextBtn.addEventListener('click', () => { next(); resetInterval(); });
 
     // Indicators
     indicators.forEach((dot, i) => {
-        dot.addEventListener('click', () => { clearInterval(interval); goTo(i); interval = setInterval(next, 5500); });
+        dot.addEventListener('click', () => { activateSlide(i); resetInterval(); });
     });
 
     // Touch/Swipe support for mobile
-    const sliderContainer = document.querySelector('.hero-slider');
     if (sliderContainer) {
         let touchStartX = 0;
-        let touchEndX = 0;
         sliderContainer.addEventListener('touchstart', (e) => {
             touchStartX = e.changedTouches[0].screenX;
         }, { passive: true });
         sliderContainer.addEventListener('touchend', (e) => {
-            touchEndX = e.changedTouches[0].screenX;
-            const diff = touchStartX - touchEndX;
+            const diff = touchStartX - e.changedTouches[0].screenX;
             if (Math.abs(diff) > 50) {
-                clearInterval(interval);
-                if (diff > 0) { next(); } else { prev(); }
-                interval = setInterval(next, 5500);
+                if (diff > 0) next(); else prev();
+                resetInterval();
             }
         }, { passive: true });
     }
@@ -455,8 +468,11 @@ function initTabs() {
    Init All on DOMContentLoaded
    ============================================================ */
 document.addEventListener('DOMContentLoaded', () => {
-    initTheme();
-    initMobileMenu();
+    // NOTE: initTheme(), initMobileMenu(), and theme toggle listeners are
+    // handled by the inline script in views/layouts/header.php so the UI
+    // stays in sync immediately on first paint and on every click.
+    // Re-attaching them here would double-toggle on click (one click = no
+    // change visible until refresh). DO NOT call them here.
     initNavbarScroll();
     initBackToTop();
     initCounters();
@@ -470,11 +486,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initAlertDismiss();
     initConfirmActions();
     initTabs();
-
-    // Theme toggle buttons
-    document.querySelectorAll('#themeToggle, #themeToggleMobile').forEach(btn => {
-        btn.addEventListener('click', toggleTheme);
-    });
 });
 
 // Init preloader immediately

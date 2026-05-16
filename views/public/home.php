@@ -4,9 +4,9 @@ require_once __DIR__ . '/../layouts/header.php';
 ?>
 
 <!-- ═══════════════════════════════════════════════════════════
-     HERO SLIDER
+     HERO SLIDER (Tailwind-native, fade transition)
      ═══════════════════════════════════════════════════════════ -->
-<section class="hero-slider relative bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-950 overflow-hidden" style="height:85vh;min-height:560px;position:relative;overflow:hidden;">
+<section class="hero-slider relative bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-950 overflow-hidden h-[85vh] min-h-[560px]">
   <!-- Decorative shapes -->
   <div class="absolute inset-0 pointer-events-none z-0">
     <div class="absolute w-72 h-72 bg-blue-500/10 rounded-full -top-20 right-[10%] animate-pulse"></div>
@@ -15,7 +15,7 @@ require_once __DIR__ . '/../layouts/header.php';
 
   <!-- Slides -->
   <?php foreach ($sliders as $i => $slide): ?>
-  <div class="hero-slide <?= $i === 0 ? 'active' : '' ?>" style="position:absolute;top:0;left:0;right:0;bottom:0;<?= $i !== 0 ? 'opacity:0;pointer-events:none;' : '' ?>">
+  <div class="hero-slide absolute inset-0 transition-opacity duration-700 ease-in-out <?= $i === 0 ? 'opacity-100' : 'opacity-0 pointer-events-none' ?>">
     <?php if (!empty($slide['image'])): ?>
     <img src="<?= UPLOAD_URL . htmlspecialchars($slide['image']) ?>" alt="<?= htmlspecialchars($slide['title'] ?? '') ?>"
          class="absolute inset-0 w-full h-full object-cover opacity-20">
@@ -60,7 +60,7 @@ require_once __DIR__ . '/../layouts/header.php';
   <!-- Indicators -->
   <div class="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex gap-2">
     <?php foreach ($sliders as $i => $slide): ?>
-    <button class="hero-indicator h-2 rounded-full transition-all duration-300 <?= $i === 0 ? 'w-6 bg-white' : 'w-2 bg-white/50' ?>"></button>
+    <button type="button" data-index="<?= $i ?>" class="hero-indicator h-2 rounded-full transition-all duration-300 <?= $i === 0 ? 'w-6 bg-white' : 'w-2 bg-white/50' ?>"></button>
     <?php endforeach; ?>
   </div>
 </section>
