@@ -17,6 +17,56 @@
 (function () {
     if (typeof Quill === 'undefined') return;
 
+    /* ------------------------------------------------------------
+     * Custom Image blot that preserves inline style + width/height +
+     * align attribute. Out of the box Quill 2 only keeps `src` and
+     * `alt`, so the `style="width: 50%; float: left"` we set when the
+     * user resizes/aligns gets stripped on the next text-change.
+     *
+     * We register a sub-class of the built-in Image format that adds
+     * `style`, `width`, `height`, `align` to its allowed attributes.
+     * ------------------------------------------------------------ */
+    try {
+        var ImageBlot = Quill.import('formats/image');
+        if (ImageBlot && !ImageBlot.__resizableRegistered) {
+            // Tell Quill which DOM attributes to keep when serializing the blot
+            ImageBlot.sanitize = function (url) { return url; };
+            // Whitelist additional <img> attributes we want preserved
+            var EXTRA_ATTRS = ['style', 'width', 'height', 'align', 'data-align'];
+            EXTRA_ATTRS.forEach(function (attr) {
+                // Quill walks ATTRIBUTES on Image when reading from DOM
+                if (ImageBlot.ATTRIBUTES && ImageBlot.ATTRIBUTES.indexOf(attr) === -1) {
+                    ImageBlot.ATTRIBUTES.push(attr);
+                }
+            });
+            // For Quill 2 the built-in Image uses formats(domNode) /
+            // create(value). Override formats() so each image-blot
+            // round-trips its style + align attributes.
+            var origFormats = ImageBlot.formats;
+            ImageBlot.formats = function (domNode) {
+                var f = (typeof origFormats === 'function') ? origFormats.call(this, domNode) : {};
+                EXTRA_ATTRS.forEach(function (attr) {
+                    if (domNode.hasAttribute(attr)) {
+                        f[attr] = domNode.getAttribute(attr);
+                    }
+                });
+                return f;
+            };
+            // And on the prototype, so format(name, value) writes them back
+            var protoFormat = ImageBlot.prototype.format;
+            ImageBlot.prototype.format = function (name, value) {
+                if (EXTRA_ATTRS.indexOf(name) !== -1) {
+                    if (value) this.domNode.setAttribute(name, value);
+                    else this.domNode.removeAttribute(name);
+                } else if (typeof protoFormat === 'function') {
+                    protoFormat.call(this, name, value);
+                }
+            };
+            ImageBlot.__resizableRegistered = true;
+            Quill.register(ImageBlot, true);
+        }
+    } catch (e) { /* Quill version without formats/image — silently ignore */ }
+
     // --- Toolbar presets ---
     var FULL_TOOLBAR = [
         [{ header: [1, 2, 3, false] }],
@@ -89,7 +139,7 @@
         // what gets persisted, so the public side (which renders the HTML
         // through safeRichHtml) shows the same width/alignment without
         // needing any new server logic.
-        attachImageTools(quill, editorDiv);
+        attachImageTools(quill, editorDiv, textarea);
 
         // Belt-and-braces: re-sync right before the form is submitted
         var form = textarea.form;
@@ -130,7 +180,7 @@
        is persisted as `float: left` / `float: right` / `display:block;
        margin: 0 auto;`. Both survive `safeRichHtml()` server-side.
        ============================================================ */
-    function attachImageTools(quill, editorDiv) {
+    function attachImageTools(quill, editorDiv, textarea) {
         var current = null;     // currently selected <img>
         var overlay = null;     // wrapper that holds handle + toolbar
         var dragging = false;
@@ -201,16 +251,21 @@
                     syncTextarea();
                     return;
             }
+            // Cache the inline style we just set, so the MutationObserver
+            // below can put it back if Quill's normalizer strips it.
+            current.dataset.persistStyle = current.getAttribute('style') || '';
             position();
             syncTextarea();
         }
 
         function syncTextarea() {
-            // Quill listens for DOM mutations but inline style on a clicked
-            // image bypasses its model. Trigger an update so text-change fires
-            // and the hidden textarea gets the new HTML.
-            quill.update();
-            quill.emitter.emit('text-change', null, null, 'user');
+            // Mirror the editor's HTML back into the hidden <textarea>
+            // (which is what the form actually submits). Image attribute
+            // changes don't fire a Quill text-change event so we have to
+            // do this ourselves whenever the user resizes/aligns a photo.
+            if (!textarea) return;
+            var html = quill.root.innerHTML;
+            textarea.value = html === '<p><br></p>' ? '' : html;
         }
 
         function position() {
@@ -269,6 +324,7 @@
             pct = Math.max(10, Math.min(100, pct));
             current.style.width  = pct + '%';
             current.style.height = 'auto';
+            current.dataset.persistStyle = current.getAttribute('style') || '';
             position();
         }
         function endResize() {
@@ -290,6 +346,30 @@
             } else {
                 hide();
             }
+        });
+
+        // Belt-and-suspenders: if Quill ever strips the inline style
+        // attribute on an <img> we set, restore it from data-persist-style.
+        // This catches cases where the registered Image blot override
+        // didn't take effect (e.g. older Quill version, OR an image was
+        // pasted in and then resized before Quill rebuilt the model).
+        var mo = new MutationObserver(function (mutations) {
+            mutations.forEach(function (m) {
+                if (m.type !== 'attributes') return;
+                var img = m.target;
+                if (!img || img.tagName !== 'IMG') return;
+                var saved = img.dataset.persistStyle;
+                if (!saved) return;
+                if (m.attributeName === 'style' && img.getAttribute('style') !== saved) {
+                    img.setAttribute('style', saved);
+                    syncTextarea();
+                }
+            });
+        });
+        mo.observe(editorDiv, {
+            attributes: true,
+            subtree: true,
+            attributeFilter: ['style', 'width', 'height'],
         });
 
         // Hide overlay when clicking outside or scrolling/resizing
