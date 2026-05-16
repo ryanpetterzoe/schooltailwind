@@ -39,7 +39,9 @@ require_once __DIR__ . '/../layouts/admin_header.php';
                     <?php endif; ?>
                     <input type="file" name="image" class="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 image-upload-input" accept="image/*" data-preview="#sliderPreview" <?= !$isEdit ? 'required' : '' ?>>
                     <img id="sliderPreview" src="" class="hidden max-h-36 mt-2 rounded-lg">
-                    <small class="text-xs text-slate-400 dark:text-slate-500 block mt-1">Ukuran rekomendasi: 1920x900px. Format: JPG, PNG</small>
+                    <small class="text-xs text-slate-400 dark:text-slate-500 block mt-1">
+                        <i class="fas fa-bolt text-blue-500 mr-1"></i>Otomatis dikompres &amp; di-resize ke 1920px saat upload. Ukuran rekomendasi: 1920×900px.
+                    </small>
                 </div>
                 <div>
                     <label class="inline-flex items-center cursor-pointer">

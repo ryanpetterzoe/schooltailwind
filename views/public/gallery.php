@@ -38,7 +38,7 @@ $catFilter = htmlspecialchars($_GET['category'] ?? '');
       <?php foreach ($gallery as $item): ?>
       <div class="gallery-item" data-src="<?= UPLOAD_URL . htmlspecialchars($item['image']) ?>" data-title="<?= htmlspecialchars($item['title']) ?>">
         <?php if (!empty($item['image'])): ?>
-        <img src="<?= UPLOAD_URL . htmlspecialchars($item['image']) ?>" alt="<?= htmlspecialchars($item['title']) ?>">
+        <img src="<?= UPLOAD_URL . htmlspecialchars($item['image']) ?>" alt="<?= htmlspecialchars($item['title']) ?>" loading="lazy" decoding="async">
         <?php else: ?>
         <div class="h-[220px] bg-slate-100 dark:bg-slate-800 flex items-center justify-center"><i class="fas fa-image text-3xl text-slate-300"></i></div>
         <?php endif; ?>

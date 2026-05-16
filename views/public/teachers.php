@@ -26,7 +26,7 @@ require_once __DIR__ . '/../layouts/header.php';
       <div class="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl p-4 text-center hover:-translate-y-1 hover:shadow-lg transition-all">
         <div class="w-20 h-20 mx-auto mb-3 rounded-full overflow-hidden bg-slate-100 dark:bg-slate-700">
           <?php if (!empty($teacher['photo'])): ?>
-          <img src="<?= UPLOAD_URL . htmlspecialchars($teacher['photo']) ?>" alt="<?= htmlspecialchars($teacher['name']) ?>" class="w-full h-full object-cover">
+          <img src="<?= UPLOAD_URL . htmlspecialchars($teacher['photo']) ?>" alt="<?= htmlspecialchars($teacher['name']) ?>" loading="lazy" decoding="async" class="w-full h-full object-cover">
           <?php else: ?>
           <div class="w-full h-full flex items-center justify-center"><i class="fas fa-user text-2xl text-slate-300 dark:text-slate-500"></i></div>
           <?php endif; ?>
@@ -51,7 +51,7 @@ require_once __DIR__ . '/../layouts/header.php';
       <div class="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl p-4 text-center hover:-translate-y-1 hover:shadow-lg transition-all">
         <div class="w-20 h-20 mx-auto mb-3 rounded-full overflow-hidden bg-slate-100 dark:bg-slate-700">
           <?php if (!empty($s['photo'])): ?>
-          <img src="<?= UPLOAD_URL . htmlspecialchars($s['photo']) ?>" alt="<?= htmlspecialchars($s['name']) ?>" class="w-full h-full object-cover">
+          <img src="<?= UPLOAD_URL . htmlspecialchars($s['photo']) ?>" alt="<?= htmlspecialchars($s['name']) ?>" loading="lazy" decoding="async" class="w-full h-full object-cover">
           <?php else: ?>
           <div class="w-full h-full flex items-center justify-center"><i class="fas fa-user-friends text-2xl text-slate-300 dark:text-slate-500"></i></div>
           <?php endif; ?>

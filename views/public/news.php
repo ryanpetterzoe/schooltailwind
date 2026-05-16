@@ -94,7 +94,7 @@ $activeProg = isset($activeProgram) ? (int)$activeProgram : 0;
       <article class="group bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl overflow-hidden hover:-translate-y-1 hover:shadow-xl transition-all duration-300 flex flex-col">
         <a href="<?= APP_URL ?>/berita/<?= htmlspecialchars($article['slug']) ?>" class="relative block h-48 overflow-hidden">
           <?php if (!empty($article['image'])): ?>
-          <img src="<?= UPLOAD_URL . htmlspecialchars($article['image']) ?>" alt="<?= htmlspecialchars($article['title']) ?>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+          <img src="<?= UPLOAD_URL . htmlspecialchars($article['image']) ?>" alt="<?= htmlspecialchars($article['title']) ?>" loading="lazy" decoding="async" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
           <?php else: ?>
           <div class="w-full h-full bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-600 flex items-center justify-center"><i class="fas fa-newspaper text-3xl text-slate-300 dark:text-slate-500"></i></div>
           <?php endif; ?>
