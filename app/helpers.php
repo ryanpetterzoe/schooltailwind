@@ -375,3 +375,44 @@ JS;
         return "<style id=\"accent-theme-vars\">$css</style>\n<script>$tailwindOverride</script>";
     }
 }
+
+
+
+/* ============================================================
+   AUTO-MIGRATION
+   For features added after the initial install (so existing
+   users don't need to re-run the installer). Idempotent —
+   `CREATE TABLE IF NOT EXISTS` is a no-op if it already exists.
+   ============================================================ */
+if (!function_exists('ensureProgramImagesTable')) {
+    function ensureProgramImagesTable() {
+        static $checked = false;
+        if ($checked) return;
+        $checked = true;
+        $db = getDB();
+        if (!$db) return;
+        @$db->query("CREATE TABLE IF NOT EXISTS `program_images` (
+            `id` INT AUTO_INCREMENT PRIMARY KEY,
+            `program_id` INT NOT NULL,
+            `image` VARCHAR(255) NOT NULL,
+            `caption` VARCHAR(250) DEFAULT NULL,
+            `sort_order` INT DEFAULT 0,
+            `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            KEY `idx_program_images_program` (`program_id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+    }
+}
+
+/**
+ * Fetch all gallery images attached to a program, ordered.
+ * Returns array of rows or [].
+ */
+if (!function_exists('getProgramImages')) {
+    function getProgramImages($programId) {
+        ensureProgramImagesTable();
+        $db = getDB();
+        $programId = (int)$programId;
+        $res = @$db->query("SELECT * FROM program_images WHERE program_id=$programId ORDER BY sort_order ASC, id ASC");
+        return $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
+    }
+}

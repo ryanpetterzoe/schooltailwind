@@ -48,6 +48,20 @@ CREATE TABLE IF NOT EXISTS `programs` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ========================
+-- TABEL: program_images (foto kegiatan jurusan, multi-upload)
+-- ========================
+CREATE TABLE IF NOT EXISTS `program_images` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `program_id` INT NOT NULL,
+  `image` VARCHAR(255) NOT NULL,
+  `caption` VARCHAR(250) DEFAULT NULL,
+  `sort_order` INT DEFAULT 0,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  KEY `idx_program_images_program` (`program_id`),
+  CONSTRAINT `fk_program_images_program` FOREIGN KEY (`program_id`) REFERENCES `programs`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ========================
 -- TABEL: pages
 -- ========================
 CREATE TABLE IF NOT EXISTS `pages` (
