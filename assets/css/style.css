@@ -24,26 +24,9 @@
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* ── HERO SLIDER ────────────────────────────────────────────── */
-.hero-slider {
-  position: relative;
-  overflow: hidden;
-  height: 85vh;
-  min-height: 560px;
-}
-.hero-slide {
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  width: 100%; height: 100%;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 1s ease-in-out;
-  z-index: 1;
-}
-.hero-slide.active {
-  opacity: 1;
-  pointer-events: auto;
-  z-index: 2;
-}
+/* Layout & transition handled by Tailwind utilities in home.php
+   (relative h-[85vh] min-h-[560px] / absolute inset-0 transition-opacity).
+   No custom CSS needed here — keeping this comment as a marker. */
 
 /* ── COUNTER ANIMATION ──────────────────────────────────────── */
 .stat-number { font-variant-numeric: tabular-nums; }
