@@ -59,6 +59,8 @@ class PublicController {
         if (!$res || !($program = $res->fetch_assoc())) {
             redirect('/jurusan');
         }
+        // Multi-photo gallery (auto-creates table on first call)
+        $programImages = getProgramImages($id);
         // Berita khusus jurusan ini + berita umum (program_id IS NULL)
         $rn = $db->query("SELECT n.*, p.name as program_name FROM news n
                           LEFT JOIN programs p ON n.program_id=p.id

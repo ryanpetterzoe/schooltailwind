@@ -207,9 +207,13 @@ class CmsController {
         $db = getDB();
         if (empty($_SESSION['csrf_token'])) $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
         $program = null;
+        $programImages = [];
         if ($id) {
             $res = $db->query("SELECT * FROM programs WHERE id=" . (int)$id . " LIMIT 1");
             $program = $res ? $res->fetch_assoc() : null;
+            if ($program) {
+                $programImages = getProgramImages($id);
+            }
         }
         require_once __DIR__ . '/../../views/admin/programs_form.php';
     }
@@ -217,6 +221,7 @@ class CmsController {
     public function programSave($id = null) {
         requireLogin();
         $db = getDB();
+        ensureProgramImagesTable();
         $name = clean($_POST['name'] ?? '');
         $code = clean($_POST['code'] ?? '');
         $description = $db->real_escape_string($_POST['description'] ?? '');
@@ -231,9 +236,64 @@ class CmsController {
         if ($id) {
             $imgSql = $imageVal ? ", image='$imageVal'" : '';
             $db->query("UPDATE programs SET name='$name',code='$code',description='$description',icon='$icon',quota=$quota,sort_order=$sortOrder,is_active=$isActive$imgSql WHERE id=" . (int)$id);
+            $programId = (int)$id;
         } else {
             $db->query("INSERT INTO programs (name,code,description,icon,quota,sort_order,is_active,image) VALUES ('$name','$code','$description','$icon',$quota,$sortOrder,$isActive,'$imageVal')");
+            $programId = (int)$db->insert_id;
         }
+
+        // -- Multi-photo gallery --
+        // 1. Update captions/sort for existing images
+        if (!empty($_POST['existing_image_id']) && is_array($_POST['existing_image_id'])) {
+            foreach ($_POST['existing_image_id'] as $idx => $imgId) {
+                $imgId = (int)$imgId;
+                if ($imgId <= 0) continue;
+                $cap  = $db->real_escape_string($_POST['existing_image_caption'][$idx] ?? '');
+                $sort = (int)($_POST['existing_image_sort'][$idx] ?? 0);
+                $db->query("UPDATE program_images SET caption='$cap', sort_order=$sort WHERE id=$imgId AND program_id=$programId");
+            }
+        }
+        // 2. Delete images marked for removal
+        if (!empty($_POST['delete_image_ids'])) {
+            $deleteIds = array_filter(array_map('intval', explode(',', $_POST['delete_image_ids'])));
+            if ($deleteIds) {
+                $idList = implode(',', $deleteIds);
+                // Fetch filenames so we can unlink the actual files
+                $delRes = $db->query("SELECT image FROM program_images WHERE id IN ($idList) AND program_id=$programId");
+                if ($delRes) {
+                    while ($r = $delRes->fetch_assoc()) {
+                        $f = UPLOAD_PATH . $r['image'];
+                        if (is_file($f)) @unlink($f);
+                    }
+                }
+                $db->query("DELETE FROM program_images WHERE id IN ($idList) AND program_id=$programId");
+            }
+        }
+        // 3. Insert newly uploaded files
+        if (!empty($_FILES['gallery_images']) && is_array($_FILES['gallery_images']['name'])) {
+            $files = $_FILES['gallery_images'];
+            $count = count($files['name']);
+            // Determine starting sort_order for the new uploads
+            $maxSortRes = $db->query("SELECT COALESCE(MAX(sort_order), 0) AS m FROM program_images WHERE program_id=$programId");
+            $nextSort = $maxSortRes ? ((int)$maxSortRes->fetch_assoc()['m'] + 1) : 1;
+            for ($i = 0; $i < $count; $i++) {
+                if (empty($files['tmp_name'][$i])) continue;
+                $single = [
+                    'name'     => $files['name'][$i],
+                    'type'     => $files['type'][$i],
+                    'tmp_name' => $files['tmp_name'][$i],
+                    'error'    => $files['error'][$i],
+                    'size'     => $files['size'][$i],
+                ];
+                $fname = uploadFile($single, 'program_gal');
+                if ($fname) {
+                    $cap = $db->real_escape_string($_POST['new_image_caption'][$i] ?? '');
+                    $sort = $nextSort++;
+                    $db->query("INSERT INTO program_images (program_id,image,caption,sort_order) VALUES ($programId,'$fname','$cap',$sort)");
+                }
+            }
+        }
+
         $this->flash('flash_success', 'Jurusan berhasil disimpan.');
         redirect('/admin/jurusan');
     }
@@ -241,7 +301,18 @@ class CmsController {
     public function programDelete($id) {
         requireLogin();
         $db = getDB();
-        $db->query("DELETE FROM programs WHERE id=" . (int)$id);
+        $id = (int)$id;
+        ensureProgramImagesTable();
+        // Remove uploaded gallery files first (FK is ON DELETE CASCADE for the rows)
+        $imgRes = @$db->query("SELECT image FROM program_images WHERE program_id=$id");
+        if ($imgRes) {
+            while ($r = $imgRes->fetch_assoc()) {
+                $f = UPLOAD_PATH . $r['image'];
+                if (is_file($f)) @unlink($f);
+            }
+        }
+        @$db->query("DELETE FROM program_images WHERE program_id=$id");
+        $db->query("DELETE FROM programs WHERE id=$id");
         $this->flash('flash_success', 'Jurusan berhasil dihapus.');
         redirect('/admin/jurusan');
     }
