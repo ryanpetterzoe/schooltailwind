@@ -7,6 +7,7 @@ $phone = $settings['school_phone'] ?? '';
 $email = $settings['school_email'] ?? '';
 $whatsapp = $settings['whatsapp_number'] ?? '';
 $footerCopyright = $settings['footer_copyright'] ?? 'Hak cipta dilindungi undang-undang.';
+$footerLogo = !empty($settings['school_logo']) ? UPLOAD_URL . $settings['school_logo'] : '';
 $currentYear = date('Y');
 
 $db = getDB();
@@ -28,7 +29,12 @@ $socialMedia = $smRes ? $smRes->fetch_all(MYSQLI_ASSOC) : [];
       <!-- Col 1: School Info -->
       <div>
         <div class="flex items-center gap-3 mb-4">
+          <?php if ($footerLogo): ?>
+          <img src="<?= htmlspecialchars($footerLogo) ?>" alt="<?= htmlspecialchars($schoolName) ?>"
+               class="w-10 h-10 rounded-xl object-cover bg-white/5 shadow-lg" loading="lazy" decoding="async">
+          <?php else: ?>
           <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center text-white text-lg shadow-lg">🎓</div>
+          <?php endif; ?>
           <span class="text-white font-bold text-lg"><?= htmlspecialchars($schoolName) ?></span>
         </div>
         <p class="text-slate-400 text-sm leading-relaxed mb-5"><?= htmlspecialchars($footerAbout) ?></p>

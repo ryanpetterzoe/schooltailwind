@@ -1,5 +1,7 @@
 <?php
 $schoolName = getSetting('school_name') ?: 'SMK Pertamaku';
+$schoolLogo = getSetting('school_logo');
+$loginLogo  = !empty($schoolLogo) ? UPLOAD_URL . $schoolLogo : '';
 $csrfToken  = isset($_SESSION['csrf_token']) ? $_SESSION['csrf_token'] : '';
 $postUser   = isset($_POST['username']) ? htmlspecialchars($_POST['username']) : '';
 ?>
@@ -25,7 +27,14 @@ $postUser   = isset($_POST['username']) ? htmlspecialchars($_POST['username']) :
   <div class="w-full max-w-md bg-white/5 backdrop-blur-2xl border border-white/10 rounded-2xl p-8 sm:p-10 relative z-10 shadow-2xl">
     <!-- Logo -->
     <div class="text-center mb-7">
+      <?php if ($loginLogo): ?>
+      <div class="w-20 h-20 bg-white/95 rounded-2xl flex items-center justify-center mx-auto mb-4 p-2 shadow-lg shadow-blue-600/30">
+        <img src="<?= htmlspecialchars($loginLogo) ?>" alt="<?= htmlspecialchars($schoolName) ?>"
+             class="max-w-full max-h-full object-contain" loading="eager" decoding="async">
+      </div>
+      <?php else: ?>
       <div class="w-16 h-16 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl shadow-lg shadow-blue-600/30">🎓</div>
+      <?php endif; ?>
       <h4 class="text-white font-bold text-lg"><?= htmlspecialchars($schoolName) ?></h4>
       <p class="text-slate-400 text-sm">Panel Administrasi</p>
     </div>
