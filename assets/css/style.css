@@ -246,3 +246,210 @@ body, nav, main, footer, .admin-content, header {
 /* Belt-and-braces clearfix for browsers that haven't picked up
    display:flow-root for some reason. */
 .prose::after { content: ""; display: block; clear: both; }
+
+
+/* ============================================================
+   QUILL CONTENT — make rich-text formatting visible on public
+   ------------------------------------------------------------
+   Tailwind's CDN script applies Preflight which strips the default
+   browser styles for <ul>, <ol>, <h1>-<h6>, <table>, <blockquote>
+   etc. Plus, Quill 2 renders list bullets via CSS counters on a
+   <span class="ql-ui"> child of each <li>, NOT via the native
+   list-style. Without these rules, lists, headings, sizes, colors,
+   tables, and indents — all visible inside the admin editor —
+   would disappear once the article is published.
+
+   Everything here mirrors the rules in Quill's own snow.css (see
+   the .ql-editor selectors there) but scoped to .prose so they
+   only affect article content, not the site chrome.
+   ============================================================ */
+
+/* ── HEADINGS (Tailwind Preflight resets these to inherit) ── */
+.prose h1 { font-size: 2em;    font-weight: 700; margin: 0.67em 0; }
+.prose h2 { font-size: 1.5em;  font-weight: 700; margin: 0.83em 0; }
+.prose h3 { font-size: 1.17em; font-weight: 700; margin: 1em 0; }
+.prose h4 { font-size: 1em;    font-weight: 700; margin: 1.33em 0; }
+.prose h5 { font-size: 0.83em; font-weight: 700; margin: 1.67em 0; }
+.prose h6 { font-size: 0.67em; font-weight: 700; margin: 2.33em 0; }
+
+/* ── PARAGRAPH RHYTHM ── */
+.prose p { margin: 0 0 0.75em 0; }
+.prose p:last-child { margin-bottom: 0; }
+
+/* ── LINKS ── */
+.prose a { color: rgb(var(--c-blue-600)); text-decoration: underline; }
+.prose a:hover { color: rgb(var(--c-blue-700)); }
+
+/* ── BLOCKQUOTE ── */
+.prose blockquote {
+  border-left: 4px solid #cbd5e1;
+  margin: 0.5em 0;
+  padding-left: 1em;
+  color: #64748b;
+  font-style: italic;
+}
+.dark .prose blockquote { border-left-color: #475569; color: #94a3b8; }
+
+/* ── INLINE CODE & CODE BLOCKS ── */
+.prose code {
+  background-color: #f1f5f9;
+  border-radius: 3px;
+  padding: 2px 6px;
+  font-size: 0.9em;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+.dark .prose code { background-color: #1e293b; color: #e2e8f0; }
+.prose pre {
+  background-color: #1e293b;
+  color: #f8fafc;
+  border-radius: 6px;
+  padding: 1em;
+  margin: 0.75em 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+/* ── LISTS — Quill 2 renders bullets/numbers via <span class="ql-ui">
+   on each <li data-list="...">. We replicate the relevant rules from
+   quill.snow.css's `.ql-editor` block, but use ::before on the <li>
+   itself instead of relying on the .ql-ui span (which is sometimes
+   stripped on save / not present in older content). The .ql-ui span
+   is hidden so we never render double markers. ── */
+
+.prose ol,
+.prose ul {
+  padding-left: 1.5em;
+  margin: 0.5em 0;
+}
+/* Plain (non-Quill) lists keep native bullets — Tailwind's Preflight
+   removes them, so we put them back here. */
+.prose ul > li:not([data-list]) { list-style: disc; }
+.prose ol > li:not([data-list]) { list-style: decimal; }
+
+/* Quill-style list items — marker drawn by li::before */
+.prose li[data-list] {
+  list-style-type: none;
+  padding-left: 1.5em;
+  position: relative;
+}
+.prose li[data-list]::before {
+  display: inline-block;
+  margin-left: -1.5em;
+  margin-right: 0.3em;
+  text-align: right;
+  white-space: nowrap;
+  width: 1.2em;
+}
+.prose li[data-list="bullet"]::before    { content: "\2022"; }
+.prose li[data-list="checked"]::before   { content: "\2611"; color: #777; }
+.prose li[data-list="unchecked"]::before { content: "\2610"; color: #777; }
+
+/* Hide Quill's runtime helper span (it draws its own marker via ::before
+   in the editor; on the public page our li::before covers that role). */
+.prose .ql-ui { display: none; }
+
+/* Ordered lists: counters reset on every block ancestor that isn't
+   itself a list item, then incremented on each <li data-list=ordered>. */
+.prose {
+  counter-reset: list-0 list-1 list-2 list-3 list-4 list-5 list-6 list-7 list-8 list-9;
+}
+.prose p,
+.prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
+  counter-reset: list-0 list-1 list-2 list-3 list-4 list-5 list-6 list-7 list-8 list-9;
+}
+.prose li[data-list="ordered"] { counter-increment: list-0; }
+.prose li[data-list="ordered"]::before {
+  content: counter(list-0, decimal) ". ";
+}
+.prose li[data-list="ordered"].ql-indent-1 { counter-increment: list-1; }
+.prose li[data-list="ordered"].ql-indent-1::before {
+  content: counter(list-1, lower-alpha) ". ";
+}
+.prose li[data-list="ordered"].ql-indent-2 { counter-increment: list-2; }
+.prose li[data-list="ordered"].ql-indent-2::before {
+  content: counter(list-2, lower-roman) ". ";
+}
+.prose li[data-list="ordered"].ql-indent-3 { counter-increment: list-3; }
+.prose li[data-list="ordered"].ql-indent-3::before {
+  content: counter(list-3, decimal) ". ";
+}
+.prose li[data-list="ordered"].ql-indent-4 { counter-increment: list-4; }
+.prose li[data-list="ordered"].ql-indent-4::before {
+  content: counter(list-4, lower-alpha) ". ";
+}
+.prose li[data-list="ordered"].ql-indent-5 { counter-increment: list-5; }
+.prose li[data-list="ordered"].ql-indent-5::before {
+  content: counter(list-5, lower-roman) ". ";
+}
+
+/* ── INDENT — left-padding per level (1.5em multiplier matches Quill) */
+.prose .ql-indent-1:not(.ql-direction-rtl)    { padding-left: 3em; }
+.prose li.ql-indent-1:not(.ql-direction-rtl)  { padding-left: 4.5em; }
+.prose .ql-indent-2:not(.ql-direction-rtl)    { padding-left: 6em; }
+.prose li.ql-indent-2:not(.ql-direction-rtl)  { padding-left: 7.5em; }
+.prose .ql-indent-3:not(.ql-direction-rtl)    { padding-left: 9em; }
+.prose li.ql-indent-3:not(.ql-direction-rtl)  { padding-left: 10.5em; }
+.prose .ql-indent-4:not(.ql-direction-rtl)    { padding-left: 12em; }
+.prose li.ql-indent-4:not(.ql-direction-rtl)  { padding-left: 13.5em; }
+.prose .ql-indent-5:not(.ql-direction-rtl)    { padding-left: 15em; }
+.prose li.ql-indent-5:not(.ql-direction-rtl)  { padding-left: 16.5em; }
+.prose .ql-indent-6:not(.ql-direction-rtl)    { padding-left: 18em; }
+.prose li.ql-indent-6:not(.ql-direction-rtl)  { padding-left: 19.5em; }
+.prose .ql-indent-7:not(.ql-direction-rtl)    { padding-left: 21em; }
+.prose li.ql-indent-7:not(.ql-direction-rtl)  { padding-left: 22.5em; }
+.prose .ql-indent-8:not(.ql-direction-rtl)    { padding-left: 24em; }
+.prose li.ql-indent-8:not(.ql-direction-rtl)  { padding-left: 25.5em; }
+.prose .ql-indent-9:not(.ql-direction-rtl)    { padding-left: 27em; }
+.prose li.ql-indent-9:not(.ql-direction-rtl)  { padding-left: 28.5em; }
+
+/* ── FONT SIZE classes (Quill: small/large/huge) ── */
+.ql-size-small  { font-size: 0.75em; }
+.ql-size-large  { font-size: 1.5em; }
+.ql-size-huge   { font-size: 2.5em; }
+
+/* ── FONT FAMILY classes ── */
+.ql-font-serif     { font-family: Georgia, "Times New Roman", serif; }
+.ql-font-monospace { font-family: ui-monospace, Monaco, "Courier New", monospace; }
+
+/* ── COLOR classes (Quill's named palette) ── */
+.ql-color-white  { color: #fff; }
+.ql-color-red    { color: #e60000; }
+.ql-color-orange { color: #f90; }
+.ql-color-yellow { color: #ff0; }
+.ql-color-green  { color: #008a00; }
+.ql-color-blue   { color: #06c; }
+.ql-color-purple { color: #93f; }
+.ql-bg-black  { background-color: #000; color: #fff; }
+.ql-bg-red    { background-color: #e60000; color: #fff; }
+.ql-bg-orange { background-color: #f90; }
+.ql-bg-yellow { background-color: #ff0; }
+.ql-bg-green  { background-color: #008a00; color: #fff; }
+.ql-bg-blue   { background-color: #06c; color: #fff; }
+.ql-bg-purple { background-color: #93f; color: #fff; }
+
+/* ── TABLES ── */
+.prose table {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
+  margin: 0.75em 0;
+}
+.prose td, .prose th {
+  border: 1px solid #cbd5e1;
+  padding: 6px 10px;
+  text-align: left;
+  vertical-align: top;
+}
+.prose th { background-color: #f8fafc; font-weight: 700; }
+.dark .prose td, .dark .prose th { border-color: #475569; }
+.dark .prose th { background-color: #1e293b; }
+
+/* ── HORIZONTAL RULE ── */
+.prose hr {
+  border: 0;
+  border-top: 1px solid #e2e8f0;
+  margin: 1.5em 0;
+}
+.dark .prose hr { border-top-color: #475569; }
+
+/* ── DIRECTION (Arabic/Hebrew right-to-left) ── */
+.ql-direction-rtl { direction: rtl; text-align: inherit; }
