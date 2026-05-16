@@ -5,7 +5,7 @@
 <script src="<?= APP_URL ?>/assets/js/main.js"></script>
 <!-- Quill 2 core (loaded once for the whole admin area) -->
 <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
-<script src="<?= APP_URL ?>/assets/js/admin-editor.js"></script>
+<script src="<?= APP_URL ?>/assets/js/admin-editor.js?v=<?= @filemtime(__DIR__ . '/../../assets/js/admin-editor.js') ?: time() ?>"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Sidebar overlay close on mobile
