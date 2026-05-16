@@ -293,3 +293,18 @@
 }
 .dark .rich-editor-tip-close { color: #93c5fd; }
 .dark .rich-editor-tip-close:hover { color: #f87171; }
+
+
+/* ── VIDEO EMBED in editor ──────────────────────────────────────
+   Make embedded videos (YouTube etc) responsive inside the editor
+   so they don't overflow or appear tiny. Quill renders them as
+   <iframe class="ql-video">. */
+.rich-editor-wrap .ql-editor .ql-video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  height: auto;
+  max-width: 100%;
+  border-radius: 6px;
+  margin: 0.5em 0;
+}

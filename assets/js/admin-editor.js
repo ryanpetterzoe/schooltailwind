@@ -45,7 +45,7 @@
         [{ color: [] }, { background: [] }],
         [{ list: 'ordered' }, { list: 'bullet' }],
         [{ align: [] }],
-        ['blockquote', 'link', 'image'],
+        ['blockquote', 'link', 'image', 'video'],
         ['clean'],
     ];
     var SIMPLE_TOOLBAR = [

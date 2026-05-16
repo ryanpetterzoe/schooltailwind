@@ -159,9 +159,81 @@ function safeRichHtml($html) {
     if (strip_tags($html) === $html) {
         return nl2br(htmlspecialchars($html));
     }
-    // Remove <script>, <style>, <iframe> blocks entirely
-    $clean = preg_replace('#<(script|style|iframe)\b[^>]*>.*?</\1>#is', '', $html);
-    $clean = preg_replace('#<(script|style|iframe)\b[^>]*/?>#is', '', $clean);
+    // Remove <script>, <style> blocks entirely
+    $clean = preg_replace('#<(script|style)\b[^>]*>.*?</\1>#is', '', $html);
+    $clean = preg_replace('#<(script|style)\b[^>]*/?>#is', '', $clean);
+
+    // Whitelist iframes from trusted video/social platforms.
+    // Replace trusted iframes with a placeholder, strip the rest, then restore.
+    $iframePlaceholders = [];
+    $trustedDomains = [
+        'youtube.com', 'www.youtube.com', 'youtube-nocookie.com', 'www.youtube-nocookie.com',
+        'player.vimeo.com', 'vimeo.com',
+        'www.facebook.com', 'web.facebook.com',
+        'www.tiktok.com',
+        'www.instagram.com',
+        'www.dailymotion.com', 'geo.dailymotion.com',
+        'drive.google.com',
+    ];
+    $clean = preg_replace_callback('#<iframe\b([^>]*)>(.*?)</iframe>#is', function($m) use (&$iframePlaceholders, $trustedDomains) {
+        $attrs = $m[1];
+        // Extract src
+        if (preg_match('#src\s*=\s*["\']([^"\']+)["\']#i', $attrs, $srcMatch)) {
+            $src = $srcMatch[1];
+            $host = @parse_url($src, PHP_URL_HOST);
+            if ($host) {
+                foreach ($trustedDomains as $d) {
+                    if ($host === $d || substr($host, -(strlen($d)+1)) === '.' . $d) {
+                        // Sanitize: keep only src, width, height, frameborder, allow, allowfullscreen, title
+                        $safeAttrs = '';
+                        if (preg_match('#src\s*=\s*"[^"]*"#i', $attrs, $a)) $safeAttrs .= ' ' . $a[0];
+                        elseif (preg_match("#src\s*=\s*'[^']*'#i", $attrs, $a)) $safeAttrs .= ' ' . $a[0];
+                        if (preg_match('#width\s*=\s*"[^"]*"#i', $attrs, $a)) $safeAttrs .= ' ' . $a[0];
+                        if (preg_match('#height\s*=\s*"[^"]*"#i', $attrs, $a)) $safeAttrs .= ' ' . $a[0];
+                        if (preg_match('#title\s*=\s*"[^"]*"#i', $attrs, $a)) $safeAttrs .= ' ' . $a[0];
+                        $safeAttrs .= ' frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"';
+                        // Wrap in responsive container
+                        $placeholder = '<!--IFRAME_SAFE_' . count($iframePlaceholders) . '-->';
+                        $iframePlaceholders[$placeholder] = '<div class="ql-video-responsive"><iframe' . $safeAttrs . '></iframe></div>';
+                        return $placeholder;
+                    }
+                }
+            }
+        }
+        // Not trusted — strip
+        return '';
+    }, $clean);
+
+    // Also handle self-closing iframes (Quill sometimes renders <iframe .../>)
+    $clean = preg_replace_callback('#<iframe\b([^>]*)/>#is', function($m) use (&$iframePlaceholders, $trustedDomains) {
+        $attrs = $m[1];
+        if (preg_match('#src\s*=\s*["\']([^"\']+)["\']#i', $attrs, $srcMatch)) {
+            $src = $srcMatch[1];
+            $host = @parse_url($src, PHP_URL_HOST);
+            if ($host) {
+                foreach ($trustedDomains as $d) {
+                    if ($host === $d || substr($host, -(strlen($d)+1)) === '.' . $d) {
+                        $safeAttrs = '';
+                        if (preg_match('#src\s*=\s*"[^"]*"#i', $attrs, $a)) $safeAttrs .= ' ' . $a[0];
+                        elseif (preg_match("#src\s*=\s*'[^']*'#i", $attrs, $a)) $safeAttrs .= ' ' . $a[0];
+                        if (preg_match('#width\s*=\s*"[^"]*"#i', $attrs, $a)) $safeAttrs .= ' ' . $a[0];
+                        if (preg_match('#height\s*=\s*"[^"]*"#i', $attrs, $a)) $safeAttrs .= ' ' . $a[0];
+                        if (preg_match('#title\s*=\s*"[^"]*"#i', $attrs, $a)) $safeAttrs .= ' ' . $a[0];
+                        $safeAttrs .= ' frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"';
+                        $placeholder = '<!--IFRAME_SAFE_' . count($iframePlaceholders) . '-->';
+                        $iframePlaceholders[$placeholder] = '<div class="ql-video-responsive"><iframe' . $safeAttrs . '></iframe></div>';
+                        return $placeholder;
+                    }
+                }
+            }
+        }
+        return '';
+    }, $clean);
+
+    // Strip any remaining iframes (untrusted)
+    $clean = preg_replace('#<iframe\b[^>]*>.*?</iframe>#is', '', $clean);
+    $clean = preg_replace('#<iframe\b[^>]*/>#is', '', $clean);
+
     // Strip inline event handlers (onclick=, onerror=, ...)
     $clean = preg_replace('#\son[a-z]+\s*=\s*"[^"]*"#i', '', $clean);
     $clean = preg_replace("#\son[a-z]+\s*=\s*'[^']*'#i", '', $clean);
@@ -169,6 +241,12 @@ function safeRichHtml($html) {
     // Disallow javascript: URLs
     $clean = preg_replace('#(href|src)\s*=\s*"javascript:[^"]*"#i', '$1="#"', $clean);
     $clean = preg_replace("#(href|src)\s*=\s*'javascript:[^']*'#i", '$1="#"', $clean);
+
+    // Restore trusted iframe placeholders
+    if (!empty($iframePlaceholders)) {
+        $clean = str_replace(array_keys($iframePlaceholders), array_values($iframePlaceholders), $clean);
+    }
+
     return $clean;
 }
 
