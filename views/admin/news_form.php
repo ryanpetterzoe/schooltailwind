@@ -49,31 +49,14 @@ require_once __DIR__ . '/../layouts/admin_header.php';
         <div class="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl p-6">
             <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Konten Berita <span class="text-red-500">*</span></label>
 
-            <!-- Mini toolbar -->
-            <div class="mb-2 flex gap-1 flex-wrap">
-                <?php
-                $btns = [
-                    ['label'=>'<b>B</b>','open'=>'<strong>','close'=>'</strong>'],
-                    ['label'=>'<i>I</i>','open'=>'<em>','close'=>'</em>'],
-                    ['label'=>'P','open'=>'<p>','close'=>'</p>'],
-                    ['label'=>'H2','open'=>'<h2>','close'=>'</h2>'],
-                    ['label'=>'H3','open'=>'<h3>','close'=>'</h3>'],
-                    ['label'=>'<i class="fas fa-list-ul"></i>','open'=>'<ul>\n<li>','close'=>'</li>\n</ul>'],
-                    ['label'=>'<i class="fas fa-link"></i>','open'=>'<a href="">','close'=>'</a>'],
-                    ['label'=>'IMG','open'=>'<img src="" alt="" style="max-width:100%;">','close'=>''],
-                ];
-                foreach ($btns as $b):
-                ?>
-                <button type="button" class="px-2 py-1 border border-slate-200 dark:border-slate-600 rounded-lg text-xs text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-                        onclick="insertTag('<?= addslashes($b['open']) ?>','<?= addslashes($b['close']) ?>')">
-                    <?= $b['label'] ?>
-                </button>
-                <?php endforeach; ?>
-            </div>
-
-            <textarea name="content" id="newsContent" class="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono" rows="18" required
+            <textarea name="content" id="newsContent"
+                      data-rich-editor data-editor-height="380"
+                      class="w-full" rows="18" required
                       placeholder="Tulis konten berita lengkap di sini..."><?= htmlspecialchars($news['content'] ?? '') ?></textarea>
-            <small class="text-slate-400 dark:text-slate-500 text-xs mt-1 block">Mendukung HTML dasar. Gunakan tombol di atas untuk menyisipkan tag.</small>
+            <small class="text-slate-400 dark:text-slate-500 text-xs mt-1 block">
+                <i class="fas fa-magic-wand-sparkles text-blue-500 mr-1"></i>
+                Editor lengkap seperti MS Word: heading, bold, italic, warna, list, link, gambar.
+            </small>
         </div>
     </div>
 
@@ -213,16 +196,6 @@ function previewThumbnail(input) {
         reader.onload = function (e) { preview.src = e.target.result; wrap.classList.remove('hidden'); };
         reader.readAsDataURL(input.files[0]);
     } else { wrap.classList.add('hidden'); preview.src = ''; }
-}
-
-function insertTag(open, close) {
-    var ta = document.getElementById('newsContent');
-    var start = ta.selectionStart, end = ta.selectionEnd;
-    var sel = ta.value.substring(start, end);
-    ta.value = ta.value.substring(0, start) + open + sel + close + ta.value.substring(end);
-    ta.selectionStart = start + open.length;
-    ta.selectionEnd = start + open.length + sel.length;
-    ta.focus();
 }
 </script>
 

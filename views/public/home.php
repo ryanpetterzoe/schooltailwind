@@ -135,7 +135,7 @@ require_once __DIR__ . '/../layouts/header.php';
         </h2>
         <p class="text-blue-600 dark:text-blue-400 font-semibold mb-4"><?= htmlspecialchars($settings['school_tagline'] ?? '') ?></p>
         <p class="text-slate-500 dark:text-slate-400 leading-relaxed mb-6">
-          <?= htmlspecialchars(mb_substr($settings['about_history'] ?? '', 0, 280)) ?>...
+          <?= htmlspecialchars(richExcerpt($settings['about_history'] ?? '', 280)) ?>...
         </p>
 
         <div class="grid sm:grid-cols-2 gap-4 mb-8">
@@ -194,7 +194,7 @@ require_once __DIR__ . '/../layouts/header.php';
           <i class="<?= htmlspecialchars($prog['icon'] ?? 'fas fa-book') ?>"></i>
         </div>
         <h5 class="font-bold text-slate-800 dark:text-white mb-2"><?= htmlspecialchars($prog['name']) ?></h5>
-        <p class="text-sm text-slate-400 leading-relaxed mb-4"><?= htmlspecialchars(mb_substr($prog['description'] ?? '', 0, 90)) ?>...</p>
+        <p class="text-sm text-slate-400 leading-relaxed mb-4"><?= htmlspecialchars(richExcerpt($prog['description'] ?? '', 90)) ?>...</p>
         <div class="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-700">
           <span class="text-xs font-semibold text-blue-600 bg-blue-50 dark:bg-blue-900/30 px-2.5 py-1 rounded-full"><i class="fas fa-users mr-1"></i>Kuota <?= (int)$prog['quota'] ?></span>
           <span class="w-7 h-7 bg-blue-50 dark:bg-blue-900/30 rounded-lg flex items-center justify-center text-blue-600 text-xs group-hover:bg-blue-600 group-hover:text-white transition-all"><i class="fas fa-arrow-right"></i></span>
@@ -289,7 +289,7 @@ require_once __DIR__ . '/../layouts/header.php';
           <?php else: ?>bg-blue-50 dark:bg-blue-900/30 text-blue-600<?php endif; ?>">🏆</div>
         <div class="flex-1 min-w-0">
           <h6 class="font-bold text-sm text-slate-800 dark:text-white mb-1"><?= htmlspecialchars($ach['title']) ?></h6>
-          <p class="text-xs text-slate-400 leading-relaxed mb-2"><?= htmlspecialchars(mb_substr($ach['description'] ?? '', 0, 120)) ?></p>
+          <p class="text-xs text-slate-400 leading-relaxed mb-2"><?= htmlspecialchars(richExcerpt($ach['description'] ?? '', 120)) ?></p>
           <div class="flex items-center gap-2">
             <span class="text-[11px] font-bold px-2 py-0.5 rounded-full uppercase
               <?php if($ach['level']==='nasional'||$ach['level']==='internasional'): ?>bg-amber-50 text-amber-600 dark:bg-amber-900/30

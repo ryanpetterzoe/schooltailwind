@@ -24,6 +24,9 @@ $pageTitle = $adminPageTitle ?? 'Admin Panel';
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="<?= APP_URL ?>/assets/css/style.css">
+  <!-- Quill 2 (rich text editor, MIT licensed, no API key) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css">
+  <link rel="stylesheet" href="<?= APP_URL ?>/assets/css/admin-editor.css">
   <script>(function(){var t=localStorage.getItem('smk_theme')||'light';if(t==='dark')document.documentElement.classList.add('dark');})();</script>
 </head>
 <body class="bg-gray-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-sans antialiased">
@@ -122,6 +125,30 @@ $pageTitle = $adminPageTitle ?? 'Admin Panel';
         }
       });
     }
+
+    // Theme toggle (replicates the public layout so admin can switch
+    // dark/light without needing main.js to attach listeners). Inline
+    // so it works immediately on first paint, even before main.js loads.
+    function syncThemeIcons(){
+      var nowDark = document.documentElement.classList.contains('dark');
+      document.querySelectorAll('.theme-icon-light').forEach(function(el){ el.style.display = nowDark ? 'none' : ''; });
+      document.querySelectorAll('.theme-icon-dark').forEach(function(el){ el.style.display = nowDark ? '' : 'none'; });
+    }
+    function doToggleTheme(){
+      var isDark = document.documentElement.classList.contains('dark');
+      if(isDark){
+        document.documentElement.classList.remove('dark');
+        localStorage.setItem('smk_theme','light');
+      } else {
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('smk_theme','dark');
+      }
+      syncThemeIcons();
+    }
+    document.querySelectorAll('#themeToggle, #themeToggleMobile').forEach(function(b){
+      b.addEventListener('click', doToggleTheme);
+    });
+    syncThemeIcons();
   })();
   </script>
 

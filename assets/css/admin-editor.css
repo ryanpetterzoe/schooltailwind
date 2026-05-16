@@ -1,0 +1,104 @@
+/* ============================================================
+   Quill 2 — admin rich text editor styling
+   Makes the toolbar/editor blend with our Tailwind admin forms,
+   and survive dark mode without going invisible.
+   ============================================================ */
+
+.rich-editor-wrap .ql-toolbar.ql-snow {
+    border: none;
+    border-bottom: 1px solid #e2e8f0;
+    background: #f8fafc;
+    padding: 8px 10px;
+}
+.rich-editor-wrap .ql-container.ql-snow {
+    border: none;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 14px;
+    color: #1e293b;
+}
+.rich-editor-wrap .ql-editor {
+    min-height: inherit;
+    padding: 14px 16px;
+    line-height: 1.65;
+}
+.rich-editor-wrap .ql-editor.ql-blank::before {
+    color: #94a3b8;
+    font-style: normal;
+    left: 16px;
+}
+.rich-editor-wrap .ql-editor h1 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin: 0.4em 0 0.3em;
+}
+.rich-editor-wrap .ql-editor h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0.5em 0 0.3em;
+}
+.rich-editor-wrap .ql-editor h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0.5em 0 0.3em;
+}
+.rich-editor-wrap .ql-editor blockquote {
+    border-left: 3px solid #2563eb;
+    padding-left: 12px;
+    margin: 8px 0;
+    color: #475569;
+    font-style: italic;
+}
+.rich-editor-wrap .ql-editor img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 8px 0;
+}
+
+/* Dark mode */
+.dark .rich-editor-wrap .ql-toolbar.ql-snow {
+    background: #0f172a;
+    border-bottom-color: #334155;
+}
+.dark .rich-editor-wrap .ql-container.ql-snow,
+.dark .rich-editor-wrap .ql-editor {
+    color: #e2e8f0;
+}
+.dark .rich-editor-wrap .ql-editor.ql-blank::before {
+    color: #64748b;
+}
+.dark .rich-editor-wrap .ql-toolbar.ql-snow .ql-stroke {
+    stroke: #cbd5e1;
+}
+.dark .rich-editor-wrap .ql-toolbar.ql-snow .ql-fill,
+.dark .rich-editor-wrap .ql-toolbar.ql-snow .ql-stroke.ql-fill {
+    fill: #cbd5e1;
+}
+.dark .rich-editor-wrap .ql-toolbar.ql-snow .ql-picker {
+    color: #cbd5e1;
+}
+.dark .rich-editor-wrap .ql-toolbar.ql-snow button:hover .ql-stroke,
+.dark .rich-editor-wrap .ql-toolbar.ql-snow button.ql-active .ql-stroke,
+.dark .rich-editor-wrap .ql-toolbar.ql-snow .ql-picker-label:hover .ql-stroke,
+.dark .rich-editor-wrap .ql-toolbar.ql-snow .ql-picker-label.ql-active .ql-stroke {
+    stroke: #60a5fa;
+}
+.dark .rich-editor-wrap .ql-toolbar.ql-snow button:hover .ql-fill,
+.dark .rich-editor-wrap .ql-toolbar.ql-snow button.ql-active .ql-fill {
+    fill: #60a5fa;
+}
+.dark .rich-editor-wrap .ql-snow .ql-picker-options {
+    background-color: #1e293b;
+    border-color: #334155;
+}
+.dark .rich-editor-wrap .ql-snow .ql-tooltip {
+    background-color: #1e293b;
+    border-color: #334155;
+    color: #e2e8f0;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+}
+.dark .rich-editor-wrap .ql-snow .ql-tooltip input[type='text'] {
+    background: #0f172a;
+    border-color: #334155;
+    color: #e2e8f0;
+}

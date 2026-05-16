@@ -32,7 +32,7 @@ require_once __DIR__ . '/../layouts/header.php';
               <?php endif; ?>
             </div>
           </div>
-          <div class="text-slate-600 dark:text-slate-300 leading-relaxed"><?= nl2br(htmlspecialchars($program['description'] ?? '')) ?></div>
+          <div class="text-slate-600 dark:text-slate-300 leading-relaxed prose prose-slate dark:prose-invert max-w-none"><?= safeRichHtml($program['description'] ?? '') ?></div>
         </div>
 
         <?php if (!empty($relatedNews)): ?>
