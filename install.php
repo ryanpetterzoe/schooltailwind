@@ -21,17 +21,49 @@ $log       = array();
 $error     = '';
 
 // ── Cek apakah sudah diinstall ────────────────────────────────
-if (file_exists(__DIR__ . '/install.lock')) {
+// Two ways to detect a previous install:
+//   1. install.lock exists (normal path)
+//   2. env.php exists with valid DB credentials AND the admins table
+//      has at least one user — handles the case where someone
+//      overwrote the project files onto an existing install
+//      (lock & env get overwritten too, but the DB survives).
+$alreadyInstalled = file_exists(__DIR__ . '/install.lock');
+if (!$alreadyInstalled && file_exists(__DIR__ . '/config/env.php')) {
+    @include_once __DIR__ . '/config/env.php';
+    if (defined('DB_HOST') && defined('DB_USER') && defined('DB_NAME')) {
+        $dbPort = defined('DB_PORT') ? (int)DB_PORT : 3306;
+        $probe  = @new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME, $dbPort);
+        if ($probe && !$probe->connect_error) {
+            $rs = @$probe->query("SELECT COUNT(*) AS c FROM admins");
+            if ($rs) {
+                $row = $rs->fetch_assoc();
+                if ($row && (int)$row['c'] > 0) {
+                    $alreadyInstalled = true;
+                    // Recreate the lock so future requests don't hit this path.
+                    @file_put_contents(__DIR__ . '/install.lock', date('Y-m-d H:i:s') . " (auto-detected)");
+                }
+            }
+            $probe->close();
+        }
+    }
+}
+
+if ($alreadyInstalled) {
     ob_end_clean();
     die('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Sudah Terinstall</title>
 <style>body{background:#0f172a;color:#e2e8f0;font-family:sans-serif;display:flex;
 align-items:center;justify-content:center;height:100vh;margin:0}
-.box{background:#1e293b;border-radius:12px;padding:40px;max-width:400px;text-align:center}
-h2{color:#4ade80;margin-bottom:16px}p{color:#94a3b8;margin-bottom:20px}
-a{color:#60a5fa}</style></head><body>
+.box{background:#1e293b;border-radius:12px;padding:40px;max-width:440px;text-align:center}
+h2{color:#4ade80;margin-bottom:16px}p{color:#94a3b8;margin-bottom:14px;line-height:1.6}
+a{display:inline-block;margin-top:8px;padding:10px 20px;border-radius:8px;
+background:linear-gradient(135deg,#2563eb,#4f46e5);color:#fff;text-decoration:none;font-weight:600}
+code{background:rgba(0,0,0,.3);padding:2px 6px;border-radius:4px;color:#fbbf24;font-size:.85em}</style>
+</head><body>
 <div class="box"><h2>✅ Website Sudah Terinstall</h2>
-<p>Installer sudah dikunci. Website siap digunakan.</p>
-<p>Untuk install ulang, hapus file <code>install.lock</code> di folder website.</p>
+<p>Database aktif dan akun admin sudah ada — tidak perlu install ulang.</p>
+<p style="font-size:.85em">Untuk install ulang dari awal, hapus file <code>install.lock</code>
+<strong>dan</strong> drop database, lalu buka halaman ini lagi.</p>
+<a href="./">Buka Website</a>
 </div></body></html>');
 }
 
