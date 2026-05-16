@@ -15,6 +15,8 @@
     font-family: 'Inter', system-ui, sans-serif;
     font-size: 14px;
     color: #1e293b;
+    /* Important: position context for the image overlay */
+    position: relative;
 }
 .rich-editor-wrap .ql-editor {
     min-height: inherit;
@@ -53,9 +55,35 @@
     height: auto;
     border-radius: 8px;
     margin: 8px 0;
+    cursor: pointer;
+    transition: outline 0.15s ease;
+}
+.rich-editor-wrap .ql-editor img:hover {
+    outline: 2px solid rgba(37, 99, 235, 0.4);
 }
 
-/* Dark mode */
+/* ------------------------------------------------------------
+   Image alignment: driven by data-align attribute set by JS.
+   These rules are what actually make the image float left/right
+   or center; the JS just toggles the attribute.
+   ------------------------------------------------------------ */
+.rich-editor-wrap .ql-editor img[data-align="left"] {
+    float: left;
+    display: inline-block;
+    margin: 0.4em 1em 0.4em 0;
+}
+.rich-editor-wrap .ql-editor img[data-align="right"] {
+    float: right;
+    display: inline-block;
+    margin: 0.4em 0 0.4em 1em;
+}
+.rich-editor-wrap .ql-editor img[data-align="center"] {
+    float: none;
+    display: block;
+    margin: 0.6em auto;
+}
+
+/* Dark mode editor */
 .dark .rich-editor-wrap .ql-toolbar.ql-snow {
     background: #0f172a;
     border-bottom-color: #334155;
@@ -104,29 +132,18 @@
 }
 
 
-
 /* ============================================================
-   IMAGE TOOLS — MS Word style resize + alignment
-   Click an image in the editor to reveal a corner drag-handle
-   and a floating toolbar with L/C/R + 25/50/100% presets.
+   IMAGE TOOLS — overlay (positioned RELATIVE to .ql-container)
    ============================================================ */
 
-.rich-editor-wrap .ql-editor img {
-    cursor: pointer;
-    transition: outline 0.15s ease;
-}
-.rich-editor-wrap .ql-editor img:hover {
-    outline: 2px solid rgba(37, 99, 235, 0.4);
-}
-/* Allow text to flow around floated images neatly */
-.rich-editor-wrap .ql-editor p {
-    overflow: visible;
-}
-
+/* The overlay is appended INSIDE .ql-container (not body) so it
+   stays anchored when the page scrolls or the editor is in a
+   complex layout. .ql-container is set to position: relative
+   above. */
 .rich-image-overlay {
     position: absolute;
-    pointer-events: none;
-    z-index: 9999;
+    z-index: 50;
+    pointer-events: none;             /* let normal text clicks through */
     box-sizing: border-box;
     border: 2px solid #2563eb;
     border-radius: 4px;
@@ -138,14 +155,15 @@
     position: absolute;
     right: -8px;
     bottom: -8px;
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
     background: #2563eb;
     border: 2px solid #fff;
     border-radius: 50%;
     cursor: nwse-resize;
-    pointer-events: auto;
+    pointer-events: auto;             /* the handle IS clickable */
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+    z-index: 51;
 }
 
 .rich-image-overlay .rich-image-toolbar {
@@ -161,8 +179,9 @@
     align-items: center;
     gap: 2px;
     box-shadow: 0 4px 16px rgba(15, 23, 42, 0.15);
-    pointer-events: auto;
+    pointer-events: auto;             /* toolbar IS clickable */
     white-space: nowrap;
+    z-index: 51;
 }
 .rich-image-overlay .rich-image-toolbar button {
     background: transparent;
@@ -215,3 +234,62 @@
     color: #f87171;
 }
 .dark .rich-image-overlay .rich-image-toolbar .rich-image-sep { background: #334155; }
+
+
+
+/* ============================================================
+   IMAGE RESIZE HELP TIP
+   ============================================================ */
+.rich-editor-tip {
+    margin-top: 8px;
+    padding: 10px 14px;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #1e40af;
+    border-radius: 8px;
+    font-size: 12px;
+    line-height: 1.55;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+.rich-editor-tip i.fa-info-circle {
+    color: #2563eb;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+.rich-editor-tip kbd {
+    display: inline-block;
+    padding: 1px 6px;
+    background: #fff;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    font-family: ui-monospace, monospace;
+    font-size: 11px;
+    color: #475569;
+}
+.rich-editor-tip-close {
+    background: transparent;
+    border: none;
+    color: #1e40af;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 4px;
+    margin-left: auto;
+}
+.rich-editor-tip-close:hover { color: #dc2626; }
+
+.dark .rich-editor-tip {
+    background: rgba(30, 64, 175, 0.18);
+    border-color: rgba(96, 165, 250, 0.35);
+    color: #93c5fd;
+}
+.dark .rich-editor-tip i.fa-info-circle { color: #60a5fa; }
+.dark .rich-editor-tip kbd {
+    background: #0f172a;
+    border-color: #334155;
+    color: #cbd5e1;
+}
+.dark .rich-editor-tip-close { color: #93c5fd; }
+.dark .rich-editor-tip-close:hover { color: #f87171; }
