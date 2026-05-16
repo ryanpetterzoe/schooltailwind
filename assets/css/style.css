@@ -453,3 +453,47 @@ body, nav, main, footer, .admin-content, header {
 
 /* ── DIRECTION (Arabic/Hebrew right-to-left) ── */
 .ql-direction-rtl { direction: rtl; text-align: inherit; }
+
+/* ── VIDEO EMBED (YouTube, Vimeo, TikTok, dll) ──────────────
+   Quill 2's built-in video handler inserts an <iframe> with class
+   "ql-video". safeRichHtml() wraps trusted iframes in a
+   .ql-video-responsive container for 16:9 responsive aspect ratio.
+   These rules ensure embedded video scales properly on all devices
+   and never overflows the card container. */
+.prose .ql-video,
+.prose iframe {
+  display: block;
+  max-width: 100%;
+  margin: 0.75em auto;
+}
+.ql-video-responsive {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 */
+  height: 0;
+  overflow: hidden;
+  max-width: 100%;
+  margin: 0.75em 0;
+  border-radius: 8px;
+}
+.ql-video-responsive iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 8px;
+}
+/* Quill editor also renders video inline with class .ql-video
+   — make it responsive even without the wrapper (for content
+   saved before this PR, or direct HTML paste). */
+.prose .ql-video {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  height: auto;
+  border-radius: 8px;
+}
+/* Alignment classes Quill adds to videos */
+.prose .ql-video.ql-align-center { margin: 0.75em auto; }
+.prose .ql-video.ql-align-right  { margin: 0.75em 0 0.75em auto; }
+
