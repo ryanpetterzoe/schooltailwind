@@ -146,29 +146,61 @@ body, nav, main, footer, .admin-content, header {
 
 
 /* ============================================================
-   PUBLIC — rich content image alignment
+   PUBLIC — rich content image alignment + overflow containment
    ------------------------------------------------------------
    Mirrors the alignment rules the admin editor uses, so images
    resized/aligned via the editor look the same on public pages.
    The .prose container is added by Tailwind Typography on the
    pages that render safeRichHtml() output.
    ============================================================ */
+
+/* CRITICAL: make .prose its own block formatting context so floated
+   child images can never escape the parent card. Without this rule
+   a left/right-floated image will keep its float context up the DOM
+   tree and any tall sibling block can spill out of the card.
+   `display: flow-root` is the modern, clean way to establish a BFC
+   (avoids the old `overflow: hidden` hack which clipped tooltips). */
+.prose {
+  display: flow-root;
+  /* Prevent very long unbreakable strings (URLs, filenames) from
+     pushing the card wider than its container. */
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* Float-aligned images set by the admin editor */
 .prose img[data-align="left"] {
   float: left;
   display: inline-block;
   margin: 0.4em 1em 0.4em 0;
+  max-width: 60%;          /* never let a floated image take the whole card */
+  height: auto;
 }
 .prose img[data-align="right"] {
   float: right;
   display: inline-block;
   margin: 0.4em 0 0.4em 1em;
+  max-width: 60%;
+  height: auto;
 }
 .prose img[data-align="center"] {
   float: none;
   display: block;
   margin: 0.6em auto;
+  max-width: 100%;
+  height: auto;
 }
-/* Clear floats at the end of each prose block so the next paragraph
-   doesn't end up sitting next to a floated image when the user
-   doesn't put enough text after it. */
+
+/* Any image inside .prose, even without a data-align attribute, must
+   stay inside its container — covers images uploaded before this fix
+   landed and pasted-in HTML from external sources. */
+.prose img { max-width: 100%; height: auto; }
+
+/* Tables, pre, blockquotes can also overflow on mobile if content
+   is too wide. Keep them contained. */
+.prose pre,
+.prose table { max-width: 100%; overflow-x: auto; }
+
+/* Belt-and-braces clearfix for browsers that haven't picked up
+   display:flow-root for some reason. */
 .prose::after { content: ""; display: block; clear: both; }
