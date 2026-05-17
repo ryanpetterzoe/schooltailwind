@@ -5,6 +5,9 @@ $csrfToken = isset($_SESSION['csrf_token']) ? $_SESSION['csrf_token'] : '';
 $_db = getDB();
 $_progRes = $_db->query("SELECT id, name, code FROM programs WHERE is_active=1 ORDER BY sort_order");
 $_programs = $_progRes ? $_progRes->fetch_all(MYSQLI_ASSOC) : [];
+ensureExtracurricularsSchema();
+$_ekskulRes = $_db->query("SELECT id, name FROM extracurriculars WHERE is_active=1 ORDER BY sort_order");
+$_extracurriculars = $_ekskulRes ? $_ekskulRes->fetch_all(MYSQLI_ASSOC) : [];
 require_once __DIR__ . '/../layouts/admin_header.php';
 ?>
 
@@ -112,6 +115,24 @@ require_once __DIR__ . '/../layouts/admin_header.php';
                 </select>
                 <small class="text-slate-400 dark:text-slate-500 text-xs mt-1 block">
                     Pilih jurusan jika berita khusus untuk jurusan tertentu. Kosong = berita umum.
+                </small>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                    <i class="fas fa-running mr-1 text-blue-600"></i>Ekstrakurikuler
+                </label>
+                <select name="extracurricular_id" class="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">— Tidak terkait ekskul —</option>
+                    <?php foreach ($_extracurriculars as $eks): ?>
+                    <option value="<?= $eks['id'] ?>"
+                        <?= ((int)($news['extracurricular_id'] ?? 0) === (int)$eks['id']) ? 'selected' : '' ?>>
+                        <?= htmlspecialchars($eks['name']) ?>
+                    </option>
+                    <?php endforeach; ?>
+                </select>
+                <small class="text-slate-400 dark:text-slate-500 text-xs mt-1 block">
+                    Pilih ekstrakurikuler jika berita khusus untuk ekskul tertentu. Kosong = tidak terkait ekskul.
                 </small>
             </div>
 

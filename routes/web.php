@@ -56,6 +56,8 @@ if ($uri === '/kontak') { $public->contact(); return; }
 if ($uri === '/spmb') { $public->spmbInfo(); return; }
 if ($uri === '/spmb/daftar') { $public->spmbForm(); return; }
 if ($uri === '/spmb/cek') { $public->spmbCheck(); return; }
+if ($uri === '/ekskul') { $public->extracurriculars(); return; }
+if (preg_match('#^/ekskul/(\d+)$#', $uri, $m)) { $public->extracurricularDetail($m[1]); return; }
 
 // ── AUTH ───────────────────────────────────────────────────────
 if ($uri === '/admin/login') { $auth->login(); return; }
@@ -90,6 +92,11 @@ if ($uri === '/admin/fasilitas') { $cms->facilitiesList(); return; }
 if ($uri === '/admin/fasilitas/tambah') { ($method==='POST') ? $cms->facilitySave() : $cms->facilityForm(); return; }
 if (preg_match('#^/admin/fasilitas/edit/(\d+)$#', $uri, $m)) { ($method==='POST') ? $cms->facilitySave($m[1]) : $cms->facilityForm($m[1]); return; }
 if (preg_match('#^/admin/fasilitas/hapus/(\d+)$#', $uri, $m)) { $cms->facilityDelete($m[1]); return; }
+
+if ($uri === '/admin/ekskul') { $cms->ekskulList(); return; }
+if ($uri === '/admin/ekskul/tambah') { ($method==='POST') ? $cms->ekskulSave() : $cms->ekskulForm(); return; }
+if (preg_match('#^/admin/ekskul/edit/(\d+)$#', $uri, $m)) { ($method==='POST') ? $cms->ekskulSave($m[1]) : $cms->ekskulForm($m[1]); return; }
+if (preg_match('#^/admin/ekskul/hapus/(\d+)$#', $uri, $m)) { $cms->ekskulDelete($m[1]); return; }
 
 if ($uri === '/admin/guru') { $cms->teachersList(); return; }
 if ($uri === '/admin/guru/tambah') { ($method==='POST') ? $cms->teacherSave() : $cms->teacherForm(); return; }
@@ -141,6 +148,16 @@ if (preg_match('#^/admin/staff/hapus/(\d+)$#', $uri, $m)) { $cms->staffDelete($m
 
 // --- PENGATURAN TAMPILAN ---
 if ($uri === '/admin/settings/tampilan') { $cms->settingsTampilan(); return; }
+
+// --- CUSTOM MENU ---
+if ($uri === '/admin/custom-menu') { $cms->customMenuList(); return; }
+if ($uri === '/admin/custom-menu/simpan') { $cms->customMenuSave(); return; }
+if (preg_match('#^/admin/custom-menu/edit/(\d+)$#', $uri, $m)) { $cms->customMenuSave($m[1]); return; }
+if (preg_match('#^/admin/custom-menu/toggle/(\d+)$#', $uri, $m)) { $cms->customMenuToggle($m[1]); return; }
+if (preg_match('#^/admin/custom-menu/hapus/(\d+)$#', $uri, $m)) { $cms->customMenuDelete($m[1]); return; }
+
+// --- HOMEPAGE SETTINGS ---
+if ($uri === '/admin/settings/homepage') { ($method==='POST') ? $cms->homepageSettingsSave() : $cms->homepageSettings(); return; }
 
 // ── 404 ────────────────────────────────────────────────────────
 http_response_code(404);

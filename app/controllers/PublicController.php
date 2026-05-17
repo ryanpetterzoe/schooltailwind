@@ -317,4 +317,33 @@ class PublicController {
 
         require_once __DIR__ . '/../../views/public/spmb_check.php';
     }
+
+    /* ============================================================
+       EXTRACURRICULARS (public listing + detail)
+       ============================================================ */
+
+    public function extracurriculars() {
+        $db = getDB();
+        $settings = getSettings();
+        ensureExtracurricularsSchema();
+        $res = $db->query("SELECT * FROM extracurriculars WHERE is_active=1 ORDER BY sort_order ASC");
+        $extracurriculars = $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
+        require_once __DIR__ . '/../../views/public/ekskul.php';
+    }
+
+    public function extracurricularDetail($id) {
+        $db = getDB();
+        $settings = getSettings();
+        ensureExtracurricularsSchema();
+        $id = (int)$id;
+        $res = $db->query("SELECT * FROM extracurriculars WHERE id=$id AND is_active=1 LIMIT 1");
+        if (!$res || !($ekskul = $res->fetch_assoc())) {
+            redirect('/ekskul');
+        }
+        $ekskulImages = getExtracurricularImages($id);
+        // Related news for this extracurricular
+        $rn = $db->query("SELECT n.* FROM news n WHERE n.is_published=1 AND n.extracurricular_id=$id ORDER BY n.published_at DESC LIMIT 6");
+        $relatedNews = $rn ? $rn->fetch_all(MYSQLI_ASSOC) : [];
+        require_once __DIR__ . '/../../views/public/ekskul_detail.php';
+    }
 }

@@ -590,3 +590,138 @@ if (!function_exists('getActiveFacilities')) {
         return $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
     }
 }
+
+/* ============================================================
+   EXTRACURRICULARS (modul baru — mirror programs)
+   ============================================================ */
+if (!function_exists('ensureExtracurricularsSchema')) {
+    function ensureExtracurricularsSchema() {
+        static $checked = false;
+        if ($checked) return;
+        $checked = true;
+        $db = getDB();
+        if (!$db) return;
+        @$db->query("CREATE TABLE IF NOT EXISTS `extracurriculars` (
+            `id` INT AUTO_INCREMENT PRIMARY KEY,
+            `name` VARCHAR(200) NOT NULL,
+            `description` LONGTEXT,
+            `image` VARCHAR(255) DEFAULT NULL,
+            `icon` VARCHAR(100) DEFAULT 'fas fa-futbol',
+            `is_active` TINYINT(1) DEFAULT 1,
+            `sort_order` INT DEFAULT 0,
+            `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        @$db->query("CREATE TABLE IF NOT EXISTS `extracurricular_images` (
+            `id` INT AUTO_INCREMENT PRIMARY KEY,
+            `extracurricular_id` INT NOT NULL,
+            `image` VARCHAR(255) NOT NULL,
+            `caption` VARCHAR(250) DEFAULT NULL,
+            `sort_order` INT DEFAULT 0,
+            `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            KEY `idx_extracurricular_images_ekskul` (`extracurricular_id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        // Also ensure news table has extracurricular_id column
+        @$db->query("ALTER TABLE `news` ADD COLUMN `extracurricular_id` INT DEFAULT NULL AFTER `program_id`");
+        // Seed defaults if empty
+        $cntRes = @$db->query("SELECT COUNT(*) AS c FROM extracurriculars");
+        if ($cntRes) {
+            $row = $cntRes->fetch_assoc();
+            if ($row && (int)$row['c'] === 0) {
+                $defaults = [
+                    ['Pramuka', '<p>Kegiatan kepanduan untuk membentuk karakter, kemandirian, dan jiwa kepemimpinan siswa.</p>', 'fas fa-campground', 1],
+                    ['Basket', '<p>Ekstrakurikuler bola basket untuk mengembangkan bakat olahraga dan sportivitas.</p>', 'fas fa-basketball-ball', 2],
+                    ['Paduan Suara', '<p>Wadah pengembangan bakat seni vokal dan tampil di berbagai acara sekolah.</p>', 'fas fa-music', 3],
+                    ['Robotika', '<p>Klub robotika untuk siswa yang tertarik dengan teknologi, pemrograman, dan mekatronika.</p>', 'fas fa-robot', 4],
+                ];
+                foreach ($defaults as $d) {
+                    $name = $db->real_escape_string($d[0]);
+                    $desc = $db->real_escape_string($d[1]);
+                    $icon = $db->real_escape_string($d[2]);
+                    $sort = (int)$d[3];
+                    @$db->query("INSERT INTO `extracurriculars` (`name`,`description`,`icon`,`sort_order`,`is_active`) VALUES ('$name','$desc','$icon',$sort,1)");
+                }
+            }
+        }
+    }
+}
+
+if (!function_exists('getExtracurricularImages')) {
+    function getExtracurricularImages($ekskulId) {
+        ensureExtracurricularsSchema();
+        $db = getDB();
+        $ekskulId = (int)$ekskulId;
+        $res = @$db->query("SELECT * FROM extracurricular_images WHERE extracurricular_id=$ekskulId ORDER BY sort_order ASC, id ASC");
+        return $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
+    }
+}
+
+if (!function_exists('getActiveExtracurriculars')) {
+    function getActiveExtracurriculars() {
+        ensureExtracurricularsSchema();
+        $db = getDB();
+        if (!$db) return [];
+        $res = @$db->query("SELECT e.*, (SELECT COUNT(*) FROM extracurricular_images ei WHERE ei.extracurricular_id=e.id) AS image_count
+                            FROM extracurriculars e
+                            WHERE e.is_active=1
+                            ORDER BY e.sort_order ASC, e.id ASC");
+        return $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
+    }
+}
+
+/* ============================================================
+   CUSTOM MENUS (item navbar custom)
+   ============================================================ */
+if (!function_exists('ensureCustomMenusTable')) {
+    function ensureCustomMenusTable() {
+        static $checked = false;
+        if ($checked) return;
+        $checked = true;
+        $db = getDB();
+        if (!$db) return;
+        @$db->query("CREATE TABLE IF NOT EXISTS `custom_menus` (
+            `id` INT AUTO_INCREMENT PRIMARY KEY,
+            `label` VARCHAR(150) NOT NULL,
+            `url` VARCHAR(500) NOT NULL,
+            `icon` VARCHAR(100) DEFAULT NULL,
+            `open_new_tab` TINYINT(1) DEFAULT 0,
+            `is_active` TINYINT(1) DEFAULT 1,
+            `sort_order` INT DEFAULT 0,
+            `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+    }
+}
+
+if (!function_exists('getActiveCustomMenus')) {
+    function getActiveCustomMenus() {
+        ensureCustomMenusTable();
+        $db = getDB();
+        if (!$db) return [];
+        $res = @$db->query("SELECT * FROM custom_menus WHERE is_active=1 ORDER BY sort_order ASC, id ASC");
+        return $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
+    }
+}
+
+/* ============================================================
+   HOMEPAGE SETTINGS HELPERS
+   ============================================================ */
+if (!function_exists('ensureHomepageSettings')) {
+    function ensureHomepageSettings() {
+        static $checked = false;
+        if ($checked) return;
+        $checked = true;
+        $db = getDB();
+        if (!$db) return;
+        $defaults = [
+            ['homepage_announcement_content', '', 'homepage'],
+            ['homepage_announcement_active', '0', 'homepage'],
+            ['homepage_sections_order', 'slider,stats,programs,extracurriculars,announcement,news,achievements,testimonials,agenda', 'homepage'],
+            ['homepage_sections_hidden', '', 'homepage'],
+        ];
+        foreach ($defaults as $d) {
+            $k = $db->real_escape_string($d[0]);
+            $v = $db->real_escape_string($d[1]);
+            $g = $db->real_escape_string($d[2]);
+            @$db->query("INSERT IGNORE INTO settings (`key`,`value`,`group`) VALUES ('$k','$v','$g')");
+        }
+    }
+}

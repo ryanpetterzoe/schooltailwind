@@ -94,6 +94,36 @@ CREATE TABLE IF NOT EXISTS `facility_images` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ========================
+-- TABEL: extracurriculars (kegiatan ekstrakulikuler sekolah)
+-- Mirror dari modul programs: thumbnail, icon picker, rich-text,
+-- galeri multi-foto. Tampil di halaman /ekskul dan di dropdown navbar.
+-- ========================
+CREATE TABLE IF NOT EXISTS `extracurriculars` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `name` VARCHAR(200) NOT NULL,
+  `description` LONGTEXT,
+  `image` VARCHAR(255) DEFAULT NULL,
+  `icon` VARCHAR(100) DEFAULT 'fas fa-futbol',
+  `is_active` TINYINT(1) DEFAULT 1,
+  `sort_order` INT DEFAULT 0,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ========================
+-- TABEL: extracurricular_images (foto-foto kegiatan ekskul, multi-upload)
+-- ========================
+CREATE TABLE IF NOT EXISTS `extracurricular_images` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `extracurricular_id` INT NOT NULL,
+  `image` VARCHAR(255) NOT NULL,
+  `caption` VARCHAR(250) DEFAULT NULL,
+  `sort_order` INT DEFAULT 0,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  KEY `idx_extracurricular_images_ekskul` (`extracurricular_id`),
+  CONSTRAINT `fk_extracurricular_images_ekskul` FOREIGN KEY (`extracurricular_id`) REFERENCES `extracurriculars`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ========================
 -- TABEL: pages
 -- ========================
 CREATE TABLE IF NOT EXISTS `pages` (
@@ -119,12 +149,14 @@ CREATE TABLE IF NOT EXISTS `news` (
   `image` VARCHAR(255) DEFAULT NULL,
   `category` VARCHAR(100) DEFAULT 'Berita',
   `program_id` INT DEFAULT NULL,
+  `extracurricular_id` INT DEFAULT NULL,
   `author` VARCHAR(100) DEFAULT 'Admin',
   `views` INT DEFAULT 0,
   `is_published` TINYINT(1) DEFAULT 1,
   `published_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (`program_id`) REFERENCES `programs`(`id`) ON DELETE SET NULL
+  FOREIGN KEY (`program_id`) REFERENCES `programs`(`id`) ON DELETE SET NULL,
+  FOREIGN KEY (`extracurricular_id`) REFERENCES `extracurriculars`(`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ========================
@@ -258,6 +290,20 @@ CREATE TABLE IF NOT EXISTS `social_media` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ========================
+-- TABEL: custom_menus (item navbar custom yang bisa ditambah admin)
+-- ========================
+CREATE TABLE IF NOT EXISTS `custom_menus` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `label` VARCHAR(150) NOT NULL,
+  `url` VARCHAR(500) NOT NULL,
+  `icon` VARCHAR(100) DEFAULT NULL,
+  `open_new_tab` TINYINT(1) DEFAULT 0,
+  `is_active` TINYINT(1) DEFAULT 1,
+  `sort_order` INT DEFAULT 0,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ========================
 -- TABEL: SPMB - registrations
 -- ========================
 CREATE TABLE IF NOT EXISTS `spmb_registrations` (
@@ -360,7 +406,11 @@ INSERT INTO `settings` (`key`, `value`, `group`, `label`) VALUES
 ('stats_alumni', '2000', 'stats', 'Jumlah Alumni'),
 ('theme_default', 'light', 'appearance', 'Tema Default'),
 ('accent_primary', '#2563eb', 'appearance', 'Warna Primer'),
-('accent_dark', '#1d4ed8', 'appearance', 'Warna Primer (Gelap)');
+('accent_dark', '#1d4ed8', 'appearance', 'Warna Primer (Gelap)'),
+('homepage_announcement_content', '', 'homepage', 'Konten Pengumuman Homepage'),
+('homepage_announcement_active', '0', 'homepage', 'Pengumuman Homepage Aktif'),
+('homepage_sections_order', 'slider,stats,programs,extracurriculars,announcement,news,achievements,testimonials,agenda', 'homepage', 'Urutan Section Homepage'),
+('homepage_sections_hidden', '', 'homepage', 'Section Homepage yang Disembunyikan');
 
 -- Programs default
 INSERT INTO `programs` (`name`, `code`, `description`, `icon`, `quota`, `sort_order`) VALUES
@@ -377,6 +427,13 @@ INSERT INTO `facilities` (`name`, `description`, `icon`, `sort_order`) VALUES
 ('Lapangan Olahraga','<p>Sarana olahraga lengkap untuk berbagai kegiatan: bola, voli, basket, dan upacara.</p>',                          'fas fa-futbol',  4),
 ('Laboratorium',     '<p>Lab sains dan teknologi yang modern, untuk mendukung praktik mata pelajaran kejuruan.</p>',                       'fas fa-flask',   5),
 ('Kantin Sehat',     '<p>Kantin dengan makanan bergizi dan higienis, ramah kantong siswa.</p>',                                            'fas fa-utensils',6);
+
+-- Extracurriculars default
+INSERT INTO `extracurriculars` (`name`, `description`, `icon`, `sort_order`) VALUES
+('Pramuka', '<p>Kegiatan kepanduan untuk membentuk karakter, kemandirian, dan jiwa kepemimpinan siswa.</p>', 'fas fa-campground', 1),
+('Basket', '<p>Ekstrakurikuler bola basket untuk mengembangkan bakat olahraga dan sportivitas.</p>', 'fas fa-basketball-ball', 2),
+('Paduan Suara', '<p>Wadah pengembangan bakat seni vokal dan tampil di berbagai acara sekolah.</p>', 'fas fa-music', 3),
+('Robotika', '<p>Klub robotika untuk siswa yang tertarik dengan teknologi, pemrograman, dan mekatronika.</p>', 'fas fa-robot', 4);
 
 -- SPMB Settings default
 INSERT INTO `spmb_settings` (`academic_year`, `open_date`, `close_date`, `announcement_date`, `quota_total`, `is_active`, `info`, `requirements`) VALUES

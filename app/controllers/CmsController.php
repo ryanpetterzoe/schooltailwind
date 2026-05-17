@@ -48,6 +48,7 @@ class CmsController {
         $category    = clean(isset($_POST['category']) ? $_POST['category'] : 'Berita');
         $author      = clean(isset($_POST['author'])   ? $_POST['author']   : (isset($_SESSION['admin_name']) ? $_SESSION['admin_name'] : 'Admin'));
         $programId   = !empty($_POST['program_id']) ? (int)$_POST['program_id'] : 'NULL';
+        $ekskulId    = !empty($_POST['extracurricular_id']) ? (int)$_POST['extracurricular_id'] : 'NULL';
         $isPublished = isset($_POST['is_published']) ? 1 : 0;
 
         if (empty($title)) {
@@ -62,10 +63,10 @@ class CmsController {
 
         if ($id) {
             $imgSql = $imageVal ? ", image='$imageVal'" : '';
-            $db->query("UPDATE news SET title='$title',slug='$slug',excerpt='$excerpt',content='$content',category='$category',author='$author',program_id=$programId,is_published=$isPublished$imgSql WHERE id=" . (int)$id);
+            $db->query("UPDATE news SET title='$title',slug='$slug',excerpt='$excerpt',content='$content',category='$category',author='$author',program_id=$programId,extracurricular_id=$ekskulId,is_published=$isPublished$imgSql WHERE id=" . (int)$id);
             $this->flash('flash_success', 'Berita berhasil diperbarui.');
         } else {
-            $db->query("INSERT INTO news (title,slug,excerpt,content,category,author,image,program_id,is_published) VALUES ('$title','$slug','$excerpt','$content','$category','$author','$imageVal',$programId,$isPublished)");
+            $db->query("INSERT INTO news (title,slug,excerpt,content,category,author,image,program_id,extracurricular_id,is_published) VALUES ('$title','$slug','$excerpt','$content','$category','$author','$imageVal',$programId,$ekskulId,$isPublished)");
             $this->flash('flash_success', 'Berita berhasil ditambahkan.');
         }
         redirect('/admin/berita');
@@ -925,5 +926,221 @@ class CmsController {
         $db->query("DELETE FROM facilities WHERE id=$id");
         $this->flash('flash_success', 'Fasilitas berhasil dihapus.');
         redirect('/admin/fasilitas');
+    }
+
+    /* ============================================================
+       EXTRACURRICULARS (Ekstrakulikuler — mirror Jurusan/Fasilitas)
+       ============================================================ */
+
+    public function ekskulList() {
+        requireLogin();
+        ensureExtracurricularsSchema();
+        $db = getDB();
+        $res = $db->query("SELECT * FROM extracurriculars ORDER BY sort_order ASC, id ASC");
+        $extracurriculars = $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
+        require_once __DIR__ . '/../../views/admin/extracurriculars_list.php';
+    }
+
+    public function ekskulForm($id = null) {
+        requireLogin();
+        ensureExtracurricularsSchema();
+        $db = getDB();
+        if (empty($_SESSION['csrf_token'])) $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+        $ekskul = null;
+        $ekskulImages = [];
+        if ($id) {
+            $res = $db->query("SELECT * FROM extracurriculars WHERE id=" . (int)$id . " LIMIT 1");
+            $ekskul = $res ? $res->fetch_assoc() : null;
+            if ($ekskul) {
+                $ekskulImages = getExtracurricularImages($id);
+            }
+        }
+        require_once __DIR__ . '/../../views/admin/extracurriculars_form.php';
+    }
+
+    public function ekskulSave($id = null) {
+        requireLogin();
+        ensureExtracurricularsSchema();
+        $db = getDB();
+        $name        = clean($_POST['name'] ?? '');
+        $description = $db->real_escape_string($_POST['description'] ?? '');
+        $icon        = clean($_POST['icon'] ?? 'fas fa-futbol');
+        $sortOrder   = (int)($_POST['sort_order'] ?? 0);
+        $isActive    = isset($_POST['is_active']) ? 1 : 0;
+
+        $imageVal = '';
+        if (!empty($_FILES['image']['tmp_name'])) {
+            $imageVal = uploadFile($_FILES['image'], 'ekskul');
+        }
+
+        if ($id) {
+            $imgSql = $imageVal ? ", image='$imageVal'" : '';
+            $db->query("UPDATE extracurriculars SET name='$name',description='$description',icon='$icon',sort_order=$sortOrder,is_active=$isActive$imgSql WHERE id=" . (int)$id);
+            $ekskulId = (int)$id;
+        } else {
+            $db->query("INSERT INTO extracurriculars (name,description,icon,sort_order,is_active,image) VALUES ('$name','$description','$icon',$sortOrder,$isActive,'$imageVal')");
+            $ekskulId = (int)$db->insert_id;
+        }
+
+        // -- Multi-photo gallery (same pattern as programs/facilities) --
+        if (!empty($_POST['existing_image_id']) && is_array($_POST['existing_image_id'])) {
+            foreach ($_POST['existing_image_id'] as $idx => $imgId) {
+                $imgId = (int)$imgId;
+                if ($imgId <= 0) continue;
+                $cap  = $db->real_escape_string($_POST['existing_image_caption'][$idx] ?? '');
+                $sort = (int)($_POST['existing_image_sort'][$idx] ?? 0);
+                $db->query("UPDATE extracurricular_images SET caption='$cap', sort_order=$sort WHERE id=$imgId AND extracurricular_id=$ekskulId");
+            }
+        }
+        if (!empty($_POST['delete_image_ids'])) {
+            $deleteIds = array_filter(array_map('intval', explode(',', $_POST['delete_image_ids'])));
+            if ($deleteIds) {
+                $idList = implode(',', $deleteIds);
+                $delRes = $db->query("SELECT image FROM extracurricular_images WHERE id IN ($idList) AND extracurricular_id=$ekskulId");
+                if ($delRes) {
+                    while ($r = $delRes->fetch_assoc()) {
+                        $f = UPLOAD_PATH . $r['image'];
+                        if (is_file($f)) @unlink($f);
+                    }
+                }
+                $db->query("DELETE FROM extracurricular_images WHERE id IN ($idList) AND extracurricular_id=$ekskulId");
+            }
+        }
+        if (!empty($_FILES['gallery_images']) && is_array($_FILES['gallery_images']['name'])) {
+            $files = $_FILES['gallery_images'];
+            $count = count($files['name']);
+            $maxSortRes = $db->query("SELECT COALESCE(MAX(sort_order), 0) AS m FROM extracurricular_images WHERE extracurricular_id=$ekskulId");
+            $nextSort = $maxSortRes ? ((int)$maxSortRes->fetch_assoc()['m'] + 1) : 1;
+            for ($i = 0; $i < $count; $i++) {
+                if (empty($files['tmp_name'][$i])) continue;
+                $single = [
+                    'name'     => $files['name'][$i],
+                    'type'     => $files['type'][$i],
+                    'tmp_name' => $files['tmp_name'][$i],
+                    'error'    => $files['error'][$i],
+                    'size'     => $files['size'][$i],
+                ];
+                $fname = uploadFile($single, 'ekskul_gal');
+                if ($fname) {
+                    $cap = $db->real_escape_string($_POST['new_image_caption'][$i] ?? '');
+                    $sort = $nextSort++;
+                    $db->query("INSERT INTO extracurricular_images (extracurricular_id,image,caption,sort_order) VALUES ($ekskulId,'$fname','$cap',$sort)");
+                }
+            }
+        }
+
+        $this->flash('flash_success', 'Ekstrakurikuler berhasil disimpan.');
+        redirect('/admin/ekskul');
+    }
+
+    public function ekskulDelete($id) {
+        requireLogin();
+        ensureExtracurricularsSchema();
+        $db = getDB();
+        $id = (int)$id;
+        $imgRes = @$db->query("SELECT image FROM extracurricular_images WHERE extracurricular_id=$id");
+        if ($imgRes) {
+            while ($r = $imgRes->fetch_assoc()) {
+                $f = UPLOAD_PATH . $r['image'];
+                if (is_file($f)) @unlink($f);
+            }
+        }
+        @$db->query("DELETE FROM extracurricular_images WHERE extracurricular_id=$id");
+        $coverRes = @$db->query("SELECT image FROM extracurriculars WHERE id=$id");
+        if ($coverRes && ($r = $coverRes->fetch_assoc()) && !empty($r['image'])) {
+            $f = UPLOAD_PATH . $r['image'];
+            if (is_file($f)) @unlink($f);
+        }
+        $db->query("DELETE FROM extracurriculars WHERE id=$id");
+        $this->flash('flash_success', 'Ekstrakurikuler berhasil dihapus.');
+        redirect('/admin/ekskul');
+    }
+
+    /* ============================================================
+       CUSTOM MENUS (item navbar custom)
+       ============================================================ */
+
+    public function customMenuList() {
+        requireLogin();
+        ensureCustomMenusTable();
+        $db = getDB();
+        $res = $db->query("SELECT * FROM custom_menus ORDER BY sort_order ASC, id ASC");
+        $menus = $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
+        require_once __DIR__ . '/../../views/admin/custom_menus_list.php';
+    }
+
+    public function customMenuSave($id = null) {
+        requireLogin();
+        ensureCustomMenusTable();
+        $db = getDB();
+        $label     = clean($_POST['label'] ?? '');
+        $url       = $db->real_escape_string(trim($_POST['url'] ?? ''));
+        $icon      = clean($_POST['icon'] ?? '');
+        $openNew   = isset($_POST['open_new_tab']) ? 1 : 0;
+        $isActive  = isset($_POST['is_active']) ? 1 : 0;
+        $sortOrder = (int)($_POST['sort_order'] ?? 0);
+
+        if (empty($label) || empty($url)) {
+            $this->flash('flash_error', 'Label dan URL wajib diisi.');
+            redirect('/admin/custom-menu');
+            return;
+        }
+
+        if ($id) {
+            $db->query("UPDATE custom_menus SET label='$label',url='$url',icon='$icon',open_new_tab=$openNew,is_active=$isActive,sort_order=$sortOrder WHERE id=" . (int)$id);
+        } else {
+            $db->query("INSERT INTO custom_menus (label,url,icon,open_new_tab,is_active,sort_order) VALUES ('$label','$url','$icon',$openNew,$isActive,$sortOrder)");
+        }
+        $this->flash('flash_success', 'Menu custom berhasil disimpan.');
+        redirect('/admin/custom-menu');
+    }
+
+    public function customMenuToggle($id) {
+        requireLogin();
+        ensureCustomMenusTable();
+        $db = getDB();
+        $db->query("UPDATE custom_menus SET is_active = NOT is_active WHERE id=" . (int)$id);
+        $this->flash('flash_success', 'Status menu berhasil diubah.');
+        redirect('/admin/custom-menu');
+    }
+
+    public function customMenuDelete($id) {
+        requireLogin();
+        ensureCustomMenusTable();
+        $db = getDB();
+        $db->query("DELETE FROM custom_menus WHERE id=" . (int)$id);
+        $this->flash('flash_success', 'Menu custom berhasil dihapus.');
+        redirect('/admin/custom-menu');
+    }
+
+    /* ============================================================
+       HOMEPAGE SETTINGS (section order + announcement banner)
+       ============================================================ */
+
+    public function homepageSettings() {
+        requireLogin();
+        ensureHomepageSettings();
+        $settings = getSettings();
+        if (empty($_SESSION['csrf_token'])) $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+        require_once __DIR__ . '/../../views/admin/homepage_settings.php';
+    }
+
+    public function homepageSettingsSave() {
+        requireLogin();
+        ensureHomepageSettings();
+        // Save announcement content (rich HTML)
+        $content = $_POST['homepage_announcement_content'] ?? '';
+        $this->saveSetting('homepage_announcement_content', $content, 'homepage');
+        $active = isset($_POST['homepage_announcement_active']) ? '1' : '0';
+        $this->saveSetting('homepage_announcement_active', $active, 'homepage');
+        // Save sections order
+        $order = $_POST['homepage_sections_order'] ?? '';
+        $this->saveSetting('homepage_sections_order', $order, 'homepage');
+        // Save hidden sections
+        $hidden = isset($_POST['homepage_sections_hidden']) ? implode(',', $_POST['homepage_sections_hidden']) : '';
+        $this->saveSetting('homepage_sections_hidden', $hidden, 'homepage');
+
+        $this->flash('flash_success', 'Pengaturan homepage berhasil disimpan.');
+        redirect('/admin/settings/homepage');
     }
 }
