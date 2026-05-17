@@ -32,6 +32,7 @@ require_once __DIR__ . '/../layouts/header.php';
   <div class="hero-slide absolute inset-0 transition-opacity duration-700 ease-in-out <?= $i === 0 ? 'opacity-100' : 'opacity-0 pointer-events-none' ?>">
     <?php if (!empty($slide['image'])): ?>
     <img src="<?= UPLOAD_URL . htmlspecialchars($slide['image']) ?>" alt="<?= htmlspecialchars($slide['title'] ?? '') ?>"
+         <?= $i === 0 ? 'fetchpriority="high" decoding="async"' : 'loading="lazy" decoding="async"' ?>
          class="absolute inset-0 w-full h-full object-cover opacity-20">
     <?php endif; ?>
     <div class="absolute inset-0 flex items-center justify-center z-10">
