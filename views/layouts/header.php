@@ -80,6 +80,31 @@ if (!function_exists('isActive')) {
 <div id="preloader">
   <div class="preloader-spinner"></div>
 </div>
+<!--
+  Inline preloader failsafe.
+  Tujuan: pastikan overlay loading TIDAK PERNAH stuck di layar walaupun
+  - main.js gagal/lambat di-load,
+  - CDN eksternal (Tailwind/Font Awesome/Google Fonts) lambat,
+  - browser meng-cache versi lama main.js.
+  Script ini tidak bergantung pada file eksternal apa pun.
+-->
+<script>
+(function(){
+  var loader = document.getElementById('preloader');
+  if(!loader) return;
+  var hidden = false;
+  function hide(){ if(hidden) return; hidden = true; loader.classList.add('hidden'); }
+  // Sembunyikan secepatnya begitu DOM siap.
+  if(document.readyState === 'interactive' || document.readyState === 'complete'){
+    setTimeout(hide, 50);
+  } else {
+    document.addEventListener('DOMContentLoaded', function(){ setTimeout(hide, 50); }, { once: true });
+  }
+  // Belt & suspenders: kalau ada resource yg hang, tetap hilang dalam 2.5 detik.
+  window.addEventListener('load', hide, { once: true });
+  setTimeout(hide, 2500);
+})();
+</script>
 
 <!-- ═══════════════════════════════════════════════════════════
      NAVBAR

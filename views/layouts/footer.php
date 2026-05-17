@@ -137,7 +137,7 @@ $socialMedia = $smRes ? $smRes->fetch_all(MYSQLI_ASSOC) : [];
   <p id="lightboxCaption" class="absolute bottom-4 text-white text-center w-full"></p>
 </div>
 
-<!-- Custom JS -->
-<script src="<?= APP_URL ?>/assets/js/main.js"></script>
+<!-- Custom JS — cache-busted by file mtime so users always get latest version -->
+<script src="<?= APP_URL ?>/assets/js/main.js?v=<?= @filemtime(__DIR__ . '/../../assets/js/main.js') ?: time() ?>"></script>
 </body>
 </html>
