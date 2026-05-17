@@ -3,15 +3,24 @@ $pageTitle = ($settings['school_name'] ?? 'SMK Pertamaku') . ' — ' . ($setting
 // Homepage section visibility
 ensureHomepageSettings();
 $_hpSettings = getSettings(); // refresh after ensure
-$_hpHidden = array_filter(explode(',', $_hpSettings['homepage_sections_hidden'] ?? ''));
+// Stored in $GLOBALS so hpVisible() (defined as a top-level function) can
+// reliably read it regardless of which scope this view is required from.
+// Previously this was a local variable + `global` inside the function, which
+// returned null because the view is included from inside a controller method
+// (its locals never reach the true global scope), causing a fatal
+// `in_array(): Argument #2 must be of type array, null given`.
+$GLOBALS['_hpHidden'] = array_filter(explode(',', $_hpSettings['homepage_sections_hidden'] ?? ''));
 $_hpAnnouncementActive = ($_hpSettings['homepage_announcement_active'] ?? '0') === '1';
 $_hpAnnouncementContent = $_hpSettings['homepage_announcement_content'] ?? '';
 // Load extracurriculars for homepage section
 $_hpExtracurriculars = function_exists('getActiveExtracurriculars') ? getActiveExtracurriculars() : [];
 
-function hpVisible($section) {
-    global $_hpHidden;
-    return !in_array($section, $_hpHidden);
+if (!function_exists('hpVisible')) {
+    function hpVisible($section) {
+        $hidden = $GLOBALS['_hpHidden'] ?? [];
+        if (!is_array($hidden)) $hidden = [];
+        return !in_array($section, $hidden, true);
+    }
 }
 require_once __DIR__ . '/../layouts/header.php';
 ?>
