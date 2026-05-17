@@ -7,6 +7,9 @@ $logo        = !empty($settings['school_logo'])    ? UPLOAD_URL . $settings['sch
 $favicon     = !empty($settings['school_favicon']) ? UPLOAD_URL . $settings['school_favicon'] : '';
 $uri         = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $appBase     = defined('APP_BASE') ? APP_BASE : '/webpertamaku';
+// Load custom menus + extracurriculars for navbar dropdown
+$_navCustomMenus = function_exists('getActiveCustomMenus') ? getActiveCustomMenus() : [];
+$_navExtracurriculars = function_exists('getActiveExtracurriculars') ? getActiveExtracurriculars() : [];
 
 if (!function_exists('isActive')) {
     function isActive($path, $uri, $base) {
@@ -119,6 +122,28 @@ if (!function_exists('isActive')) {
         <a href="<?= APP_URL ?>/prestasi" class="px-3 py-2 text-sm font-medium rounded-lg transition-all <?= isActive('/prestasi', $uri, $appBase) === 'active' ? 'text-blue-600 bg-blue-50 dark:bg-blue-900/30' : 'text-slate-700 dark:text-slate-300 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20' ?>">Prestasi</a>
         <a href="<?= APP_URL ?>/kontak" class="px-3 py-2 text-sm font-medium rounded-lg transition-all <?= isActive('/kontak', $uri, $appBase) === 'active' ? 'text-blue-600 bg-blue-50 dark:bg-blue-900/30' : 'text-slate-700 dark:text-slate-300 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20' ?>">Kontak</a>
 
+        <?php if (!empty($_navExtracurriculars)): ?>
+        <!-- Ekskul Dropdown -->
+        <div class="relative group">
+          <button class="px-3 py-2 text-sm font-medium rounded-lg transition-all text-slate-700 dark:text-slate-300 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center gap-1">
+            Ekskul <i class="fas fa-chevron-down text-[10px] transition-transform group-hover:rotate-180"></i>
+          </button>
+          <div class="absolute top-full left-0 mt-1 w-56 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-gray-100 dark:border-slate-700 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 translate-y-1 group-hover:translate-y-0 z-50">
+            <a href="<?= APP_URL ?>/ekskul" class="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-600 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 font-medium"><i class="fas fa-list w-4 text-blue-500"></i>Semua Ekskul</a>
+            <div class="border-t border-slate-100 dark:border-slate-700 my-1"></div>
+            <?php foreach ($_navExtracurriculars as $navE): ?>
+            <a href="<?= APP_URL ?>/ekskul/<?= $navE['id'] ?>" class="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-600 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600"><i class="<?= htmlspecialchars($navE['icon'] ?? 'fas fa-futbol') ?> w-4 text-blue-500"></i><?= htmlspecialchars($navE['name']) ?></a>
+            <?php endforeach; ?>
+          </div>
+        </div>
+        <?php endif; ?>
+
+        <?php if (!empty($_navCustomMenus)): ?>
+        <?php foreach ($_navCustomMenus as $cm): ?>
+        <a href="<?= htmlspecialchars($cm['url']) ?>" class="px-3 py-2 text-sm font-medium rounded-lg transition-all text-slate-700 dark:text-slate-300 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20"<?= $cm['open_new_tab'] ? ' target="_blank" rel="noopener"' : '' ?>><?php if (!empty($cm['icon'])): ?><i class="<?= htmlspecialchars($cm['icon']) ?> mr-1"></i><?php endif; ?><?= htmlspecialchars($cm['label']) ?></a>
+        <?php endforeach; ?>
+        <?php endif; ?>
+
         <!-- SPMB Button -->
         <a href="<?= APP_URL ?>/spmb" class="ml-2 px-4 py-2 text-sm font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:-translate-y-0.5 transition-all">
           <i class="fas fa-pencil-alt mr-1"></i>SPMB
@@ -149,6 +174,14 @@ if (!function_exists('isActive')) {
       <a href="<?= APP_URL ?>/galeri" class="block px-4 py-2.5 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300">Galeri</a>
       <a href="<?= APP_URL ?>/prestasi" class="block px-4 py-2.5 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300">Prestasi</a>
       <a href="<?= APP_URL ?>/kontak" class="block px-4 py-2.5 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300">Kontak</a>
+      <?php if (!empty($_navExtracurriculars)): ?>
+      <a href="<?= APP_URL ?>/ekskul" class="block px-4 py-2.5 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300">Ekstrakurikuler</a>
+      <?php endif; ?>
+      <?php if (!empty($_navCustomMenus)): ?>
+      <?php foreach ($_navCustomMenus as $cm): ?>
+      <a href="<?= htmlspecialchars($cm['url']) ?>" class="block px-4 py-2.5 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300"<?= $cm['open_new_tab'] ? ' target="_blank" rel="noopener"' : '' ?>><?php if (!empty($cm['icon'])): ?><i class="<?= htmlspecialchars($cm['icon']) ?> mr-1"></i><?php endif; ?><?= htmlspecialchars($cm['label']) ?></a>
+      <?php endforeach; ?>
+      <?php endif; ?>
       <a href="<?= APP_URL ?>/spmb" class="block px-4 py-2.5 rounded-lg text-sm font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 text-center mt-2">
         <i class="fas fa-pencil-alt mr-1"></i>SPMB
       </a>

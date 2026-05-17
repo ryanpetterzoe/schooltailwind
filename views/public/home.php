@@ -1,11 +1,25 @@
 <?php
 $pageTitle = ($settings['school_name'] ?? 'SMK Pertamaku') . ' — ' . ($settings['school_tagline'] ?? 'Sekolah Menengah Kejuruan Unggulan');
+// Homepage section visibility
+ensureHomepageSettings();
+$_hpSettings = getSettings(); // refresh after ensure
+$_hpHidden = array_filter(explode(',', $_hpSettings['homepage_sections_hidden'] ?? ''));
+$_hpAnnouncementActive = ($_hpSettings['homepage_announcement_active'] ?? '0') === '1';
+$_hpAnnouncementContent = $_hpSettings['homepage_announcement_content'] ?? '';
+// Load extracurriculars for homepage section
+$_hpExtracurriculars = function_exists('getActiveExtracurriculars') ? getActiveExtracurriculars() : [];
+
+function hpVisible($section) {
+    global $_hpHidden;
+    return !in_array($section, $_hpHidden);
+}
 require_once __DIR__ . '/../layouts/header.php';
 ?>
 
 <!-- ═══════════════════════════════════════════════════════════
      HERO SLIDER (Tailwind-native, fade transition)
      ═══════════════════════════════════════════════════════════ -->
+<?php if (hpVisible('slider')): ?>
 <section class="hero-slider relative bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-950 overflow-hidden h-[85vh] min-h-[560px]">
   <!-- Decorative shapes -->
   <div class="absolute inset-0 pointer-events-none z-0">
@@ -66,9 +80,12 @@ require_once __DIR__ . '/../layouts/header.php';
 </section>
 
 
+<?php endif; /* slider */ ?>
+
 <!-- ═══════════════════════════════════════════════════════════
      STATS BAR
      ═══════════════════════════════════════════════════════════ -->
+<?php if (hpVisible('stats')): ?>
 <section class="relative bg-gradient-to-r from-blue-600 to-indigo-600 py-16 overflow-hidden">
   <div class="absolute inset-0 opacity-10" style="background-image:url('data:image/svg+xml,%3Csvg width=&quot;60&quot; height=&quot;60&quot; viewBox=&quot;0 0 60 60&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;%3E%3Ccircle cx=&quot;30&quot; cy=&quot;30&quot; r=&quot;4&quot; fill=&quot;white&quot;/%3E%3C/svg%3E');"></div>
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -95,6 +112,7 @@ require_once __DIR__ . '/../layouts/header.php';
     </div>
   </div>
 </section>
+<?php endif; /* stats */ ?>
 
 
 <!-- ═══════════════════════════════════════════════════════════
@@ -178,6 +196,7 @@ require_once __DIR__ . '/../layouts/header.php';
 <!-- ═══════════════════════════════════════════════════════════
      PROGRAM KEAHLIAN — putih agak abu (slate-50) + soft glow
      ═══════════════════════════════════════════════════════════ -->
+<?php if (hpVisible('programs')): ?>
 <section class="relative py-20 lg:py-28 bg-slate-50 dark:bg-slate-800/40 overflow-hidden">
   <!-- subtle dot pattern di sudut, hanya untuk variasi visual -->
   <div class="absolute -top-10 -right-10 w-72 h-72 bg-blue-500/[0.04] rounded-full blur-3xl pointer-events-none"></div>
@@ -229,11 +248,64 @@ require_once __DIR__ . '/../layouts/header.php';
     </div>
   </div>
 </section>
+<?php endif; /* programs */ ?>
 
+<!-- ═══════════════════════════════════════════════════════════
+     EKSTRAKURIKULER
+     ═══════════════════════════════════════════════════════════ -->
+<?php if (hpVisible('extracurriculars') && !empty($_hpExtracurriculars)): ?>
+<section class="py-16 lg:py-20 bg-white dark:bg-slate-900">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-10">
+      <span class="inline-flex items-center gap-2 px-4 py-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-bold rounded-full uppercase tracking-wider mb-3"><i class="fas fa-running"></i>Ekskul</span>
+      <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800 dark:text-white mb-3">Ekstrakurikuler</h2>
+      <p class="text-slate-500 dark:text-slate-400 max-w-lg mx-auto">Kegiatan pengembangan bakat dan minat siswa di luar jam pelajaran</p>
+    </div>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <?php foreach (array_slice($_hpExtracurriculars, 0, 8) as $hpE): ?>
+      <a href="<?= APP_URL ?>/ekskul/<?= $hpE['id'] ?>" class="group bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl p-5 hover:-translate-y-1 hover:shadow-lg transition-all text-center">
+        <div class="w-14 h-14 mx-auto bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center text-white text-xl mb-3 shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform">
+          <i class="<?= htmlspecialchars($hpE['icon'] ?? 'fas fa-futbol') ?>"></i>
+        </div>
+        <h5 class="font-bold text-slate-800 dark:text-white text-sm group-hover:text-blue-600 transition-colors"><?= htmlspecialchars($hpE['name']) ?></h5>
+      </a>
+      <?php endforeach; ?>
+    </div>
+    <?php if (count($_hpExtracurriculars) > 8): ?>
+    <div class="text-center mt-8">
+      <a href="<?= APP_URL ?>/ekskul" class="text-sm font-semibold text-blue-600 hover:underline">Lihat semua ekskul <i class="fas fa-arrow-right ml-1"></i></a>
+    </div>
+    <?php endif; ?>
+  </div>
+</section>
+<?php endif; ?>
+
+<!-- ═══════════════════════════════════════════════════════════
+     PENGUMUMAN / VIDEO BANNER
+     ═══════════════════════════════════════════════════════════ -->
+<?php if (hpVisible('announcement') && $_hpAnnouncementActive && !empty($_hpAnnouncementContent)): ?>
+<section class="py-12 lg:py-16 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-slate-800 dark:to-slate-800 border-y border-amber-200 dark:border-amber-900/30">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-start gap-4 mb-4">
+      <div class="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center text-white flex-shrink-0">
+        <i class="fas fa-bullhorn"></i>
+      </div>
+      <div>
+        <h3 class="font-bold text-slate-800 dark:text-white text-lg">Pengumuman</h3>
+        <p class="text-xs text-slate-400">Informasi penting dari sekolah</p>
+      </div>
+    </div>
+    <div class="prose prose-slate dark:prose-invert max-w-none bg-white dark:bg-slate-900 rounded-xl p-6 border border-amber-200 dark:border-amber-900/30 shadow-sm">
+      <?= safeRichHtml($_hpAnnouncementContent) ?>
+    </div>
+  </div>
+</section>
+<?php endif; ?>
 
 <!-- ═══════════════════════════════════════════════════════════
      BERITA TERKINI — putih sempurna
      ═══════════════════════════════════════════════════════════ -->
+<?php if (hpVisible('news')): ?>
 <section class="py-20 lg:py-28 bg-white dark:bg-slate-900">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between mb-12">
@@ -284,13 +356,14 @@ require_once __DIR__ . '/../layouts/header.php';
     </div>
   </div>
 </section>
+<?php endif; /* news */ ?>
 
 
 
 <!-- ═══════════════════════════════════════════════════════════
      PRESTASI — gradient slate-100/70 -> slate-50 -> white + amber halo
      ═══════════════════════════════════════════════════════════ -->
-<?php if (!empty($achievements)): ?>
+<?php if (hpVisible('achievements') && !empty($achievements)): ?>
 <section class="relative py-20 lg:py-28 bg-gradient-to-b from-slate-100/70 via-slate-50 to-white dark:from-slate-800/60 dark:via-slate-800/40 dark:to-slate-900 overflow-hidden">
   <div class="absolute top-1/3 left-1/2 -translate-x-1/2 w-96 h-96 bg-amber-300/[0.05] rounded-full blur-3xl pointer-events-none"></div>
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -339,7 +412,7 @@ require_once __DIR__ . '/../layouts/header.php';
 <!-- ═══════════════════════════════════════════════════════════
      TESTIMONIALS — putih sempurna
      ═══════════════════════════════════════════════════════════ -->
-<?php if (!empty($testimonials)): ?>
+<?php if (hpVisible('testimonials') && !empty($testimonials)): ?>
 <section class="py-20 lg:py-28 bg-white dark:bg-slate-900">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="text-center mb-14">
@@ -375,7 +448,7 @@ require_once __DIR__ . '/../layouts/header.php';
 <!-- ═══════════════════════════════════════════════════════════
      AGENDA KEGIATAN — slate-50 + soft glow
      ═══════════════════════════════════════════════════════════ -->
-<?php if (!empty($agenda)): ?>
+<?php if (hpVisible('agenda') && !empty($agenda)): ?>
 <section class="relative py-20 lg:py-28 bg-slate-50 dark:bg-slate-800/40 overflow-hidden">
   <div class="absolute -top-10 right-1/4 w-72 h-72 bg-blue-500/[0.04] rounded-full blur-3xl pointer-events-none"></div>
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
