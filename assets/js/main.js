@@ -375,16 +375,39 @@ function initImagePreview() {
 
 /* ============================================================
    Preloader
+   ------------------------------------------------------------
+   Sebelumnya preloader hanya disembunyikan di event `window.load`
+   yang baru fire setelah SEMUA resource (gambar slider, iframe,
+   font, dst) selesai dimuat. Di halaman homepage yang berat (banyak
+   gambar slider/program/berita), kalau salah satu gambar lambat
+   atau gagal, halaman terlihat stuck di spinner loading.
+   Sekarang:
+   - Hide segera setelah DOMContentLoaded (UI sudah interaktif).
+   - Tetap dengar `window.load` sebagai fallback.
+   - Pasang failsafe timeout 3 detik supaya tidak pernah nyangkut
+     dalam kondisi terburuk apa pun.
    ============================================================ */
 function initPreloader() {
     const loader = document.getElementById('preloader');
     if (!loader) return;
-    const hide = () => loader.classList.add('hidden');
-    if (document.readyState === 'complete') {
-        setTimeout(hide, 200);
+    let hidden = false;
+    const hide = () => {
+        if (hidden) return;
+        hidden = true;
+        loader.classList.add('hidden');
+    };
+
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        // DOM sudah siap, sembunyikan secepatnya
+        setTimeout(hide, 100);
     } else {
-        window.addEventListener('load', () => setTimeout(hide, 300));
+        document.addEventListener('DOMContentLoaded', () => setTimeout(hide, 100), { once: true });
     }
+
+    // Belt & suspenders: kalau ada resource yang menggantung,
+    // jangan biarkan user terjebak di spinner.
+    window.addEventListener('load', hide, { once: true });
+    setTimeout(hide, 3000);
 }
 
 /* ============================================================
